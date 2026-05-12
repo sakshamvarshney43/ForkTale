@@ -4,8 +4,6 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import prisma from "../config/db";
 
-//Validation Schemas
-
 const registerSchema = z.object({
   email: z.string().email("Invalid email"),
   username: z
@@ -14,7 +12,7 @@ const registerSchema = z.object({
     .max(20, "Username must be at most 20 characters")
     .regex(
       /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters,numbers and underscores",
+      "Username can only contain letters, numbers and underscores",
     ),
   password: z.string().min(6, "Password must be at least 6 characters"),
   name: z.string().optional(),
@@ -25,52 +23,34 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-//Generate JWT
-
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
     expiresIn: "7d",
   });
 };
 
-//Register
-
 export const register = async (req: Request, res: Response) => {
   try {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({
-        message: parsed.error.issues[0].message,
-      });
+      return res.status(400).json({ message: parsed.error.issues[0].message });
     }
 
     const { email, username, password, name } = parsed.data;
 
-    //check email existence
-    const emailexist = await prisma.user.findUnique({
-      where: { email },
-    });
+    const emailexist = await prisma.user.findUnique({ where: { email } });
     if (emailexist) {
-      return res.status(400).json({
-        message: "Email already in use.",
-      });
+      return res.status(400).json({ message: "Email already in use." });
     }
 
-    //check username existance
-    const usernameexist = await prisma.user.findUnique({
-      where: { username },
-    });
+    const usernameexist = await prisma.user.findUnique({ where: { username } });
     if (usernameexist) {
-      return res.status(400).json({
-        message: "Username already Taken",
-      });
+      return res.status(400).json({ message: "Username already taken." });
     }
 
-    //Hash Password
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    //create user
     const user = await prisma.user.create({
       data: {
         email,
@@ -89,56 +69,42 @@ export const register = async (req: Request, res: Response) => {
       },
     });
 
-    //Generate Token
     const token = generateToken(user.id);
 
     return res.status(201).json({
-      message: "Account created successfully",
+      message: "Account created successfully.",
       token,
       user,
     });
   } catch (error) {
-    console.error("Register error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Register error FULL:", error);
+    return res.status(500).json({ message: "Server error." });
   }
 };
 
-//Login
 export const login = async (req: Request, res: Response) => {
   try {
-    //Validate Input
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({
-        message: parsed.error.issues[0].message,
-      });
+      return res.status(400).json({ message: parsed.error.issues[0].message });
     }
 
     const { email, password } = parsed.data;
 
-    //find user
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
+      return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    //check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
+      return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    //Generate token
     const token = generateToken(user.id);
 
     return res.status(200).json({
-      message: "Login successful",
+      message: "Login successful.",
       token,
       user: {
         id: user.id,
@@ -151,12 +117,10 @@ export const login = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Login error FULL:", error);
+    return res.status(500).json({ message: "Server error." });
   }
 };
-
-//Get Current User
 
 export const getMe = async (req: Request, res: Response) => {
   try {
@@ -177,7 +141,7 @@ export const getMe = async (req: Request, res: Response) => {
 
     return res.status(200).json({ user });
   } catch (error) {
-    console.log("GetMe error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("GetMe error FULL:", error);
+    return res.status(500).json({ message: "Server error." });
   }
 };

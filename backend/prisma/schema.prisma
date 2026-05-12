@@ -6,7 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // USER
 
 model User {
