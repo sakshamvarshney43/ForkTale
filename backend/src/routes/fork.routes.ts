@@ -10,6 +10,6 @@ const router = Router({ mergeParams: true });
 
 router.get("/my", protect, getMyForks);
 router.post("/:storyId/fork", protect, forkStory);
-router.get("/:story/forks", protect, getStoryForks);
+router.get("/:storyId/forks", protect, getStoryForks);
 
 export default router;

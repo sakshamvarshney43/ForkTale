@@ -33,14 +33,19 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/stories", storyRoutes);
+
 app.use("/api/stories/:storyId/branches", branchRoutes);
-app.use("/api/stories/:storyId/branches:/:branchId/commits", commitRoutes);
+
+app.use("/api/stories/:storyId/branches/:branchId/commits", commitRoutes);
+
 app.use("/api/stories", forkRoutes);
-app.use("api/forks", forkRoutes);
+app.use("/api/forks", forkRoutes);
+
 app.use("/api/stories", collaborateRoutes);
 app.use("/api/collaborations", collaborateRoutes);
 
 app.use(errorHandler);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
