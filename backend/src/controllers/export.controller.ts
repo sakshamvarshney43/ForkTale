@@ -121,11 +121,13 @@ export const exportBranch = async (req: AuthRequest, res: Response) => {
     const { storyId, branchId } = req.params;
 
     const parsed = exportSchema.safeParse(req.query);
+
     if (!parsed.success) {
       return res.status(400).json({
         message: parsed.error.issues[0].message,
       });
     }
+
     const { format } = parsed.data;
 
     const story = await prisma.story.findUnique({
@@ -142,6 +144,7 @@ export const exportBranch = async (req: AuthRequest, res: Response) => {
     }
 
     const isAuthor = story.authorId === req.user!.id;
+
     const isCollaborator = await prisma.collaborator.findUnique({
       where: {
         storyId_userId: {
@@ -200,6 +203,89 @@ export const exportBranch = async (req: AuthRequest, res: Response) => {
     return res.status(200).send(content);
   } catch (error) {
     console.error("ExportBranch Error", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+//Export Compiled (latest version )
+
+export const exportCompiled = async (req: AuthRequest, res: Response) => {
+  try {
+    const { storyId, branchId } = req.params;
+
+    const parsed = exportSchema.safeParse(req.query);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: parsed.error.issues[0].message,
+      });
+    }
+
+    const { format } = parsed.data;
+
+    const story = await prisma.story.findUnique({
+      where: { id: storyId as string },
+      include: {
+        author: { select: { username: true } },
+      },
+    });
+
+    if (!story) {
+      return res.status(404).json({ message: "Story not found" });
+    }
+
+    const isAuthor = story.authorId === req.user!.id;
+
+    const isCollaborator = await prisma.collaborator.findUnique({
+      where: {
+        storyId_userId: {
+          storyId: storyId as string,
+          userId: req.user!.id,
+        },
+      },
+    });
+
+    if (!isAuthor && !isCollaborator) {
+      return res.status(403).json({ message: "Access denied." });
+    }
+
+    const branch = await prisma.branch.findFirst({
+      where: { id: branchId as string, storyId: storyId as string },
+    });
+
+    if (!branch) {
+      return res.status(404).json({ message: "Branch not found." });
+    }
+
+    const latestCommit = await prisma.commit.findFirst({
+      where: { branchId: branchId as string },
+      orderBy: { createdAt: "desc" },
+      select: { content: true },
+    });
+
+    if (!latestCommit) {
+      return res.status(400).json({
+        message: "No content to export.",
+      });
+    }
+
+    const content = buildCompiled(
+      story.title,
+      branch.name,
+      story.author.username,
+      latestCommit.content,
+      format,
+    );
+
+    const filename = `${story.title.replace(/\s+/g, "-")}-${branch.name}-final.${format}`;
+    const mimeType = format === "txt" ? "text/plain" : "text/markdown";
+
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+    return res.send(content);
+  } catch (error) {
+    console.error("ExportCompiler Error", error);
     return res.status(500).json({ message: "Server Error" });
   }
 };

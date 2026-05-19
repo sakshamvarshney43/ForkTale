@@ -13,6 +13,7 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
 
     const parsed = publishSchema.safeParse(req.body);
+
     if (!parsed.success) {
       return res.status(400).json({
         message: parsed.error.issues[0].message,
@@ -44,12 +45,14 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
         },
       },
     });
+
     if (!branch) {
       return res.status(404).json({ message: "Branch not found" });
     }
 
     //Must have at least one commit
     const latestCommit = branch.commits[0];
+
     if (!latestCommit) {
       return res.status(400).json({
         message: "Branch has no content to publish",
@@ -89,6 +92,7 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
         where: { id: storyId as string },
         data: { isPublished: true },
       });
+
       return publishing;
     });
 
@@ -115,6 +119,7 @@ export const UnpublishBranch = async (req: AuthRequest, res: Response) => {
     if (!story) {
       return res.status(404).json({ message: "Story not found" });
     }
+
     if (story.authorId !== userId) {
       return res.status(403).json({
         message: "Only the author can publish",
@@ -150,6 +155,7 @@ export const UnpublishBranch = async (req: AuthRequest, res: Response) => {
         data: { isPublished: false },
       });
     }
+
     return res.status(200).json({ message: "Ending unpublished" });
   } catch (error) {
     console.error("UnpublishBranch error", error);
@@ -175,11 +181,7 @@ export const getPublishedEndings = async (req: AuthRequest, res: Response) => {
             name: true,
           },
         },
-        _count: {
-          select: { ratings: true } as any,
-        },
       },
-      orderBy: { publishedAt: "desc" },
     });
 
     //Get avg rating for each ending
@@ -204,7 +206,7 @@ export const getPublishedEndings = async (req: AuthRequest, res: Response) => {
 
     return res.status(200).json({ endings: endingsWithRatings });
   } catch (error) {
-    console.error("GetPublishedEndings error");
+    console.error("GetPublishedEndings error", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -261,6 +263,7 @@ export const readEnding = async (req: AuthRequest, res: Response) => {
 
     // Check if current user has rated
     let userRating = null;
+
     if (req.user) {
       const myRating = await prisma.rating.findUnique({
         where: {
@@ -270,6 +273,7 @@ export const readEnding = async (req: AuthRequest, res: Response) => {
           },
         },
       });
+
       userRating = myRating?.stars || null;
     }
 
