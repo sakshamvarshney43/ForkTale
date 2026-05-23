@@ -115,82 +115,82 @@ function AnimatedSection({
 
 //HomePage
 
-export default function Home(){
-    return (
-      <div className="min-h-screen overflow-hidden">
-        {/*BackGround Effects */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-pink-600/5 rounded-full blur-3xl" />
-        </div>
+export default function Home() {
+  return (
+    <div className="min-h-screen overflow-hidden">
+      {/*BackGround Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-pink-600/5 rounded-full blur-3xl" />
+      </div>
 
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <span className="inline-flex items-center gap-2 glass border border-primary-500/30 text-primary-400 text-sm font-medium px-4 py-2 rounded-full">
-              <Zap size={14} className="animate-pulse" />
-              Git-Inspired Collaborative Storytelling
-            </span>
-          </motion.div>
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <span className="inline-flex items-center gap-2 glass border border-primary-500/30 text-primary-400 text-sm font-medium px-4 py-2 rounded-full">
+            <Zap size={14} className="animate-pulse" />
+            Git-Inspired Collaborative Storytelling
+          </span>
+        </motion.div>
 
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold text-center max-w-4xl leading-tight mb-6"
-          >
-            Where Stories
-            <span className="block gradient-text">Branch & Evolve</span>
-          </motion.h1>
+        {/* Headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-5xl md:text-7xl font-bold text-center max-w-4xl leading-tight mb-6"
+        >
+          Where Stories
+          <span className="block gradient-text">Branch & Evolve</span>
+        </motion.h1>
 
-          {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-white/50 text-center max-w-2xl mb-10 leading-relaxed"
-          >
-            ForkTale brings the power of Git version control to collaborative
-            fiction. Branch timelines, fork stories, commit chapters and let AI
-            help you write what comes next.
-          </motion.p>
+        {/* Subheadline */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-lg md:text-xl text-white/50 text-center max-w-2xl mb-10 leading-relaxed"
+        >
+          ForkTale brings the power of Git version control to collaborative
+          fiction. Branch timelines, fork stories, commit chapters and let AI
+          help you write what comes next.
+        </motion.p>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 mb-16"
-          >
-            <Link to="/register">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-primary text-base px-8 py-4 shadow-glow-lg"
-              >
-                Start Writing Free
-                <ArrowRight size={18} />
-              </motion.button>
-            </Link>
-            <Link to="/discover">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-secondary text-base px-8 py-4"
-              >
-                <BookOpen size={18} />
-                Browse Stories
-              </motion.button>
-            </Link>
-          </motion.div>
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-col sm:flex-row gap-4 mb-16"
+        >
+          <Link to="/register">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="btn-primary text-base px-8 py-4 shadow-glow-lg"
+            >
+              Start Writing Free
+              <ArrowRight size={18} />
+            </motion.button>
+          </Link>
+          <Link to="/discover">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="btn-secondary text-base px-8 py-4"
+            >
+              <BookOpen size={18} />
+              Browse Stories
+            </motion.button>
+          </Link>
+        </motion.div>
 
         {/* Git Branch Diagram */}
         <motion.div
@@ -209,44 +209,44 @@ export default function Home(){
                 forktale — story-editor
               </span>
             </div>
-            
+
             {/* Branch visualization */}
             <div className="font-mono text-sm space-y-3">
               {[
                 {
-                  color: 'text-blue-400',
-                  dot: 'bg-blue-400',
+                  color: "text-blue-400",
+                  dot: "bg-blue-400",
                   line: true,
-                  text: 'main',
-                  msg: 'The kingdom falls into darkness',
+                  text: "main",
+                  msg: "The kingdom falls into darkness",
                 },
                 {
-                  color: 'text-blue-400',
-                  dot: 'bg-blue-400',
+                  color: "text-blue-400",
+                  dot: "bg-blue-400",
                   line: true,
-                  text: 'main',
-                  msg: 'The prince sets out on his journey',
+                  text: "main",
+                  msg: "The prince sets out on his journey",
                 },
                 {
-                  color: 'text-purple-400',
-                  dot: 'bg-purple-400',
+                  color: "text-purple-400",
+                  dot: "bg-purple-400",
                   line: false,
-                  text: 'dark-ending',
-                  msg: 'The witch claims her final victory',
+                  text: "dark-ending",
+                  msg: "The witch claims her final victory",
                 },
                 {
-                  color: 'text-blue-400',
-                  dot: 'bg-blue-400',
+                  color: "text-blue-400",
+                  dot: "bg-blue-400",
                   line: true,
-                  text: 'main',
-                  msg: 'Light returns to the kingdom',
+                  text: "main",
+                  msg: "Light returns to the kingdom",
                 },
                 {
-                  color: 'text-green-400',
-                  dot: 'bg-green-400',
+                  color: "text-green-400",
+                  dot: "bg-green-400",
                   line: false,
-                  text: 'hero-ending',
-                  msg: 'The prince breaks the curse forever',
+                  text: "hero-ending",
+                  msg: "The prince breaks the curse forever",
                 },
               ].map((item, i) => (
                 <motion.div
@@ -256,7 +256,9 @@ export default function Home(){
                   transition={{ delay: 0.6 + i * 0.1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className={`w-3 h-3 rounded-full ${item.dot} shadow-lg flex-shrink-0`} />
+                  <div
+                    className={`w-3 h-3 rounded-full ${item.dot} shadow-lg flex-shrink-0`}
+                  />
                   <span className={`text-xs ${item.color} w-24 flex-shrink-0`}>
                     {item.text}
                   </span>
@@ -266,7 +268,117 @@ export default function Home(){
                 </motion.div>
               ))}
 
-        </section>
-      </div>
-    );
+              {/* AI suggestion line */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+                className="flex items-center gap-3 mt-4 pt-4 border-t border-white/5"
+              >
+                <Sparkles size={12} className="text-purple-400 animate-pulse" />
+                <span className="text-purple-400/70 text-xs">
+                  AI suggesting: "A mysterious stranger appears at the gate..."
+                </span>
+                <span className="w-1 h-4 bg-purple-400 animate-pulse ml-1" />
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Floating badges */}
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-4 -right-4 glass border border-green-500/30 text-green-400 text-xs px-3 py-1.5 rounded-full shadow-lg"
+          >
+            ✓ Committed
+          </motion.div>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1,
+            }}
+            className="absolute -bottom-4 -left-4 glass border border-purple-500/30 text-purple-400 text-xs px-3 py-1.5 rounded-full shadow-lg"
+          >
+            ⎇ Branched
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="w-6 h-10 border-2 border-white/20 rounded-full flex items-start justify-center pt-2"
+          >
+            <div className="w-1 h-2 bg-white/40 rounded-full" />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="relative py-16 px-4">
+        <AnimatedSection className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+          {stats.map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={fadeUp}
+              className="card text-center"
+            >
+              <div className="text-2xl font-bold gradient-text mb-1">
+                {stat.value}
+              </div>
+              <div className="text-white/40 text-sm">{stat.label}</div>
+            </motion.div>
+          ))}
+        </AnimatedSection>
+      </section>
+
+      {/* Feature Section */}
+      <section className="relative py-24 px-4">
+        <AnimatedSection className="max-w-7xl mx-auto">
+          {/* Section header */}
+          <motion.div variants={fadeUp} className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Everything a story needs
+            </h2>
+            <p className="text-white/40 text-lg max-w-xl mx-auto">
+              Built for writers who think in possibilities, not just chapters.
+            </p>
+          </motion.div>
+
+          {/* Feature grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, i) => (
+              <motion.div
+                key={feature.title}
+                variants={fadeUp}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="card group cursor-default"
+              >
+                {/* Icon */}
+                <div
+                  className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg ${feature.glow} group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <span className="text-white">{feature.icon}</span>
+                </div>
+
+                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                <p className="text-white/40 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatedSection>
+      </section>
+    </div>
+  );
 }
