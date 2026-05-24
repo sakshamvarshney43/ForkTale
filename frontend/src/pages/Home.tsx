@@ -1,4 +1,4 @@
-import { use, useRef } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
@@ -8,7 +8,6 @@ import {
   BookOpen,
   Users,
   ArrowRight,
-  Star,
   Zap,
   Globe,
 } from "lucide-react";
@@ -19,7 +18,7 @@ const fadeUp = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
+    transition: { duration: 0.6, ease: "easeOut" as const },
   },
 };
 
@@ -29,11 +28,6 @@ const stagger = {
       staggerChildren: 0.15,
     },
   },
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.6 } },
 };
 
 //Feature Card
@@ -59,7 +53,7 @@ const features = [
     icon: <Sparkles size={24} />,
     title: "AI Co-Author",
     description:
-      "Get real time AI suggestions, plot twists, grammar fixes and writing improvements as you type.",
+      "Get real-time AI suggestions, plot twists, grammar fixes and writing improvements as you type.",
     color: "from-amber-500 to-orange-600",
     glow: "shadow-amber-500/20",
   },
@@ -67,7 +61,7 @@ const features = [
     icon: <Users size={24} />,
     title: "Collaborate",
     description:
-      "Invite co-authors with role-based access. Editors write, viewers read you stay in control.",
+      "Invite co-authors with role-based access. Editors write, viewers read — you stay in control.",
     color: "from-green-500 to-teal-600",
     glow: "shadow-green-500/20",
   },
@@ -87,6 +81,15 @@ const features = [
     color: "from-cyan-500 to-blue-600",
     glow: "shadow-cyan-500/20",
   },
+];
+
+//Stats
+
+const stats = [
+  { value: "Git-Inspired", label: "Version Control" },
+  { value: "AI-Powered", label: "Writing Assistant" },
+  { value: "Multi-Ending", label: "Story Branches" },
+  { value: "Real-Time", label: "Collaboration" },
 ];
 
 //Section Wrapper
@@ -159,7 +162,7 @@ export default function Home() {
           className="text-lg md:text-xl text-white/50 text-center max-w-2xl mb-10 leading-relaxed"
         >
           ForkTale brings the power of Git version control to collaborative
-          fiction. Branch timelines, fork stories, commit chapters and let AI
+          fiction. Branch timelines, fork stories, commit chapters — and let AI
           help you write what comes next.
         </motion.p>
 
@@ -180,6 +183,7 @@ export default function Home() {
               <ArrowRight size={18} />
             </motion.button>
           </Link>
+
           <Link to="/discover">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -259,9 +263,11 @@ export default function Home() {
                   <div
                     className={`w-3 h-3 rounded-full ${item.dot} shadow-lg flex-shrink-0`}
                   />
+
                   <span className={`text-xs ${item.color} w-24 flex-shrink-0`}>
                     {item.text}
                   </span>
+
                   <span className="text-white/40 text-xs truncate">
                     {item.msg}
                   </span>
@@ -276,9 +282,11 @@ export default function Home() {
                 className="flex items-center gap-3 mt-4 pt-4 border-t border-white/5"
               >
                 <Sparkles size={12} className="text-purple-400 animate-pulse" />
+
                 <span className="text-purple-400/70 text-xs">
                   AI suggesting: "A mysterious stranger appears at the gate..."
                 </span>
+
                 <span className="w-1 h-4 bg-purple-400 animate-pulse ml-1" />
               </motion.div>
             </div>
@@ -287,17 +295,22 @@ export default function Home() {
           {/* Floating badges */}
           <motion.div
             animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut" as const,
+            }}
             className="absolute -top-4 -right-4 glass border border-green-500/30 text-green-400 text-xs px-3 py-1.5 rounded-full shadow-lg"
           >
             ✓ Committed
           </motion.div>
+
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{
               duration: 3,
               repeat: Infinity,
-              ease: "easeInOut",
+              ease: "easeInOut" as const,
               delay: 1,
             }}
             className="absolute -bottom-4 -left-4 glass border border-purple-500/30 text-purple-400 text-xs px-3 py-1.5 rounded-full shadow-lg"
@@ -335,6 +348,7 @@ export default function Home() {
               <div className="text-2xl font-bold gradient-text mb-1">
                 {stat.value}
               </div>
+
               <div className="text-white/40 text-sm">{stat.label}</div>
             </motion.div>
           ))}
@@ -349,6 +363,7 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Everything a story needs
             </h2>
+
             <p className="text-white/40 text-lg max-w-xl mx-auto">
               Built for writers who think in possibilities, not just chapters.
             </p>
@@ -356,7 +371,7 @@ export default function Home() {
 
           {/* Feature grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => (
+            {features.map((feature) => (
               <motion.div
                 key={feature.title}
                 variants={fadeUp}
@@ -371,6 +386,7 @@ export default function Home() {
                 </div>
 
                 <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+
                 <p className="text-white/40 text-sm leading-relaxed">
                   {feature.description}
                 </p>
@@ -387,6 +403,7 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               How it works
             </h2>
+
             <p className="text-white/40 text-lg">
               Like Git, but for your imagination.
             </p>
@@ -442,8 +459,10 @@ export default function Home() {
                 >
                   {item.step}
                 </span>
+
                 <div>
                   <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+
                   <p className="text-white/40 text-sm leading-relaxed">
                     {item.description}
                   </p>
@@ -453,6 +472,101 @@ export default function Home() {
           </div>
         </AnimatedSection>
       </section>
+
+      {/* CTA Section */}
+
+      <section className="relative py-24 px-4">
+        <AnimatedSection className="max-w-3xl mx-auto text-center">
+          <motion.div
+            variants={fadeUp}
+            className="glass rounded-3xl border border-white/10 p-12 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-600/10 to-purple-600/10 pointer-events-none" />
+
+            <motion.div variants={fadeUp}>
+              <GitBranch
+                size={48}
+                className="text-primary-400 mx-auto mb-6 animate-float"
+              />
+            </motion.div>
+
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl md:text-5xl font-bold mb-4"
+            >
+              Ready to write your
+              <span className="gradient-text"> first branch?</span>
+            </motion.h2>
+
+            <motion.p variants={fadeUp} className="text-white/40 text-lg mb-8">
+              Join ForkTale and start building stories that live, breathe and
+              evolve.
+            </motion.p>
+
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <Link to="/register">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-primary text-base px-8 py-4 shadow-glow-lg"
+                >
+                  Start Writing Free
+                  <ArrowRight size={18} />
+                </motion.button>
+              </Link>
+
+              <Link to="/discover">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-secondary text-base px-8 py-4"
+                >
+                  Browse Stories
+                </motion.button>
+              </Link>
+            </motion.div>
+          </motion.div>
+        </AnimatedSection>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/5 py-8 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <GitBranch size={16} className="text-primary-400" />
+
+            <span className="text-white/40 text-sm">
+              ForkTale — Where stories branch and evolve
+            </span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <Link
+              to="/discover"
+              className="text-white/30 hover:text-white/60 text-sm transition-colors"
+            >
+              Discover
+            </Link>
+
+            <Link
+              to="/register"
+              className="text-white/30 hover:text-white/60 text-sm transition-colors"
+            >
+              Sign Up
+            </Link>
+
+            <Link
+              to="/login"
+              className="text-white/30 hover:text-white/60 text-sm transition-colors"
+            >
+              Log In
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
