@@ -379,6 +379,80 @@ export default function Home() {
           </div>
         </AnimatedSection>
       </section>
+
+      {/* How it works */}
+      <section className="relative py-24 px-4">
+        <AnimatedSection className="max-w-4xl mx-auto">
+          <motion.div variants={fadeUp} className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              How it works
+            </h2>
+            <p className="text-white/40 text-lg">
+              Like Git, but for your imagination.
+            </p>
+          </motion.div>
+
+          <div className="space-y-4">
+            {[
+              {
+                step: "01",
+                title: "Create a story",
+                description:
+                  "Start a new story. A main branch is created automatically — just like a Git repo.",
+                color: "text-blue-400",
+                border: "border-blue-500/20",
+                bg: "bg-blue-500/5",
+              },
+              {
+                step: "02",
+                title: "Write and commit",
+                description:
+                  "Write your chapters and save them as commits with a message. Every version is preserved forever.",
+                color: "text-purple-400",
+                border: "border-purple-500/20",
+                bg: "bg-purple-500/5",
+              },
+              {
+                step: "03",
+                title: "Branch for alternate paths",
+                description:
+                  "Create a branch to explore a different direction without affecting your main story.",
+                color: "text-green-400",
+                border: "border-green-500/20",
+                bg: "bg-green-500/5",
+              },
+              {
+                step: "04",
+                title: "Publish your endings",
+                description:
+                  "Publish any branch as a story ending. Readers can choose which path to follow.",
+                color: "text-amber-400",
+                border: "border-amber-500/20",
+                bg: "bg-amber-500/5",
+              },
+            ].map((item) => (
+              <motion.div
+                key={item.step}
+                variants={fadeUp}
+                whileHover={{ x: 4 }}
+                className={`flex items-start gap-6 p-6 rounded-2xl border ${item.border} ${item.bg} transition-all duration-200`}
+              >
+                <span
+                  className={`text-4xl font-bold ${item.color} opacity-40 flex-shrink-0 font-mono`}
+                >
+                  {item.step}
+                </span>
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatedSection>
+      </section>
     </div>
   );
 }
