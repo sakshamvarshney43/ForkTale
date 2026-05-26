@@ -7,7 +7,7 @@ import {
   GitBranch,
   GitFork,
   Users,
-  MoreVertical,
+  MoreHorizontal,
   Trash2,
   Edit,
   Eye,
@@ -19,7 +19,7 @@ import { storyService, forkService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
 
-//Story Card
+// Story Card
 
 function StoryCard({ story }: { story: Story }) {
   const navigate = useNavigate();
@@ -37,15 +37,19 @@ function StoryCard({ story }: { story: Story }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
-      className="card group relative"
+      className="group relative rounded-md transition-colors duration-150"
+      style={{
+        background: "#0f1011",
+        border: "1px solid #23252a",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#383b3f")}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#23252a")}
     >
-      {/*Cover Image*/}
+      {/* Cover */}
       <div
-        className="w-full h-36 rounded-xl mb-4 overflow-hidden cursor-pointer"
+        className="w-full h-32 rounded-t-md overflow-hidden cursor-pointer"
         onClick={() =>
           defaultBranch &&
           navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
@@ -55,32 +59,42 @@ function StoryCard({ story }: { story: Story }) {
           <img
             src={story.coverImage}
             alt={story.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary-600/20 to-purple-600/20 flex items-center justify-center">
-            <BookOpen size={32} className="text-white/20" />
+          <div
+            className="w-full h-full flex items-center justify-center"
+            style={{ background: "#161718" }}
+          >
+            <BookOpen size={24} style={{ color: "#383b3f" }} />
           </div>
         )}
 
-        {/*Published badge*/}
-        <div className="absolute top-3 left-3">
+        {/* Status badge */}
+        <div className="absolute top-2.5 left-2.5">
           <span
-            className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium"
+            style={
               story.isPublished
-                ? "bg-green-500/20 text-green-400 border border-green-500/20"
-                : "bg-white/10 text-white/60 border border-white/10"
-            }`}
+                ? {
+                    background: "rgba(95, 237, 131, 0.1)",
+                    border: "1px solid rgba(95, 237, 131, 0.2)",
+                    color: "#5fed83",
+                  }
+                : {
+                    background: "#161718",
+                    border: "1px solid #23252a",
+                    color: "#62666d",
+                  }
+            }
           >
             {story.isPublished ? (
               <>
-                <Globe size={10} />
-                Published
+                <Globe size={9} /> Published
               </>
             ) : (
               <>
-                <Lock size={10} />
-                Draft
+                <Lock size={9} /> Draft
               </>
             )}
           </span>
@@ -88,138 +102,214 @@ function StoryCard({ story }: { story: Story }) {
       </div>
 
       {/* Content */}
-      <div className="flex items-start justify-between gap-2">
-        <div
-          className="flex-1 cursor-pointer"
-          onClick={() =>
-            defaultBranch &&
-            navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
-          }
-        >
-          <h3 className="font-semibold text-white mb-1 line-clamp-1 group-hover:text-primary-400 transition-colors">
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h3
+            className="font-medium text-sm cursor-pointer line-clamp-1 transition-colors duration-100"
+            style={{ color: "#d0d6e0", letterSpacing: "-0.1px" }}
+            onClick={() =>
+              defaultBranch &&
+              navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
+            }
+            onMouseEnter={(e) =>
+              ((e.target as HTMLElement).style.color = "#f7f8f8")
+            }
+            onMouseLeave={(e) =>
+              ((e.target as HTMLElement).style.color = "#d0d6e0")
+            }
+          >
             {story.title}
           </h3>
 
-          {story.description && (
-            <p className="text-white/40 text-xs line-clamp-2 mb-3">
-              {story.description}
-            </p>
-          )}
-        </div>
-
-        {/* Menu */}
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white hover:bg-white/5 transition-all"
-          >
-            <MoreVertical size={16} />
-          </button>
-
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 4 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="absolute right-0 top-8 w-44 glass-strong rounded-xl border border-white/10 shadow-card z-10 overflow-hidden"
+          {/* Menu */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-1 rounded transition-colors duration-100"
+              style={{ color: "#62666d" }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "#161718";
+                (e.currentTarget as HTMLElement).style.color = "#8a8f98";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "transparent";
+                (e.currentTarget as HTMLElement).style.color = "#62666d";
+              }}
             >
-              <div className="p-1.5">
-                <button
-                  onClick={() => {
-                    navigate(`/stories/${story.id}/edit`);
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-                >
-                  <Edit size={14} /> Edit Story
-                </button>
+              <MoreHorizontal size={14} />
+            </button>
 
-                {defaultBranch && (
+            {menuOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 2 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.1 }}
+                className="absolute right-0 top-7 w-44 z-10 rounded-md overflow-hidden"
+                style={{
+                  background: "#161718",
+                  border: "1px solid #23252a",
+                  boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+                }}
+              >
+                <div className="p-1">
+                  {[
+                    {
+                      icon: <Edit size={12} />,
+                      label: "Edit story",
+                      onClick: () => {
+                        navigate(`/stories/${story.id}/edit`);
+                        setMenuOpen(false);
+                      },
+                    },
+                    ...(defaultBranch
+                      ? [
+                          {
+                            icon: <Eye size={12} />,
+                            label: "Open editor",
+                            onClick: () => {
+                              navigate(
+                                `/stories/${story.id}/branches/${defaultBranch.id}`,
+                              );
+                              setMenuOpen(false);
+                            },
+                          },
+                        ]
+                      : []),
+                    {
+                      icon: <Users size={12} />,
+                      label: "Collaborators",
+                      onClick: () => {
+                        navigate(`/stories/${story.id}/collaborate`);
+                        setMenuOpen(false);
+                      },
+                    },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={item.onClick}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs transition-colors duration-100"
+                      style={{ color: "#8a8f98" }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.background =
+                          "#23252a";
+                        (e.currentTarget as HTMLElement).style.color =
+                          "#f7f8f8";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background =
+                          "transparent";
+                        (e.currentTarget as HTMLElement).style.color =
+                          "#8a8f98";
+                      }}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={{ borderTop: "1px solid #23252a" }} className="p-1">
                   <button
                     onClick={() => {
-                      navigate(
-                        `/stories/${story.id}/branches/${defaultBranch.id}`,
-                      );
+                      if (confirm("Delete this story?"))
+                        deleteMutation.mutate();
                       setMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-                  >
-                    <Eye size={14} /> Open Editor
-                  </button>
-                )}
-
-                <button
-                  onClick={() => {
-                    navigate(`/stories/${story.id}/collaborate`);
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-                >
-                  <Users size={14} /> Collaborators
-                </button>
-              </div>
-
-              <div className="border-t border-white/5 p-1.5">
-                <button
-                  onClick={() => {
-                    if (confirm("Delete this story?")) {
-                      deleteMutation.mutate();
+                    className="w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs transition-colors duration-100"
+                    style={{ color: "#eb5757" }}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget as HTMLElement).style.background =
+                        "rgba(235, 87, 87, 0.08)")
                     }
-
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-all"
-                >
-                  <Trash2 size={14} /> Delete
-                </button>
-              </div>
-            </motion.div>
-          )}
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLElement).style.background =
+                        "transparent")
+                    }
+                  >
+                    <Trash2 size={12} />
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/*Stats*/}
-      <div className="flex items-center gap-4 mt-2">
-        {story.genre && (
-          <span className="text-xs text-white/30 bg-white/5 px-2 py-0.5 rounded-full">
-            {story.genre}
-          </span>
+        {/* Description */}
+        {story.description && (
+          <p
+            className="text-xs line-clamp-1 mb-2.5"
+            style={{ color: "#62666d" }}
+          >
+            {story.description}
+          </p>
         )}
 
-        <span className="flex items-center gap-1 text-xs text-white/30">
-          <GitBranch size={11} />
-          {story._count?.branches || 0}
-        </span>
-
-        <span className="flex items-center gap-1 text-xs text-white/30">
-          <GitFork size={11} />
-          {story._count?.forks || 0}
-        </span>
-
-        <span className="text-xs text-white/20 ml-auto">
-          {story.wordCount} words
-        </span>
+        {/* Footer stats */}
+        <div className="flex items-center gap-3">
+          {story.genre && (
+            <span
+              className="text-xs px-1.5 py-0.5 rounded"
+              style={{ background: "#23252a", color: "#8a8f98" }}
+            >
+              {story.genre}
+            </span>
+          )}
+          <span
+            className="flex items-center gap-1 text-xs ml-auto"
+            style={{ color: "#62666d" }}
+          >
+            <GitBranch size={10} />
+            {story._count?.branches || 0}
+          </span>
+          <span
+            className="flex items-center gap-1 text-xs"
+            style={{ color: "#62666d" }}
+          >
+            <GitFork size={10} />
+            {story._count?.forks || 0}
+          </span>
+          <span className="text-xs" style={{ color: "#62666d" }}>
+            {story.wordCount}w
+          </span>
+        </div>
       </div>
     </motion.div>
   );
 }
 
-//DashBoard Page
+//Skeleton Card
+function SkeletonCard() {
+  return (
+    <div
+      className="rounded-md overflow-hidden"
+      style={{ background: "#0f1011", border: "1px solid #23252a" }}
+    >
+      <div className="shimmer w-full h-32" />
+      <div className="p-3 space-y-2">
+        <div className="shimmer h-3.5 w-3/4 rounded" />
+        <div className="shimmer h-3 w-1/2 rounded" />
+        <div className="flex gap-2 mt-3">
+          <div className="shimmer h-3 w-12 rounded" />
+          <div className="shimmer h-3 w-8 rounded ml-auto" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
+// DashBoard
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"stories" | "forks">("stories");
 
-  const [activeTab, setActiveTab] = useState<"stories" | "forks" | "collabs">(
-    "stories",
-  );
-
-  // Fetch my stories
   const { data: storiesData, isLoading: storiesLoading } = useQuery({
     queryKey: ["myStories"],
     queryFn: () => storyService.getMyStories(),
   });
 
-  // Fetch my forks
   const { data: forksData, isLoading: forksLoading } = useQuery({
     queryKey: ["myForks"],
     queryFn: () => forkService.getMyForks(),
@@ -228,69 +318,76 @@ export default function Dashboard() {
   const stories: Story[] = storiesData?.data?.stories || [];
   const forks: Story[] = forksData?.data?.forks || [];
 
-  const tabs = [
-    { key: "stories", label: "My Stories", count: stories.length },
-    { key: "forks", label: "Forked", count: forks.length },
-  ];
-
   return (
-    <div className="min-h-screen px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
+      <div className="max-w-5xl mx-auto">
         {/*Header*/}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between mb-8"
         >
           <div>
-            <h1 className="text-3xl font-bold mb-1">
-              Welcome back,{" "}
-              <span className="gradient-text">
-                {user?.name || user?.username}
-              </span>
+            <h1
+              className="font-semibold mb-0.5"
+              style={{
+                fontSize: "22px",
+                letterSpacing: "-0.22px",
+                color: "#f7f8f8",
+              }}
+            >
+              {user?.name || user?.username}
             </h1>
-
-            <p className="text-white/40">
+            <p style={{ color: "#62666d", fontSize: "13px" }}>
               {stories.length} stories · {forks.length} forks
             </p>
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate("/stories/create")}
-            className="btn-primary"
+            className="btn-primary text-xs px-3 py-2 flex items-center gap-1.5"
           >
-            <Plus size={18} />
-            New Story
+            <Plus size={13} />
+            New story
           </motion.button>
         </motion.div>
 
         {/*Tabs*/}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-6"
+          className="flex gap-1 mb-6"
+          style={{ borderBottom: "1px solid #23252a", paddingBottom: "0" }}
         >
-          {tabs.map((tab) => (
+          {[
+            { key: "stories", label: "Stories", count: stories.length },
+            { key: "forks", label: "Forked", count: forks.length },
+          ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeTab === tab.key
-                  ? "bg-primary-600/20 text-primary-400 border border-primary-500/30"
-                  : "text-white/40 hover:text-white hover:bg-white/5"
-              }`}
+              className="flex items-center gap-2 px-3 py-2 text-xs font-medium transition-all duration-150 relative"
+              style={{
+                color: activeTab === tab.key ? "#f7f8f8" : "#8a8f98",
+                borderBottom:
+                  activeTab === tab.key
+                    ? "1px solid #8dd6ff"
+                    : "1px solid transparent",
+                marginBottom: "-1px",
+              }}
             >
               {tab.label}
-
               <span
-                className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab.key
-                    ? "bg-primary-500/20 text-primary-400"
-                    : "bg-white/5 text-white/30"
-                }`}
+                className="px-1.5 py-0.5 rounded text-xs"
+                style={{
+                  background: activeTab === tab.key ? "#161718" : "#0f1011",
+                  color: activeTab === tab.key ? "#8dd6ff" : "#62666d",
+                  border: "1px solid #23252a",
+                  fontSize: "11px",
+                }}
               >
                 {tab.count}
               </span>
@@ -298,115 +395,111 @@ export default function Dashboard() {
           ))}
         </motion.div>
 
-        {/*Content*/}
-        {activeTab === "stories" && (
-          <>
-            {storiesLoading ? (
-              // Skeleton loading
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="card">
-                    <div className="shimmer w-full h-36 rounded-xl mb-4" />
-                    <div className="shimmer h-4 w-3/4 rounded mb-2" />
-                    <div className="shimmer h-3 w-1/2 rounded" />
-                  </div>
-                ))}
-              </div>
-            ) : stories.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-20"
+        {/*Stories Tab*/}
+        {activeTab === "stories" &&
+          (storiesLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {[1, 2, 3].map((i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : stories.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-20"
+            >
+              <BookOpen
+                size={32}
+                className="mx-auto mb-3"
+                style={{ color: "#383b3f" }}
+              />
+              <h3
+                className="font-medium mb-1 text-sm"
+                style={{ color: "#8a8f98" }}
               >
-                <BookOpen size={48} className="text-white/10 mx-auto mb-4" />
-
-                <h3 className="text-lg font-medium text-white/40 mb-2">
-                  No stories yet
-                </h3>
-
-                <p className="text-white/20 text-sm mb-6">
-                  Create your first story and start branching
-                </p>
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate("/stories/create")}
-                  className="btn-primary"
-                >
-                  <Plus size={16} />
-                  Create Story
-                </motion.button>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {stories.map((story) => (
-                  <StoryCard key={story.id} story={story} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {activeTab === "forks" && (
-          <>
-            {forksLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2].map((i) => (
-                  <div key={i} className="card">
-                    <div className="shimmer w-full h-36 rounded-xl mb-4" />
-                    <div className="shimmer h-4 w-3/4 rounded mb-2" />
-                    <div className="shimmer h-3 w-1/2 rounded" />
-                  </div>
-                ))}
-              </div>
-            ) : forks.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-20"
+                No stories yet
+              </h3>
+              <p className="text-xs mb-5" style={{ color: "#62666d" }}>
+                Create your first story and start branching
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/stories/create")}
+                className="btn-primary text-xs px-3 py-2 inline-flex items-center gap-1.5"
               >
-                <GitFork size={48} className="text-white/10 mx-auto mb-4" />
+                <Plus size={13} />
+                Create story
+              </motion.button>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {stories.map((story) => (
+                <StoryCard key={story.id} story={story} />
+              ))}
+            </div>
+          ))}
 
-                <h3 className="text-lg font-medium text-white/40 mb-2">
-                  No forks yet
-                </h3>
-
-                <p className="text-white/20 text-sm mb-6">
-                  Fork a published story to continue it your way
-                </p>
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate("/discover")}
-                  className="btn-secondary"
-                >
-                  Browse Stories
-                </motion.button>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {forks.map((story) => (
-                  <div key={story.id} className="relative">
-                    <StoryCard story={story} />
-
-                    {story.forkedFrom && (
-                      <div className="mt-2 flex items-center gap-1 text-xs text-white/30 px-1">
-                        <GitFork size={11} />
-                        Forked from{" "}
-                        <span className="text-primary-400/70">
-                          {story.forkedFrom.author.username}/
-                          {story.forkedFrom.title}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+        {/*Forks Tab*/}
+        {activeTab === "forks" &&
+          (forksLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {[1, 2].map((i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : forks.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-20"
+            >
+              <GitFork
+                size={32}
+                className="mx-auto mb-3"
+                style={{ color: "#383b3f" }}
+              />
+              <h3
+                className="font-medium mb-1 text-sm"
+                style={{ color: "#8a8f98" }}
+              >
+                No forks yet
+              </h3>
+              <p className="text-xs mb-5" style={{ color: "#62666d" }}>
+                Fork a published story to continue it your way
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/discover")}
+                className="btn-secondary text-xs px-3 py-2 inline-flex items-center gap-1.5"
+              >
+                Browse stories
+              </motion.button>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {forks.map((story) => (
+                <div key={story.id}>
+                  <StoryCard story={story} />
+                  {story.forkedFrom && (
+                    <p
+                      className="mt-1.5 px-1 text-xs flex items-center gap-1"
+                      style={{ color: "#62666d" }}
+                    >
+                      <GitFork size={10} />
+                      Forked from{" "}
+                      <span style={{ color: "#8dd6ff" }}>
+                        {story.forkedFrom.author.username}/
+                        {story.forkedFrom.title}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
       </div>
     </div>
   );
