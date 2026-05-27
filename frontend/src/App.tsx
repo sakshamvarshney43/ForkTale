@@ -1,4 +1,8 @@
-import {
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	// your code goes hereimport {
   BrowserRouter,
   Routes,
   Route,
@@ -174,4 +178,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
-\
+}
