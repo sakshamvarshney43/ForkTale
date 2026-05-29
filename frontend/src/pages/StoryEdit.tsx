@@ -19,9 +19,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { storyService } from "../services/api";
 import { upload } from "../config/cloudinary";
 
-// ─────────────────────────────────────────
-// VALIDATION
-// ─────────────────────────────────────────
+// Validation
+
 const schema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   description: z.string().max(500).optional(),
@@ -41,9 +40,7 @@ const genres = [
   "Drama",
 ];
 
-// ─────────────────────────────────────────
-// PAGE
-// ─────────────────────────────────────────
+// Page
 export default function StoryEdit() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
@@ -68,7 +65,7 @@ export default function StoryEdit() {
   const selectedGenre = watch("genre");
   const isPublished = watch("isPublished");
 
-  // ── Fetch story ──
+  // Fetch story
   const { data, isLoading } = useQuery({
     queryKey: ["story", storyId],
     queryFn: () => storyService.getMyStory(storyId!),
@@ -90,7 +87,7 @@ export default function StoryEdit() {
     }
   }, [story, reset]);
 
-  // ── Update mutation ──
+  // Update mutation
   const updateMutation = useMutation({
     mutationFn: (data: Form) =>
       storyService.updateStory(storyId!, { ...data, tags }),
@@ -100,13 +97,13 @@ export default function StoryEdit() {
     },
   });
 
-  // ── Delete mutation ──
+  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: () => storyService.deleteStory(storyId!),
     onSuccess: () => navigate("/dashboard"),
   });
 
-  // ── Tag helpers ──
+  // Tag helpers
   const addTag = () => {
     const t = tagInput.trim().toLowerCase();
     if (t && !tags.includes(t) && tags.length < 5) {
@@ -124,7 +121,7 @@ export default function StoryEdit() {
     }
   };
 
-  // ── Cover upload ──
+  //Cover upload
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -132,7 +129,7 @@ export default function StoryEdit() {
     setCoverPreview(URL.createObjectURL(file));
   };
 
-  // ── Submit ──
+  // Submit
   const onSubmit = async (data: Form) => {
     try {
       setError("");
@@ -155,7 +152,7 @@ export default function StoryEdit() {
   const isSaving = updateMutation.isPending || uploadingCover;
   const isSaved = updateMutation.isSuccess && !isDirty;
 
-  // ── Loading ──
+  //Loading
   if (isLoading) {
     return (
       <div
@@ -174,7 +171,7 @@ export default function StoryEdit() {
   return (
     <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
       <div className="max-w-2xl mx-auto">
-        {/* ── Header ── */}
+        {/*Header*/}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -240,7 +237,7 @@ export default function StoryEdit() {
           </button>
         </motion.div>
 
-        {/* ── Form ── */}
+        {/* Form*/}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
