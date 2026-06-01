@@ -1,8 +1,4 @@
-#include <bits/stdc++.h>
-using namespace std;
-
-int main() {
-	// your code goes hereimport {
+import {
   BrowserRouter,
   Routes,
   Route,
@@ -31,8 +27,7 @@ import Collaborate from "./pages/Collaborate";
 // Layout
 import Navbar from "./components/layout/Navbar";
 
-//Protected Route
-
+// Protected Route
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -47,8 +42,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-//Public Route
-
+// Public Route
 const PublicRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -67,8 +61,7 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
   );
 };
 
-//Layout with Navbar
-
+// Layout with Navbar
 function WithNavbar() {
   return (
     <>
@@ -80,8 +73,7 @@ function WithNavbar() {
   );
 }
 
-//App
-
+// App component
 export default function App() {
   return (
     <BrowserRouter>
@@ -177,5 +169,4 @@ export default function App() {
       </div>
     </BrowserRouter>
   );
-}
 }

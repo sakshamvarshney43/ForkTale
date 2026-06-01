@@ -17,10 +17,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { storyService } from "../services/api";
-import { upload } from "../config/cloudinary";
 
 // Validation
-
 const schema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   description: z.string().max(500).optional(),
@@ -121,7 +119,7 @@ export default function StoryEdit() {
     }
   };
 
-  //Cover upload
+  // Cover upload
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -152,7 +150,7 @@ export default function StoryEdit() {
   const isSaving = updateMutation.isPending || uploadingCover;
   const isSaved = updateMutation.isSuccess && !isDirty;
 
-  //Loading
+  // Loading
   if (isLoading) {
     return (
       <div
@@ -171,7 +169,7 @@ export default function StoryEdit() {
   return (
     <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
       <div className="max-w-2xl mx-auto">
-        {/*Header*/}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -237,7 +235,7 @@ export default function StoryEdit() {
           </button>
         </motion.div>
 
-        {/* Form*/}
+        {/* Form */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
