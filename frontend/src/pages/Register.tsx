@@ -9,6 +9,7 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
+  CheckCircle2,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,6 +28,13 @@ const schema = z.object({
   password: z.string().min(6, "At least 6 characters"),
 });
 type Form = z.infer<typeof schema>;
+
+const perks = [
+  "Branch timelines without limits",
+  "AI co-author built in",
+  "Fork any published story",
+  "Free forever to start",
+];
 
 export default function Register() {
   const { login } = useAuth();
@@ -63,7 +71,7 @@ export default function Register() {
       label: "Full name",
       type: "text",
       placeholder: "John Doe",
-      icon: <User size={13} style={{ color: "#62666d" }} />,
+      Icon: User,
       prefix: null,
     },
     {
@@ -71,168 +79,218 @@ export default function Register() {
       label: "Username",
       type: "text",
       placeholder: "johndoe",
-      icon: null,
+      Icon: null,
       prefix: "@",
     },
     {
       name: "email" as const,
-      label: "Email",
+      label: "Email address",
       type: "email",
       placeholder: "you@example.com",
-      icon: <Mail size={13} style={{ color: "#62666d" }} />,
+      Icon: Mail,
       prefix: null,
     },
   ];
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-12"
-      style={{ background: "#08090a" }}
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        background: "var(--bg)",
+      }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-sm"
+      {/* Left*/}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 32px",
+          background: "var(--bg)",
+        }}
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          style={{ width: "100%", maxWidth: 380 }}
+        >
+          {/* Logo */}
+          <Link
+            to="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 40,
+            }}
+          >
             <div
-              className="w-8 h-8 rounded flex items-center justify-center"
-              style={{ background: "#8dd6ff" }}
+              style={{
+                width: 28,
+                height: 28,
+                background: "var(--text-primary)",
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <GitBranch size={16} className="text-pitch-black" />
+              <GitBranch size={14} color="white" />
             </div>
             <span
-              className="font-semibold"
-              style={{ color: "#f7f8f8", letterSpacing: "-0.13px" }}
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
             >
               ForkTale
             </span>
           </Link>
-          <h1
-            className="font-semibold mb-1"
-            style={{
-              fontSize: "22px",
-              letterSpacing: "-0.22px",
-              color: "#f7f8f8",
-            }}
-          >
-            Create your account
-          </h1>
-          <p style={{ color: "#8a8f98", fontSize: "13px" }}>
-            Start writing your first branch
-          </p>
-        </div>
 
-        {/* Card */}
-        <div
-          className="rounded-lg p-6"
-          style={{
-            background: "#0f1011",
-            border: "1px solid #23252a",
-            boxShadow:
-              "rgba(255, 255, 255, 0.03) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.6) 0px 0px 0px 1px",
-          }}
-        >
+          {/* Heading */}
+          <div style={{ marginBottom: 32 }}>
+            <h1
+              style={{
+                fontSize: 26,
+                fontWeight: 400,
+                fontStyle: "italic",
+                letterSpacing: "-0.03em",
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-display)",
+                marginBottom: 6,
+              }}
+            >
+              Create your account
+            </h1>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              Start your first branch.{" "}
+              <Link
+                to="/login"
+                style={{ color: "var(--accent)", fontWeight: 500 }}
+              >
+                Already have an account?
+              </Link>
+            </p>
+          </div>
+
+          {/* Error */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 px-3 py-2.5 rounded text-xs"
-              style={{
-                background: "rgba(235, 87, 87, 0.08)",
-                border: "1px solid rgba(235, 87, 87, 0.2)",
-                color: "#eb5757",
-              }}
+              className="alert alert-danger"
+              style={{ marginBottom: 20 }}
             >
               {error}
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {fields.map((field) => (
-              <div key={field.name}>
-                <label
-                  className="block mb-1.5 text-xs font-medium"
-                  style={{ color: "#8a8f98" }}
-                >
-                  {field.label}
-                </label>
-                <div className="relative">
-                  {field.icon && (
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2">
-                      {field.icon}
-                    </span>
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ display: "flex", flexDirection: "column", gap: 16 }}
+          >
+            {fields.map(({ name, label, type, placeholder, Icon, prefix }) => (
+              <div key={name}>
+                <label className="label">{label}</label>
+                <div style={{ position: "relative" }}>
+                  {Icon && (
+                    <Icon
+                      size={14}
+                      style={{
+                        position: "absolute",
+                        left: 11,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "var(--text-muted)",
+                        pointerEvents: "none",
+                      }}
+                    />
                   )}
-                  {field.prefix && (
+                  {prefix && (
                     <span
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-xs"
-                      style={{ color: "#62666d" }}
+                      style={{
+                        position: "absolute",
+                        left: 11,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        fontSize: 13,
+                        color: "var(--text-muted)",
+                        fontFamily: "var(--font-body)",
+                        pointerEvents: "none",
+                      }}
                     >
-                      {field.prefix}
+                      {prefix}
                     </span>
                   )}
                   <input
-                    {...register(field.name)}
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    className="input"
-                    style={{
-                      fontSize: "13px",
-                      paddingLeft: field.icon || field.prefix ? "32px" : "12px",
-                    }}
+                    {...register(name)}
+                    type={type}
+                    placeholder={placeholder}
+                    className={`input ${errors[name] ? "input-error" : ""}`}
+                    style={{ paddingLeft: Icon || prefix ? 34 : 12 }}
                   />
                 </div>
-                {errors[field.name] && (
-                  <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                    {errors[field.name]?.message}
-                  </p>
+                {errors[name] && (
+                  <p className="field-error">{errors[name]?.message}</p>
                 )}
               </div>
             ))}
 
             {/* Password */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Password
-              </label>
-              <div className="relative">
+              <label className="label">Password</label>
+              <div style={{ position: "relative" }}>
                 <Lock
-                  size={13}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "#62666d" }}
+                  size={14}
+                  style={{
+                    position: "absolute",
+                    left: 11,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "var(--text-muted)",
+                    pointerEvents: "none",
+                  }}
                 />
                 <input
                   {...register("password")}
                   type={showPw ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="input pl-9 pr-9"
-                  style={{ fontSize: "13px" }}
+                  placeholder="Min. 6 characters"
+                  className={`input ${errors.password ? "input-error" : ""}`}
+                  style={{ paddingLeft: 34, paddingRight: 36 }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "#62666d" }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color = "#8a8f98")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color = "#62666d")
-                  }
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-muted)",
+                    display: "flex",
+                    padding: 2,
+                  }}
                 >
-                  {showPw ? <EyeOff size={13} /> : <Eye size={13} />}
+                  {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                  {errors.password.message}
-                </p>
+                <p className="field-error">{errors.password.message}</p>
               )}
             </div>
 
@@ -241,51 +299,190 @@ export default function Register() {
               whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-2.5 text-sm mt-2"
+              className="btn btn-primary"
+              style={{
+                width: "100%",
+                padding: "11px",
+                fontSize: 14,
+                marginTop: 4,
+                justifyContent: "center",
+              }}
             >
               {loading ? (
-                <div
-                  className="w-4 h-4 border-2 rounded-full animate-spin"
-                  style={{
-                    borderColor: "rgba(8,9,10,0.3)",
-                    borderTopColor: "#08090a",
-                  }}
-                />
+                <span className="spinner" />
               ) : (
                 <>
-                  Create account <ArrowRight size={13} />
+                  Create account <ArrowRight size={14} />
                 </>
               )}
             </motion.button>
           </form>
 
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px" style={{ background: "#23252a" }} />
-            <span style={{ color: "#383b3f", fontSize: "11px" }}>or</span>
-            <div className="flex-1 h-px" style={{ background: "#23252a" }} />
+          <p
+            style={{
+              marginTop: 20,
+              fontSize: 12,
+              color: "var(--text-muted)",
+              textAlign: "center",
+              fontFamily: "var(--font-body)",
+              lineHeight: 1.6,
+            }}
+          >
+            By signing up, you agree to our{" "}
+            <span style={{ color: "var(--text-secondary)" }}>
+              Terms of Service
+            </span>{" "}
+            and{" "}
+            <span style={{ color: "var(--text-secondary)" }}>
+              Privacy Policy
+            </span>
+            .
+          </p>
+        </motion.div>
+      </div>
+
+      {/*Right*/}
+      <div
+        style={{
+          background: "var(--bg-subtle)",
+          borderLeft: "1px solid var(--border)",
+          padding: "48px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+        className="hidden lg:flex"
+      >
+        <div style={{ maxWidth: 340 }}>
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--accent)",
+              marginBottom: 20,
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            What you get
+          </p>
+          <h2
+            style={{
+              fontSize: "clamp(24px,2.5vw,34px)",
+              fontWeight: 400,
+              fontStyle: "italic",
+              letterSpacing: "-0.03em",
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-display)",
+              lineHeight: 1.15,
+              marginBottom: 36,
+            }}
+          >
+            Everything you need to write stories that evolve.
+          </h2>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              marginBottom: 40,
+            }}
+          >
+            {perks.map((p) => (
+              <div
+                key={p}
+                style={{ display: "flex", alignItems: "flex-start", gap: 12 }}
+              >
+                <CheckCircle2
+                  size={16}
+                  style={{ color: "#16a34a", flexShrink: 0, marginTop: 1 }}
+                />
+                <span
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-body)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {p}
+                </span>
+              </div>
+            ))}
           </div>
 
-          <p
-            className="text-center"
-            style={{ color: "#8a8f98", fontSize: "13px" }}
+          {/* Mini branch visual */}
+          <div
+            style={{
+              background: "var(--bg)",
+              border: "1.5px solid var(--border)",
+              borderRadius: 10,
+              padding: "16px 20px",
+              boxShadow: "var(--shadow-sm)",
+            }}
           >
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-medium"
-              style={{ color: "#8dd6ff" }}
-              onMouseEnter={(e) =>
-                ((e.target as HTMLElement).style.color = "#a8e0ff")
-              }
-              onMouseLeave={(e) =>
-                ((e.target as HTMLElement).style.color = "#8dd6ff")
-              }
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: "var(--text-muted)",
+                marginBottom: 12,
+                fontFamily: "var(--font-body)",
+              }}
             >
-              Log in
-            </Link>
-          </p>
+              Sample story
+            </p>
+            {[
+              { name: "main", color: "#2563eb", label: "12 commits" },
+              { name: "dark-ending", color: "#7c3aed", label: "8 commits" },
+              { name: "hero-arc", color: "#16a34a", label: "5 commits" },
+            ].map((b) => (
+              <div
+                key={b.name}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    background: b.color,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontFamily: "var(--font-mono)",
+                    color: "var(--text-primary)",
+                    flex: 1,
+                  }}
+                >
+                  {b.name}
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {b.label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -45,142 +45,313 @@ export default function Login() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: "#08090a" }}
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        background: "var(--bg)",
+      }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-sm"
+      {/* Left panel */}
+      <div
+        style={{
+          background: "var(--text-primary)",
+          padding: "48px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        className="hidden lg:flex"
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div
-              className="w-8 h-8 rounded flex items-center justify-center"
-              style={{ background: "#8dd6ff" }}
+        {/* grid pattern */}
+        <svg
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            opacity: 0.04,
+          }}
+        >
+          <defs>
+            <pattern
+              id="lgrid"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
             >
-              <GitBranch size={16} className="text-pitch-black" />
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="white"
+                strokeWidth="0.5"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#lgrid)" />
+        </svg>
+
+        {/* Logo */}
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            <GitBranch size={16} color="white" />
+          </div>
+          <span
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "white",
+              fontFamily: "var(--font-body)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            ForkTale
+          </span>
+        </div>
+
+        {/* Quote */}
+        <div style={{ position: "relative" }}>
+          <div
+            style={{
+              width: 32,
+              height: 2,
+              background: "rgba(255,255,255,0.2)",
+              marginBottom: 24,
+            }}
+          />
+          <p
+            style={{
+              fontSize: "clamp(22px,2.5vw,30px)",
+              fontWeight: 400,
+              fontStyle: "italic",
+              color: "white",
+              lineHeight: 1.3,
+              letterSpacing: "-0.02em",
+              fontFamily: "var(--font-display)",
+              marginBottom: 20,
+            }}
+          >
+            "Every story has
+            <br />
+            infinite versions.
+            <br />
+            <span style={{ opacity: 0.5 }}>Only one gets written.</span>
+            <br />
+            Until now."
+          </p>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["main", "dark-end", "hero-arc"].map((b) => (
+              <span
+                key={b}
+                style={{
+                  fontSize: 10,
+                  fontFamily: "var(--font-mono)",
+                  padding: "3px 9px",
+                  borderRadius: 99,
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "rgba(255,255,255,0.5)",
+                }}
+              >
+                {b}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/*Right panel */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 32px",
+          background: "var(--bg)",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          style={{ width: "100%", maxWidth: 360 }}
+        >
+          {/* Mobile logo */}
+          <Link
+            to="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 40,
+            }}
+            className="lg:hidden"
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                background: "var(--text-primary)",
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <GitBranch size={14} color="white" />
             </div>
             <span
-              className="font-semibold"
-              style={{ color: "#f7f8f8", letterSpacing: "-0.13px" }}
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
             >
               ForkTale
             </span>
           </Link>
-          <h1
-            className="font-semibold mb-1"
-            style={{
-              fontSize: "22px",
-              letterSpacing: "-0.22px",
-              color: "#f7f8f8",
-            }}
-          >
-            Welcome back
-          </h1>
-          <p style={{ color: "#8a8f98", fontSize: "13px" }}>
-            Continue your story
-          </p>
-        </div>
 
-        {/* Card */}
-        <div
-          className="rounded-lg p-6"
-          style={{
-            background: "#0f1011",
-            border: "1px solid #23252a",
-            boxShadow:
-              "rgba(255, 255, 255, 0.03) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.6) 0px 0px 0px 1px",
-          }}
-        >
+          {/* Heading */}
+          <div style={{ marginBottom: 32 }}>
+            <h1
+              style={{
+                fontSize: 26,
+                fontWeight: 400,
+                fontStyle: "italic",
+                letterSpacing: "-0.03em",
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-display)",
+                marginBottom: 6,
+              }}
+            >
+              Welcome back
+            </h1>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              Continue your story.{" "}
+              <Link
+                to="/register"
+                style={{ color: "var(--accent)", fontWeight: 500 }}
+              >
+                Create an account
+              </Link>
+            </p>
+          </div>
+
           {/* Error */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 px-3 py-2.5 rounded text-xs"
-              style={{
-                background: "rgba(235, 87, 87, 0.08)",
-                border: "1px solid rgba(235, 87, 87, 0.2)",
-                color: "#eb5757",
-              }}
+              className="alert alert-danger"
+              style={{ marginBottom: 20 }}
             >
               {error}
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ display: "flex", flexDirection: "column", gap: 18 }}
+          >
             {/* Email */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Email
-              </label>
-              <div className="relative">
+              <label className="label">Email address</label>
+              <div style={{ position: "relative" }}>
                 <Mail
-                  size={13}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "#62666d" }}
+                  size={14}
+                  style={{
+                    position: "absolute",
+                    left: 11,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "var(--text-muted)",
+                    pointerEvents: "none",
+                  }}
                 />
                 <input
                   {...register("email")}
                   type="email"
                   placeholder="you@example.com"
-                  className="input pl-9"
-                  style={{ fontSize: "13px" }}
+                  className={`input ${errors.email ? "input-error" : ""}`}
+                  style={{ paddingLeft: 34 }}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                  {errors.email.message}
-                </p>
+                <p className="field-error">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Password
-              </label>
-              <div className="relative">
+              <label className="label">Password</label>
+              <div style={{ position: "relative" }}>
                 <Lock
-                  size={13}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "#62666d" }}
+                  size={14}
+                  style={{
+                    position: "absolute",
+                    left: 11,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "var(--text-muted)",
+                    pointerEvents: "none",
+                  }}
                 />
                 <input
                   {...register("password")}
                   type={showPw ? "text" : "password"}
                   placeholder="••••••••"
-                  className="input pl-9 pr-9"
-                  style={{ fontSize: "13px" }}
+                  className={`input ${errors.password ? "input-error" : ""}`}
+                  style={{ paddingLeft: 34, paddingRight: 36 }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: "#62666d" }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color = "#8a8f98")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color = "#62666d")
-                  }
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-muted)",
+                    display: "flex",
+                    padding: 2,
+                  }}
                 >
-                  {showPw ? <EyeOff size={13} /> : <Eye size={13} />}
+                  {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                  {errors.password.message}
-                </p>
+                <p className="field-error">{errors.password.message}</p>
               )}
             </div>
 
@@ -190,52 +361,65 @@ export default function Login() {
               whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-2.5 text-sm mt-2"
+              className="btn btn-primary"
+              style={{
+                width: "100%",
+                padding: "11px",
+                fontSize: 14,
+                marginTop: 4,
+                justifyContent: "center",
+              }}
             >
               {loading ? (
-                <div
-                  className="w-4 h-4 border-2 rounded-full animate-spin"
-                  style={{
-                    borderColor: "rgba(8,9,10,0.3)",
-                    borderTopColor: "#08090a",
-                  }}
-                />
+                <span className="spinner" />
               ) : (
                 <>
-                  Log in <ArrowRight size={13} />
+                  Log in <ArrowRight size={14} />
                 </>
               )}
             </motion.button>
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px" style={{ background: "#23252a" }} />
-            <span style={{ color: "#383b3f", fontSize: "11px" }}>or</span>
-            <div className="flex-1 h-px" style={{ background: "#23252a" }} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              margin: "24px 0",
+            }}
+          >
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <span
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              or
+            </span>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
           </div>
 
           <p
-            className="text-center"
-            style={{ color: "#8a8f98", fontSize: "13px" }}
+            style={{
+              textAlign: "center",
+              fontSize: 13,
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-body)",
+            }}
           >
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-medium transition-colors"
-              style={{ color: "#8dd6ff" }}
-              onMouseEnter={(e) =>
-                ((e.target as HTMLElement).style.color = "#a8e0ff")
-              }
-              onMouseLeave={(e) =>
-                ((e.target as HTMLElement).style.color = "#8dd6ff")
-              }
+              style={{ color: "var(--accent)", fontWeight: 500 }}
             >
               Sign up free
             </Link>
           </p>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
