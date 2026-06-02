@@ -65,8 +65,26 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
     });
 
     if (existingPublish) {
-      return res.status(400).json({
-        message: "This branch is already published",
+      const updated = await prisma.publishing.update({
+        where: { id: existingPublish.id },
+        data: {
+          finalContent: latestCommit.content,
+          publishedAt: new Date(),
+        },
+        include: {
+          branch: {
+            select: {
+              id: true,
+              name: true,
+              storyId: true,
+            },
+          },
+        },
+      });
+
+      return res.status(200).json({
+        message: "Published ending updated",
+        publishing: updated,
       });
     }
 

@@ -507,7 +507,10 @@ export default function StoryRead() {
                         icon: <GitFork size={12} />,
                         val: `${story._count?.forks || 0} forks`,
                       },
-                      { icon: <Globe size={12} />, val: `${story.wordCount}w` },
+                      {
+                        icon: <Globe size={12} />,
+                        val: `${story.wordCount} words`,
+                      },
                     ].map((s, i) => (
                       <span
                         key={i}

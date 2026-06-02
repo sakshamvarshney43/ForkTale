@@ -241,7 +241,7 @@ function DiscoverCard({ story }: { story: Story }) {
                 val: story._count?.branches || 0,
               },
               { icon: <GitFork size={11} />, val: story._count?.forks || 0 },
-              { icon: <Globe size={11} />, val: `${story.wordCount}w` },
+              { icon: <Globe size={11} />, val: `${story.wordCount} words` },
             ].map((s, i) => (
               <span
                 key={i}

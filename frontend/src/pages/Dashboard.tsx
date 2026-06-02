@@ -413,7 +413,7 @@ function StoryCard({ story }: { story: Story }) {
                 fontFamily: "var(--font-body)",
               }}
             >
-              {story.wordCount}w
+              {story.wordCount} words
             </span>
           </div>
         </div>
