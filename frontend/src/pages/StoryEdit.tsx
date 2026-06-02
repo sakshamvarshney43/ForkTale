@@ -18,7 +18,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { storyService } from "../services/api";
 
-// Validation
 const schema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   description: z.string().max(500).optional(),
@@ -38,7 +37,6 @@ const genres = [
   "Drama",
 ];
 
-// Page
 export default function StoryEdit() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
@@ -59,19 +57,15 @@ export default function StoryEdit() {
     reset,
     formState: { errors, isDirty },
   } = useForm<Form>({ resolver: zodResolver(schema) });
-
   const selectedGenre = watch("genre");
   const isPublished = watch("isPublished");
 
-  // Fetch story
   const { data, isLoading } = useQuery({
     queryKey: ["story", storyId],
     queryFn: () => storyService.getMyStory(storyId!),
   });
-
   const story = data?.data?.story;
 
-  // Populate form
   useEffect(() => {
     if (story) {
       reset({
@@ -85,7 +79,6 @@ export default function StoryEdit() {
     }
   }, [story, reset]);
 
-  // Update mutation
   const updateMutation = useMutation({
     mutationFn: (data: Form) =>
       storyService.updateStory(storyId!, { ...data, tags }),
@@ -94,14 +87,11 @@ export default function StoryEdit() {
       queryClient.invalidateQueries({ queryKey: ["myStories"] });
     },
   });
-
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: () => storyService.deleteStory(storyId!),
     onSuccess: () => navigate("/dashboard"),
   });
 
-  // Tag helpers
   const addTag = () => {
     const t = tagInput.trim().toLowerCase();
     if (t && !tags.includes(t) && tags.length < 5) {
@@ -109,9 +99,7 @@ export default function StoryEdit() {
       setTagInput("");
     }
   };
-
   const removeTag = (tag: string) => setTags(tags.filter((t) => t !== tag));
-
   const handleTagKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -119,7 +107,6 @@ export default function StoryEdit() {
     }
   };
 
-  // Cover upload
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -127,19 +114,15 @@ export default function StoryEdit() {
     setCoverPreview(URL.createObjectURL(file));
   };
 
-  // Submit
   const onSubmit = async (data: Form) => {
     try {
       setError("");
-
-      // Upload cover if changed
       if (coverFile) {
         setUploadingCover(true);
         await storyService.uploadCover(storyId!, coverFile);
         setUploadingCover(false);
         setCoverFile(null);
       }
-
       await updateMutation.mutateAsync(data);
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong.");
@@ -150,167 +133,232 @@ export default function StoryEdit() {
   const isSaving = updateMutation.isPending || uploadingCover;
   const isSaved = updateMutation.isSuccess && !isDirty;
 
-  // Loading
-  if (isLoading) {
+  if (isLoading)
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#08090a" }}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg)",
+        }}
       >
         <Loader2
           size={20}
-          className="animate-spin"
-          style={{ color: "#8a8f98" }}
+          style={{
+            color: "var(--text-muted)",
+            animation: "spin 0.7s linear infinite",
+          }}
         />
       </div>
     );
-  }
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
-      <div className="max-w-2xl mx-auto">
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      <div
+        style={{ maxWidth: 680, margin: "0 auto", padding: "40px 32px 80px" }}
+      >
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 40,
+          }}
         >
-          <div className="flex items-center gap-3">
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <button
               onClick={() => navigate(-1)}
-              className="p-1.5 rounded transition-colors duration-150"
-              style={{ color: "#62666d", border: "1px solid #23252a" }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-                (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.color = "#62666d";
-                (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
-              }}
+              className="btn btn-secondary btn-sm"
+              style={{ padding: "7px 10px" }}
             >
               <ArrowLeft size={14} />
             </button>
             <div>
               <h1
-                className="font-semibold"
                 style={{
-                  fontSize: "18px",
-                  letterSpacing: "-0.22px",
-                  color: "#f7f8f8",
+                  fontSize: 22,
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  letterSpacing: "-0.03em",
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-display)",
+                  lineHeight: 1,
                 }}
               >
                 Edit story
               </h1>
-              <p style={{ color: "#62666d", fontSize: "12px" }}>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "var(--text-muted)",
+                  marginTop: 3,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
                 {story?.title}
               </p>
             </div>
           </div>
 
-          {/* Delete */}
           <button
             onClick={() => {
-              if (confirm("Delete this story? This cannot be undone.")) {
+              if (confirm("Delete this story? This cannot be undone."))
                 deleteMutation.mutate();
-              }
             }}
             disabled={deleteMutation.isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-colors duration-150"
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 14px",
+              borderRadius: 8,
               background: "transparent",
-              border: "1px solid rgba(235, 87, 87, 0.2)",
-              color: "#eb5757",
+              border: "1.5px solid #fecaca",
+              color: "#dc2626",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              cursor: "pointer",
+              transition: "all 0.15s",
             }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background =
-                "rgba(235, 87, 87, 0.08)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.background = "#fef2f2")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.background =
+                "transparent")
+            }
           >
-            <Trash2 size={12} />
-            Delete
+            {deleteMutation.isPending ? (
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />
+            ) : (
+              <Trash2 size={13} />
+            )}
+            Delete story
           </button>
         </motion.div>
 
-        {/* Form */}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="rounded-md p-6"
-          style={{
-            background: "#0f1011",
-            border: "1px solid #23252a",
-            boxShadow:
-              "rgba(255, 255, 255, 0.03) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.6) 0px 0px 0px 1px",
-          }}
         >
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 px-3 py-2.5 rounded text-xs"
-              style={{
-                background: "rgba(235, 87, 87, 0.08)",
-                border: "1px solid rgba(235, 87, 87, 0.2)",
-                color: "#eb5757",
-              }}
+              className="alert alert-danger"
+              style={{ marginBottom: 24 }}
             >
               {error}
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Cover Image */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ display: "flex", flexDirection: "column", gap: 24 }}
+          >
+            {/* Cover */}
             <div>
-              <label
-                className="block mb-2 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Cover image
-              </label>
+              <label className="label">Cover image</label>
               <div
-                className="relative w-full h-40 rounded overflow-hidden cursor-pointer group"
-                style={{ border: "1px solid #23252a" }}
                 onClick={() => document.getElementById("cover-input")?.click()}
+                style={{
+                  width: "100%",
+                  height: 180,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                  border: "1.5px dashed var(--border-strong)",
+                  cursor: "pointer",
+                  position: "relative",
+                  background: "var(--bg-subtle)",
+                  transition: "border-color 0.15s",
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--accent)")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--border-strong)")
+                }
               >
                 {coverPreview ? (
                   <>
                     <img
                       src={coverPreview}
                       alt="Cover"
-                      className="w-full h-full object-cover"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
                     <div
-                      className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-                      style={{ background: "rgba(8, 9, 10, 0.7)" }}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "rgba(0,0,0,0.45)",
+                        opacity: 0,
+                        transition: "opacity 0.2s",
+                      }}
+                      onMouseEnter={(e) =>
+                        ((e.currentTarget as HTMLElement).style.opacity = "1")
+                      }
+                      onMouseLeave={(e) =>
+                        ((e.currentTarget as HTMLElement).style.opacity = "0")
+                      }
                     >
-                      <div
-                        className="flex items-center gap-2 text-xs"
-                        style={{ color: "#f7f8f8" }}
+                      <ImagePlus
+                        size={20}
+                        style={{ color: "white", marginBottom: 6 }}
+                      />
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "white",
+                          fontFamily: "var(--font-body)",
+                        }}
                       >
-                        <ImagePlus size={14} />
                         Change cover
-                      </div>
+                      </span>
                     </div>
                   </>
                 ) : (
                   <div
-                    className="w-full h-full flex flex-col items-center justify-center gap-2 transition-colors duration-150"
-                    style={{ background: "#161718" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#23252a")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = "#161718")
-                    }
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                    }}
                   >
-                    <ImagePlus size={20} style={{ color: "#383b3f" }} />
-                    <span style={{ color: "#62666d", fontSize: "12px" }}>
-                      Click to upload cover
+                    <ImagePlus
+                      size={22}
+                      style={{ color: "var(--text-muted)" }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 13,
+                        color: "var(--text-muted)",
+                        fontFamily: "var(--font-body)",
+                      }}
+                    >
+                      Click to upload cover image
                     </span>
                   </div>
                 )}
@@ -318,7 +366,7 @@ export default function StoryEdit() {
                   id="cover-input"
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  style={{ display: "none" }}
                   onChange={handleCoverChange}
                 />
               </div>
@@ -326,49 +374,76 @@ export default function StoryEdit() {
 
             {/* Publish toggle */}
             <div
-              className="flex items-center justify-between px-3 py-2.5 rounded"
-              style={{ background: "#161718", border: "1px solid #23252a" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "14px 16px",
+                borderRadius: 10,
+                background: isPublished ? "#f0fdf4" : "var(--bg-subtle)",
+                border: `1.5px solid ${isPublished ? "#bbf7d0" : "var(--border)"}`,
+                transition: "all 0.2s",
+              }}
             >
-              <div className="flex items-center gap-2">
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 {isPublished ? (
-                  <Globe size={13} style={{ color: "#5fed83" }} />
+                  <Globe size={15} style={{ color: "#16a34a" }} />
                 ) : (
-                  <Lock size={13} style={{ color: "#62666d" }} />
+                  <Lock size={15} style={{ color: "var(--text-muted)" }} />
                 )}
                 <div>
                   <p
-                    className="text-xs font-medium"
-                    style={{ color: "#d0d6e0" }}
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: isPublished ? "#15803d" : "var(--text-primary)",
+                      fontFamily: "var(--font-body)",
+                    }}
                   >
                     {isPublished ? "Published" : "Draft"}
                   </p>
-                  <p style={{ color: "#62666d", fontSize: "11px" }}>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: isPublished ? "#16a34a" : "var(--text-muted)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
                     {isPublished
-                      ? "Visible to everyone"
+                      ? "Visible to everyone on Discover"
                       : "Only visible to you and collaborators"}
                   </p>
                 </div>
               </div>
+              {/* Toggle */}
               <button
                 type="button"
                 onClick={() =>
                   setValue("isPublished", !isPublished, { shouldDirty: true })
                 }
-                className="relative w-9 h-5 rounded-full transition-colors duration-200"
                 style={{
-                  background: isPublished
-                    ? "rgba(95, 237, 131, 0.3)"
-                    : "#23252a",
-                  border: isPublished
-                    ? "1px solid rgba(95, 237, 131, 0.4)"
-                    : "1px solid #383b3f",
+                  width: 40,
+                  height: 22,
+                  borderRadius: 99,
+                  position: "relative",
+                  background: isPublished ? "#16a34a" : "var(--border-strong)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "background 0.2s",
+                  flexShrink: 0,
                 }}
               >
                 <span
-                  className="absolute top-0.5 w-4 h-4 rounded-full transition-all duration-200"
                   style={{
-                    background: isPublished ? "#5fed83" : "#383b3f",
-                    left: isPublished ? "17px" : "1px",
+                    position: "absolute",
+                    top: 3,
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    background: "white",
+                    transition: "left 0.2s",
+                    left: isPublished ? 21 : 3,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                   }}
                 />
               </button>
@@ -376,50 +451,35 @@ export default function StoryEdit() {
 
             {/* Title */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Title <span style={{ color: "#eb5757" }}>*</span>
+              <label className="label">
+                Title <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               <input
                 {...register("title")}
                 type="text"
-                className="input"
-                style={{ fontSize: "14px" }}
+                className={`input ${errors.title ? "input-error" : ""}`}
+                style={{ fontSize: 15 }}
               />
               {errors.title && (
-                <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                  {errors.title.message}
-                </p>
+                <p className="field-error">{errors.title.message}</p>
               )}
             </div>
 
             {/* Description */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Description
-              </label>
+              <label className="label">Description</label>
               <textarea
                 {...register("description")}
                 rows={3}
-                className="input resize-none"
-                style={{ fontSize: "13px", lineHeight: "1.5" }}
+                className="input"
+                style={{ resize: "none", lineHeight: 1.6, fontSize: 14 }}
               />
             </div>
 
             {/* Genre */}
             <div>
-              <label
-                className="block mb-2 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Genre
-              </label>
-              <div className="flex flex-wrap gap-1.5">
+              <label className="label">Genre</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {genres.map((g) => (
                   <button
                     key={g}
@@ -429,34 +489,40 @@ export default function StoryEdit() {
                         shouldDirty: true,
                       })
                     }
-                    className="px-2.5 py-1 rounded text-xs transition-all duration-150"
-                    style={
-                      selectedGenre === g
-                        ? {
-                            background: "rgba(141, 214, 255, 0.1)",
-                            border: "1px solid rgba(141, 214, 255, 0.25)",
-                            color: "#8dd6ff",
-                          }
-                        : {
-                            background: "transparent",
-                            border: "1px solid #23252a",
-                            color: "#8a8f98",
-                          }
-                    }
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 99,
+                      fontSize: 13,
+                      fontFamily: "var(--font-body)",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      border: "1.5px solid",
+                      transition: "all 0.15s",
+                      background:
+                        selectedGenre === g
+                          ? "var(--text-primary)"
+                          : "transparent",
+                      borderColor:
+                        selectedGenre === g
+                          ? "var(--text-primary)"
+                          : "var(--border-strong)",
+                      color:
+                        selectedGenre === g ? "white" : "var(--text-secondary)",
+                    }}
                     onMouseEnter={(e) => {
                       if (selectedGenre !== g) {
                         (e.currentTarget as HTMLElement).style.borderColor =
-                          "#383b3f";
+                          "var(--text-primary)";
                         (e.currentTarget as HTMLElement).style.color =
-                          "#f7f8f8";
+                          "var(--text-primary)";
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedGenre !== g) {
                         (e.currentTarget as HTMLElement).style.borderColor =
-                          "#23252a";
+                          "var(--border-strong)";
                         (e.currentTarget as HTMLElement).style.color =
-                          "#8a8f98";
+                          "var(--text-secondary)";
                       }
                     }}
                   >
@@ -468,54 +534,67 @@ export default function StoryEdit() {
 
             {/* Tags */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Tags
-                <span
-                  className="ml-1.5"
-                  style={{ color: "#62666d", fontWeight: 400 }}
-                >
-                  up to 5
+              <label className="label">
+                Tags{" "}
+                <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>
+                  — up to 5
                 </span>
               </label>
-
               {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 6,
+                    marginBottom: 10,
+                  }}
+                >
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs"
                       style={{
-                        background: "#23252a",
-                        color: "#8a8f98",
-                        border: "1px solid #383b3f",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        padding: "4px 10px",
+                        borderRadius: 99,
+                        background: "var(--bg-muted)",
+                        border: "1px solid var(--border-strong)",
+                        fontSize: 12,
+                        color: "var(--text-secondary)",
+                        fontFamily: "var(--font-body)",
                       }}
                     >
-                      <Tag size={9} />
+                      <Tag size={9} style={{ color: "var(--text-muted)" }} />
                       {tag}
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        style={{ color: "#62666d" }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "var(--text-muted)",
+                          display: "flex",
+                          padding: 0,
+                          marginLeft: 2,
+                        }}
                         onMouseEnter={(e) =>
                           ((e.currentTarget as HTMLElement).style.color =
-                            "#eb5757")
+                            "var(--danger)")
                         }
                         onMouseLeave={(e) =>
                           ((e.currentTarget as HTMLElement).style.color =
-                            "#62666d")
+                            "var(--text-muted)")
                         }
                       >
-                        <X size={10} />
+                        <X size={11} />
                       </button>
                     </span>
                   ))}
                 </div>
               )}
-
-              <div className="flex gap-2">
+              <div style={{ display: "flex", gap: 8 }}>
                 <input
                   type="text"
                   value={tagInput}
@@ -523,14 +602,15 @@ export default function StoryEdit() {
                   onKeyDown={handleTagKey}
                   placeholder="Add a tag..."
                   disabled={tags.length >= 5}
-                  className="input flex-1"
-                  style={{ fontSize: "13px" }}
+                  className="input"
+                  style={{ flex: 1, fontSize: 13 }}
                 />
                 <button
                   type="button"
                   onClick={addTag}
                   disabled={!tagInput.trim() || tags.length >= 5}
-                  className="btn-secondary px-3 py-2 text-xs"
+                  className="btn btn-secondary"
+                  style={{ flexShrink: 0, fontSize: 13 }}
                 >
                   Add
                 </button>
@@ -539,13 +619,19 @@ export default function StoryEdit() {
 
             {/* Actions */}
             <div
-              className="flex items-center justify-end gap-2 pt-2"
-              style={{ borderTop: "1px solid #23252a" }}
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                paddingTop: 8,
+                borderTop: "1px solid var(--border)",
+              }}
             >
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="btn-ghost text-xs px-3 py-2"
+                className="btn btn-ghost"
+                style={{ fontSize: 14 }}
               >
                 Cancel
               </button>
@@ -554,20 +640,30 @@ export default function StoryEdit() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isSaving}
-                className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5"
+                className="btn btn-primary"
+                style={{
+                  fontSize: 14,
+                  minWidth: 140,
+                  justifyContent: "center",
+                }}
               >
                 {isSaving ? (
-                  <Loader2 size={13} className="animate-spin" />
+                  <>
+                    <Loader2
+                      size={14}
+                      style={{ animation: "spin 0.7s linear infinite" }}
+                    />
+                    {uploadingCover ? "Uploading..." : "Saving..."}
+                  </>
+                ) : isSaved ? (
+                  <>
+                    <Save size={14} /> Saved
+                  </>
                 ) : (
-                  <Save size={13} />
+                  <>
+                    <Save size={14} /> Save changes
+                  </>
                 )}
-                {isSaving
-                  ? uploadingCover
-                    ? "Uploading..."
-                    : "Saving..."
-                  : isSaved
-                    ? "Saved"
-                    : "Save changes"}
               </motion.button>
             </div>
           </form>

@@ -1,23 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Tag, X, Loader2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Tag, X, Loader2, GitBranch } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { storyService } from "../services/api";
 
-//Validation
 const schema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   description: z.string().max(500).optional(),
   genre: z.string().optional(),
 });
-
 type Form = z.infer<typeof schema>;
 
 const genres = [
-  "All",
   "Fantasy",
   "Sci-Fi",
   "Romance",
@@ -30,11 +27,8 @@ const genres = [
   "Isekai",
 ];
 
-//Page
-
 export default function StoryCreate() {
   const navigate = useNavigate();
-
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [error, setError] = useState("");
@@ -46,51 +40,33 @@ export default function StoryCreate() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<Form>({
-    resolver: zodResolver(schema),
-  });
-
+  } = useForm<Form>({ resolver: zodResolver(schema) });
   const selectedGenre = watch("genre");
 
-  //Tag Helper
   const addTag = () => {
     const t = tagInput.trim().toLowerCase();
-
     if (t && !tags.includes(t) && tags.length < 5) {
       setTags([...tags, t]);
       setTagInput("");
     }
   };
-
   const removeTag = (tag: string) => setTags(tags.filter((t) => t !== tag));
-
   const handleTagKey = (e: React.KeyboardEvent) => {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
       e.preventDefault();
       addTag();
     }
   };
 
-  //Submit
   const onSubmit = async (data: Form) => {
     try {
       setLoading(true);
       setError("");
-
-      const res = await storyService.create({
-        ...data,
-        tags,
-      });
-
+      const res = await storyService.create({ ...data, tags });
       const story = res.data.story;
-
       const branch = story.branches?.[0];
-
-      if (branch) {
-        navigate(`/stories/${story.id}/branches/${branch.id}`);
-      } else {
-        navigate("/dashboard");
-      }
+      if (branch) navigate(`/stories/${story.id}/branches/${branch.id}`);
+      else navigate("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong.");
     } finally {
@@ -99,147 +75,118 @@ export default function StoryCreate() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
-      <div className="max-w-2xl mx-auto">
-        {/*Header*/}
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      <div
+        style={{ maxWidth: 680, margin: "0 auto", padding: "40px 32px 80px" }}
+      >
+        {/* Back + heading */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-8"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            marginBottom: 40,
+          }}
         >
           <button
             onClick={() => navigate(-1)}
-            className="p-1.5 rounded transition-colors duration-150"
-            style={{ color: "#62666d", border: "1px solid #23252a" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-              (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#62666d";
-              (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
-            }}
+            className="btn btn-secondary btn-sm"
+            style={{ padding: "7px 10px" }}
           >
             <ArrowLeft size={14} />
           </button>
-
           <div>
             <h1
-              className="font-semibold"
               style={{
-                fontSize: "18px",
-                letterSpacing: "-0.22px",
-                color: "#f7f8f8",
+                fontSize: 22,
+                fontWeight: 400,
+                fontStyle: "italic",
+                letterSpacing: "-0.03em",
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-display)",
+                lineHeight: 1,
               }}
             >
               New story
             </h1>
-
-            <p style={{ color: "#62666d", fontSize: "12px" }}>
-              A main branch will be created automatically
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--text-muted)",
+                marginTop: 3,
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              A main branch is created automatically
             </p>
           </div>
         </motion.div>
 
-        {/*Form*/}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="rounded-md p-6"
-          style={{
-            background: "#0f1011",
-            border: "1px solid #23252a",
-            boxShadow:
-              "rgba(255, 255, 255, 0.03) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.6) 0px 0px 0px 1px",
-          }}
         >
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 px-3 py-2.5 rounded text-xs"
-              style={{
-                background: "rgba(235, 87, 87, 0.08)",
-                border: "1px solid rgba(235, 87, 87, 0.2)",
-                color: "#eb5757",
-              }}
+              className="alert alert-danger"
+              style={{ marginBottom: 24 }}
             >
               {error}
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ display: "flex", flexDirection: "column", gap: 24 }}
+          >
             {/* Title */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Title <span style={{ color: "#eb5757" }}>*</span>
+              <label className="label">
+                Title <span style={{ color: "var(--danger)" }}>*</span>
               </label>
-
               <input
                 {...register("title")}
                 type="text"
                 placeholder="The Lost Kingdom"
-                className="input"
-                style={{ fontSize: "14px" }}
+                className={`input ${errors.title ? "input-error" : ""}`}
+                style={{ fontSize: 15 }}
               />
-
               {errors.title && (
-                <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                  {errors.title.message}
-                </p>
+                <p className="field-error">{errors.title.message}</p>
               )}
             </div>
 
             {/* Description */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Description
-                <span
-                  className="ml-1.5"
-                  style={{ color: "#62666d", fontWeight: 400 }}
-                >
-                  optional
+              <label className="label">
+                Description{" "}
+                <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>
+                  — optional
                 </span>
               </label>
-
               <textarea
                 {...register("description")}
                 rows={3}
-                placeholder="A short description of your story..."
-                className="input resize-none"
-                style={{ fontSize: "13px", lineHeight: "1.5" }}
+                placeholder="A short synopsis of your story..."
+                className="input"
+                style={{ resize: "none", lineHeight: 1.6, fontSize: 14 }}
               />
-
-              {errors.description && (
-                <p className="mt-1 text-xs" style={{ color: "#eb5757" }}>
-                  {errors.description.message}
-                </p>
-              )}
             </div>
 
             {/* Genre */}
             <div>
-              <label
-                className="block mb-2 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Genre
-                <span
-                  className="ml-1.5"
-                  style={{ color: "#62666d", fontWeight: 400 }}
-                >
-                  optional
+              <label className="label">
+                Genre{" "}
+                <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>
+                  — optional
                 </span>
               </label>
-
-              <div className="flex flex-wrap gap-1.5">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {genres.map((g) => (
                   <button
                     key={g}
@@ -247,36 +194,40 @@ export default function StoryCreate() {
                     onClick={() =>
                       setValue("genre", selectedGenre === g ? "" : g)
                     }
-                    className="px-2.5 py-1 rounded text-xs transition-all duration-150"
-                    style={
-                      selectedGenre === g
-                        ? {
-                            background: "rgba(141, 214, 255, 0.1)",
-                            border: "1px solid rgba(141, 214, 255, 0.25)",
-                            color: "#8dd6ff",
-                          }
-                        : {
-                            background: "transparent",
-                            border: "1px solid #23252a",
-                            color: "#8a8f98",
-                          }
-                    }
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 99,
+                      fontSize: 13,
+                      fontFamily: "var(--font-body)",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      border: "1.5px solid",
+                      transition: "all 0.15s",
+                      background:
+                        selectedGenre === g
+                          ? "var(--text-primary)"
+                          : "transparent",
+                      borderColor:
+                        selectedGenre === g
+                          ? "var(--text-primary)"
+                          : "var(--border-strong)",
+                      color:
+                        selectedGenre === g ? "white" : "var(--text-secondary)",
+                    }}
                     onMouseEnter={(e) => {
                       if (selectedGenre !== g) {
                         (e.currentTarget as HTMLElement).style.borderColor =
-                          "#383b3f";
-
+                          "var(--text-primary)";
                         (e.currentTarget as HTMLElement).style.color =
-                          "#f7f8f8";
+                          "var(--text-primary)";
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedGenre !== g) {
                         (e.currentTarget as HTMLElement).style.borderColor =
-                          "#23252a";
-
+                          "var(--border-strong)";
                         (e.currentTarget as HTMLElement).style.color =
-                          "#8a8f98";
+                          "var(--text-secondary)";
                       }
                     }}
                   >
@@ -288,140 +239,161 @@ export default function StoryCreate() {
 
             {/* Tags */}
             <div>
-              <label
-                className="block mb-1.5 text-xs font-medium"
-                style={{ color: "#8a8f98" }}
-              >
-                Tags
-                <span
-                  className="ml-1.5"
-                  style={{ color: "#62666d", fontWeight: 400 }}
-                >
-                  up to 5
+              <label className="label">
+                Tags{" "}
+                <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>
+                  — up to 5
                 </span>
               </label>
-
               {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 6,
+                    marginBottom: 10,
+                  }}
+                >
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs"
                       style={{
-                        background: "#23252a",
-                        color: "#8a8f98",
-                        border: "1px solid #383b3f",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        padding: "4px 10px",
+                        borderRadius: 99,
+                        background: "var(--bg-muted)",
+                        border: "1px solid var(--border-strong)",
+                        fontSize: 12,
+                        color: "var(--text-secondary)",
+                        fontFamily: "var(--font-body)",
                       }}
                     >
-                      <Tag size={9} />
-
+                      <Tag size={9} style={{ color: "var(--text-muted)" }} />
                       {tag}
-
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="ml-0.5 transition-colors"
-                        style={{ color: "#62666d" }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "var(--text-muted)",
+                          display: "flex",
+                          padding: 0,
+                          marginLeft: 2,
+                        }}
                         onMouseEnter={(e) =>
                           ((e.currentTarget as HTMLElement).style.color =
-                            "#eb5757")
+                            "var(--danger)")
                         }
                         onMouseLeave={(e) =>
                           ((e.currentTarget as HTMLElement).style.color =
-                            "#62666d")
+                            "var(--text-muted)")
                         }
                       >
-                        <X size={10} />
+                        <X size={11} />
                       </button>
                     </span>
                   ))}
                 </div>
               )}
-
-              <div className="flex gap-2">
+              <div style={{ display: "flex", gap: 8 }}>
                 <input
                   type="text"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleTagKey}
-                  placeholder="Add a tag..."
+                  placeholder="Type a tag and press Enter..."
                   disabled={tags.length >= 5}
-                  className="input flex-1"
-                  style={{ fontSize: "13px" }}
+                  className="input"
+                  style={{ flex: 1, fontSize: 13 }}
                 />
-
                 <button
                   type="button"
                   onClick={addTag}
                   disabled={!tagInput.trim() || tags.length >= 5}
-                  className="btn-secondary px-3 py-2 text-xs"
+                  className="btn btn-secondary"
+                  style={{ flexShrink: 0, fontSize: 13 }}
                 >
                   Add
                 </button>
               </div>
             </div>
 
-            {/* Divider */}
-            <div
-              style={{
-                height: "1px",
-                background: "#23252a",
-              }}
-            />
-
             {/* Info box */}
             <div
-              className="flex items-start gap-3 px-3 py-2.5 rounded text-xs"
               style={{
-                background: "rgba(141, 214, 255, 0.04)",
-                border: "1px solid rgba(141, 214, 255, 0.1)",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 12,
+                padding: "14px 16px",
+                borderRadius: 10,
+                background: "var(--accent-subtle)",
+                border: "1px solid var(--accent-border)",
               }}
             >
-              <BookOpen
-                size={13}
-                style={{
-                  color: "#8dd6ff",
-                  flexShrink: 0,
-                  marginTop: "1px",
-                }}
+              <GitBranch
+                size={15}
+                style={{ color: "var(--accent)", flexShrink: 0, marginTop: 1 }}
               />
-
               <p
                 style={{
-                  color: "#8a8f98",
-                  lineHeight: "1.5",
+                  fontSize: 13,
+                  color: "var(--accent)",
+                  lineHeight: 1.6,
+                  fontFamily: "var(--font-body)",
                 }}
               >
-                A <span style={{ color: "#8dd6ff" }}>main</span> branch will be
-                created automatically. You can add more branches and commits
-                from the editor.
+                A <strong>main</strong> branch will be created automatically.
+                You can add more branches from the editor.
               </p>
             </div>
 
-            {/* Submit */}
-            <div className="flex items-center justify-end gap-2 pt-1">
+            {/* Actions */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                paddingTop: 8,
+                borderTop: "1px solid var(--border)",
+              }}
+            >
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="btn-ghost text-xs px-3 py-2"
+                className="btn btn-ghost"
+                style={{ fontSize: 14 }}
               >
                 Cancel
               </button>
-
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5"
+                className="btn btn-primary"
+                style={{
+                  fontSize: 14,
+                  minWidth: 130,
+                  justifyContent: "center",
+                }}
               >
                 {loading ? (
-                  <Loader2 size={13} className="animate-spin" />
+                  <>
+                    <Loader2
+                      size={14}
+                      style={{ animation: "spin 0.7s linear infinite" }}
+                    />{" "}
+                    Creating...
+                  </>
                 ) : (
-                  <BookOpen size={13} />
+                  <>
+                    <BookOpen size={14} /> Create story
+                  </>
                 )}
-
-                {loading ? "Creating..." : "Create story"}
               </motion.button>
             </div>
           </form>
