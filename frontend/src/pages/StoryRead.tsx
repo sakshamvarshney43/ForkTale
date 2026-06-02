@@ -20,7 +20,6 @@ import {
 import { useAuth } from "../context/AuthContext";
 import type { Publishing } from "../types";
 
-//Helper
 const timeAgo = (date: string) => {
   const diff = Date.now() - new Date(date).getTime();
   const days = Math.floor(diff / 86400000);
@@ -31,7 +30,7 @@ const timeAgo = (date: string) => {
   return "just now";
 };
 
-//Star Rating
+/*Star Rating*/
 function StarRating({
   publishingId,
   avgRating,
@@ -49,38 +48,36 @@ function StarRating({
 
   const rateMutation = useMutation({
     mutationFn: (stars: number) => ratingService.rate(publishingId, stars),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ending", publishingId] });
-    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
   });
-
   const deleteMutation = useMutation({
     mutationFn: () => ratingService.deleteRating(publishingId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ending", publishingId] });
-    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
   });
 
   return (
-    <div className="flex items-center gap-3">
-      {/* Stars */}
-      <div className="flex items-center gap-0.5">
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             disabled={!isAuthenticated}
-            onClick={() => {
-              if (userRating === star) {
-                deleteMutation.mutate();
-              } else {
-                rateMutation.mutate(star);
-              }
-            }}
+            onClick={() =>
+              userRating === star
+                ? deleteMutation.mutate()
+                : rateMutation.mutate(star)
+            }
             onMouseEnter={() => isAuthenticated && setHovered(star)}
             onMouseLeave={() => setHovered(0)}
-            className="transition-transform duration-100"
             style={{
-              transform: hovered >= star ? "scale(1.15)" : "scale(1)",
+              background: "none",
+              border: "none",
+              cursor: isAuthenticated ? "pointer" : "default",
+              padding: 1,
+              transform: hovered >= star ? "scale(1.18)" : "scale(1)",
+              transition: "transform 0.1s",
             }}
           >
             <Star
@@ -88,11 +85,11 @@ function StarRating({
               style={{
                 color:
                   hovered >= star || (userRating ?? 0) >= star
-                    ? "#f0b429"
-                    : "#383b3f",
+                    ? "#f59e0b"
+                    : "var(--border-strong)",
                 fill:
                   hovered >= star || (userRating ?? 0) >= star
-                    ? "#f0b429"
+                    ? "#f59e0b"
                     : "transparent",
                 transition: "all 0.1s",
               }}
@@ -100,20 +97,26 @@ function StarRating({
           </button>
         ))}
       </div>
-
-      {/* Stats */}
-      <span style={{ color: "#62666d", fontSize: "12px" }}>
+      <span
+        style={{
+          fontSize: 13,
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-body)",
+        }}
+      >
         {avgRating > 0 ? avgRating.toFixed(1) : "—"}
-        {totalRatings > 0 && <span className="ml-1">({totalRatings})</span>}
+        {totalRatings > 0 && ` (${totalRatings})`}
       </span>
-
       {userRating && (
         <span
-          className="text-xs px-1.5 py-0.5 rounded"
           style={{
-            background: "rgba(240, 180, 41, 0.08)",
-            border: "1px solid rgba(240, 180, 41, 0.15)",
-            color: "#f0b429",
+            fontSize: 11,
+            padding: "2px 8px",
+            borderRadius: 99,
+            fontFamily: "var(--font-body)",
+            background: "#fffbeb",
+            border: "1px solid #fde68a",
+            color: "#92400e",
           }}
         >
           Your rating: {userRating}★
@@ -123,7 +126,7 @@ function StarRating({
   );
 }
 
-// Ending Card
+/*Ending sidebar card*/
 function EndingCard({
   ending,
   isActive,
@@ -136,42 +139,73 @@ function EndingCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-3 py-2.5 rounded transition-colors duration-150"
       style={{
-        background: isActive ? "#161718" : "transparent",
-        border: isActive
-          ? "1px solid rgba(141, 214, 255, 0.2)"
-          : "1px solid #23252a",
-        color: isActive ? "#8dd6ff" : "#8a8f98",
+        width: "100%",
+        textAlign: "left",
+        padding: "10px 12px",
+        borderRadius: 8,
+        cursor: "pointer",
+        border: `1.5px solid ${isActive ? "var(--accent-border)" : "var(--border)"}`,
+        background: isActive ? "var(--accent-subtle)" : "var(--bg)",
+        transition: "all 0.15s",
+        display: "block",
       }}
       onMouseEnter={(e) => {
         if (!isActive) {
-          (e.currentTarget as HTMLElement).style.background = "#161718";
-          (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-          (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
+          (e.currentTarget as HTMLElement).style.borderColor =
+            "var(--border-strong)";
+          (e.currentTarget as HTMLElement).style.background =
+            "var(--bg-subtle)";
         }
       }}
       onMouseLeave={(e) => {
         if (!isActive) {
-          (e.currentTarget as HTMLElement).style.background = "transparent";
-          (e.currentTarget as HTMLElement).style.color = "#8a8f98";
-          (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
+          (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+          (e.currentTarget as HTMLElement).style.background = "var(--bg)";
         }
       }}
     >
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-medium">{ending.branch.name}</span>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 3,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: isActive ? "var(--accent)" : "var(--text-primary)",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {ending.branch.name}
+        </span>
         {ending.avgRating && ending.avgRating > 0 ? (
           <span
-            className="flex items-center gap-1 text-xs"
-            style={{ color: "#f0b429" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+              fontSize: 12,
+              color: "#f59e0b",
+              fontFamily: "var(--font-body)",
+            }}
           >
-            <Star size={10} fill="#f0b429" />
+            <Star size={10} fill="#f59e0b" style={{ color: "#f59e0b" }} />
             {ending.avgRating.toFixed(1)}
           </span>
         ) : null}
       </div>
-      <p className="text-xs" style={{ color: "#62666d" }}>
+      <p
+        style={{
+          fontSize: 12,
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-body)",
+        }}
+      >
         {timeAgo(ending.publishedAt)}
         {ending.totalRatings ? ` · ${ending.totalRatings} ratings` : ""}
       </p>
@@ -179,34 +213,27 @@ function EndingCard({
   );
 }
 
-//Page
+/*Page*/
 export default function StoryRead() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-
   const [activeEndingId, setActiveEndingId] = useState<string | null>(null);
   const [forking, setForking] = useState(false);
 
-  //Fetch story
   const { data: storyData, isLoading: storyLoading } = useQuery<any>({
     queryKey: ["story", storyId],
     queryFn: () => storyService.getMyStory(storyId!),
   });
-
-  //Fetch endings
   const { data: endingsData } = useQuery<any>({
     queryKey: ["endings", storyId],
     queryFn: () => publishService.getEndings(storyId!),
     onSuccess: (data: any) => {
       const endings = data?.data?.endings || [];
-      if (!activeEndingId && endings.length > 0) {
+      if (!activeEndingId && endings.length > 0)
         setActiveEndingId(endings[0].id);
-      }
     },
   } as any);
-
-  //Fetch active ending
   const { data: endingData, isLoading: endingLoading } = useQuery<any>({
     queryKey: ["ending", activeEndingId],
     queryFn: () => publishService.readEnding(activeEndingId!),
@@ -217,7 +244,6 @@ export default function StoryRead() {
   const endings: Publishing[] = endingsData?.data?.endings || [];
   const ending = endingData?.data?.ending;
 
-  //Fork
   const handleFork = async () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -234,110 +260,194 @@ export default function StoryRead() {
     }
   };
 
-  if (storyLoading) {
+  if (storyLoading)
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#08090a" }}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg)",
+        }}
       >
         <Loader2
-          size={18}
-          className="animate-spin"
-          style={{ color: "#8a8f98" }}
+          size={20}
+          style={{
+            color: "var(--text-muted)",
+            animation: "spin 0.7s linear infinite",
+          }}
         />
       </div>
     );
-  }
 
-  if (!story) {
+  if (!story)
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#08090a" }}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg)",
+        }}
       >
-        <div className="text-center">
-          <BookOpen
-            size={28}
-            className="mx-auto mb-3"
-            style={{ color: "#383b3f" }}
-          />
-          <p style={{ color: "#8a8f98", fontSize: "14px" }}>Story not found.</p>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              background: "var(--bg-muted)",
+              borderRadius: 14,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+            }}
+          >
+            <BookOpen size={24} style={{ color: "var(--text-muted)" }} />
+          </div>
+          <p
+            style={{
+              fontSize: 14,
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            Story not found.
+          </p>
         </div>
       </div>
     );
-  }
 
   return (
-    <div className="min-h-screen" style={{ background: "#08090a" }}>
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/*Back*/}
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      <div
+        style={{ maxWidth: 1120, margin: "0 auto", padding: "32px 32px 80px" }}
+      >
+        {/* Back */}
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 mb-6 text-xs transition-colors duration-150"
-          style={{ color: "#62666d" }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            marginBottom: 28,
+            fontSize: 13,
+            color: "var(--text-muted)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            padding: "6px 0",
+            transition: "color 0.15s",
+          }}
           onMouseEnter={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "#f7f8f8")
+            ((e.currentTarget as HTMLElement).style.color =
+              "var(--text-primary)")
           }
           onMouseLeave={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "#62666d")
+            ((e.currentTarget as HTMLElement).style.color = "var(--text-muted)")
           }
         >
-          <ArrowLeft size={13} />
-          Back
+          <ArrowLeft size={14} /> Back
         </motion.button>
 
-        <div className="flex gap-8">
-          {/* Main Content*/}
-          <div className="flex-1 min-w-0">
-            {/* Story header */}
+        {/* Layout */}
+        <div style={{ display: "flex", gap: 48, alignItems: "flex-start" }}>
+          {/* Main*/}
+          <div style={{ flex: 1, minWidth: 0 }}>
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              style={{ marginBottom: 40 }}
             >
               {/* Cover */}
               {story.coverImage && (
-                <div className="w-full h-52 rounded-md overflow-hidden mb-6">
+                <div
+                  style={{
+                    width: "100%",
+                    height: 260,
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    marginBottom: 28,
+                    border: "1px solid var(--border)",
+                  }}
+                >
                   <img
                     src={story.coverImage}
                     alt={story.title}
-                    className="w-full h-full object-cover"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 </div>
               )}
 
-              {/* Meta */}
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="flex-1">
+              {/* Header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  gap: 20,
+                  marginBottom: 20,
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <h1
-                    className="font-semibold mb-2"
                     style={{
-                      fontSize: "28px",
-                      letterSpacing: "-0.22px",
-                      color: "#f7f8f8",
-                      lineHeight: "1.2",
+                      fontSize: "clamp(24px,3vw,36px)",
+                      fontWeight: 400,
+                      fontStyle: "italic",
+                      letterSpacing: "-0.03em",
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-display)",
+                      lineHeight: 1.1,
+                      marginBottom: 14,
                     }}
                   >
                     {story.title}
                   </h1>
 
                   {/* Author */}
-                  <div className="flex items-center gap-2 mb-3">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 14,
+                    }}
+                  >
                     {story.author.avatar ? (
                       <img
                         src={story.author.avatar}
                         alt={story.author.username}
-                        className="w-5 h-5 rounded-full object-cover"
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                        }}
                       />
                     ) : (
                       <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold"
                         style={{
-                          background: "#8dd6ff",
-                          color: "#08090a",
-                          fontSize: "9px",
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "var(--accent)",
+                          color: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 10,
+                          fontWeight: 700,
+                          fontFamily: "var(--font-body)",
                         }}
                       >
                         {story.author.username[0].toUpperCase()}
@@ -345,13 +455,22 @@ export default function StoryRead() {
                     )}
                     <button
                       onClick={() => navigate(`/u/${story.author.username}`)}
-                      className="text-xs transition-colors duration-100"
-                      style={{ color: "#8a8f98" }}
+                      style={{
+                        fontSize: 13,
+                        color: "var(--text-secondary)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        transition: "color 0.15s",
+                      }}
                       onMouseEnter={(e) =>
-                        ((e.target as HTMLElement).style.color = "#8dd6ff")
+                        ((e.currentTarget as HTMLElement).style.color =
+                          "var(--accent)")
                       }
                       onMouseLeave={(e) =>
-                        ((e.target as HTMLElement).style.color = "#8a8f98")
+                        ((e.currentTarget as HTMLElement).style.color =
+                          "var(--text-secondary)")
                       }
                     >
                       {story.author.name || story.author.username}
@@ -360,84 +479,94 @@ export default function StoryRead() {
 
                   {/* Tags */}
                   {story.tags?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-3">
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 6,
+                        marginBottom: 14,
+                      }}
+                    >
                       {story.tags.map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="text-xs px-2 py-0.5 rounded"
-                          style={{
-                            background: "#161718",
-                            border: "1px solid #23252a",
-                            color: "#8a8f98",
-                          }}
-                        >
+                        <span key={tag} className="badge badge-default">
                           {tag}
                         </span>
                       ))}
                     </div>
                   )}
 
-                  {/* Stats */}
-                  <div className="flex items-center gap-4">
+                  {/* Stats row */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 16,
+                      flexWrap: "wrap",
+                    }}
+                  >
                     {story.genre && (
+                      <span className="badge badge-accent">{story.genre}</span>
+                    )}
+                    {[
+                      {
+                        icon: <GitBranch size={12} />,
+                        val: `${story._count?.branches || 0} branches`,
+                      },
+                      {
+                        icon: <GitFork size={12} />,
+                        val: `${story._count?.forks || 0} forks`,
+                      },
+                      { icon: <Globe size={12} />, val: `${story.wordCount}w` },
+                    ].map((s, i) => (
                       <span
-                        className="text-xs px-2 py-0.5 rounded"
+                        key={i}
                         style={{
-                          background: "#23252a",
-                          color: "#8a8f98",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                          fontSize: 13,
+                          color: "var(--text-muted)",
+                          fontFamily: "var(--font-body)",
                         }}
                       >
-                        {story.genre}
+                        {s.icon}
+                        {s.val}
                       </span>
-                    )}
-                    <span
-                      className="flex items-center gap-1 text-xs"
-                      style={{ color: "#62666d" }}
-                    >
-                      <GitBranch size={11} />
-                      {story._count?.branches || 0} branches
-                    </span>
-                    <span
-                      className="flex items-center gap-1 text-xs"
-                      style={{ color: "#62666d" }}
-                    >
-                      <GitFork size={11} />
-                      {story._count?.forks || 0} forks
-                    </span>
-                    <span
-                      className="flex items-center gap-1 text-xs"
-                      style={{ color: "#62666d" }}
-                    >
-                      <Globe size={11} />
-                      {story.wordCount}w
-                    </span>
+                    ))}
                   </div>
                 </div>
 
-                {/* Fork button */}
                 {story.authorId !== user?.id && (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleFork}
                     disabled={forking}
-                    className="btn-secondary text-xs px-3 py-2 flex items-center gap-1.5 flex-shrink-0"
+                    className="btn btn-secondary"
+                    style={{ flexShrink: 0, gap: 6 }}
                   >
                     {forking ? (
-                      <Loader2 size={12} className="animate-spin" />
+                      <Loader2
+                        size={13}
+                        style={{ animation: "spin 0.7s linear infinite" }}
+                      />
                     ) : (
-                      <GitFork size={12} />
+                      <GitFork size={13} />
                     )}
                     Fork story
                   </motion.button>
                 )}
               </div>
 
-              {/* Description */}
               {story.description && (
                 <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: "#8a8f98", lineHeight: "1.6" }}
+                  style={{
+                    fontSize: 15,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.7,
+                    fontFamily: "var(--font-body)",
+                    maxWidth: 640,
+                  }}
                 >
                   {story.description}
                 </p>
@@ -446,30 +575,43 @@ export default function StoryRead() {
 
             {/*Reading area*/}
             {endings.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-16 rounded-md"
+              <div
                 style={{
-                  background: "#0f1011",
-                  border: "1px solid #23252a",
+                  textAlign: "center",
+                  padding: "64px 0",
+                  background: "var(--bg-subtle)",
+                  borderRadius: 12,
+                  border: "1.5px solid var(--border)",
                 }}
               >
                 <BookOpen
                   size={28}
-                  className="mx-auto mb-3"
-                  style={{ color: "#383b3f" }}
+                  style={{ color: "var(--text-muted)", margin: "0 auto 12px" }}
                 />
-                <p className="text-sm" style={{ color: "#8a8f98" }}>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
                   No published endings yet
                 </p>
-              </motion.div>
+              </div>
             ) : endingLoading ? (
-              <div className="flex items-center justify-center py-16">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: "64px 0",
+                }}
+              >
                 <Loader2
-                  size={18}
-                  className="animate-spin"
-                  style={{ color: "#8a8f98" }}
+                  size={20}
+                  style={{
+                    color: "var(--text-muted)",
+                    animation: "spin 0.7s linear infinite",
+                  }}
                 />
               </div>
             ) : ending ? (
@@ -477,26 +619,46 @@ export default function StoryRead() {
                 key={activeEndingId}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.25 }}
               >
                 {/* Reading header */}
                 <div
-                  className="flex items-center justify-between mb-6 pb-4"
-                  style={{ borderBottom: "1px solid #23252a" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingBottom: 20,
+                    marginBottom: 32,
+                    borderBottom: "1px solid var(--border)",
+                    flexWrap: "wrap",
+                    gap: 12,
+                  }}
                 >
                   <div>
-                    <p className="text-xs mb-0.5" style={{ color: "#62666d" }}>
+                    <p
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: "var(--text-muted)",
+                        marginBottom: 3,
+                        fontFamily: "var(--font-body)",
+                      }}
+                    >
                       Reading ending
                     </p>
                     <h2
-                      className="font-medium text-sm"
-                      style={{ color: "#8dd6ff" }}
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: "var(--accent)",
+                        fontFamily: "var(--font-body)",
+                      }}
                     >
                       {ending.branch?.name}
                     </h2>
                   </div>
-
-                  {/* Rating */}
                   <StarRating
                     publishingId={ending.id}
                     avgRating={ending.avgRating || 0}
@@ -505,53 +667,55 @@ export default function StoryRead() {
                   />
                 </div>
 
-                {/* Story content — reading mode */}
-                <div
-                  className="prose max-w-none"
-                  style={{
-                    fontFamily: "Georgia, serif",
-                    fontSize: "17px",
-                    lineHeight: "1.85",
-                    color: "#d0d6e0",
-                    letterSpacing: "0.01px",
-                  }}
-                >
+                {/* Prose */}
+                <div className="prose">
                   {ending.finalContent
                     .split("\n\n")
                     .filter(Boolean)
                     .map((para: string, i: number) => (
-                      <p key={i} style={{ marginBottom: "1.5rem" }}>
-                        {para}
-                      </p>
+                      <p key={i}>{para}</p>
                     ))}
                 </div>
 
-                {/* End of story */}
+                {/* End marker */}
                 <div
-                  className="flex items-center gap-3 mt-10 pt-6"
-                  style={{ borderTop: "1px solid #23252a" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    margin: "48px 0 24px",
+                    borderTop: "1px solid var(--border)",
+                    paddingTop: 24,
+                  }}
                 >
                   <div
-                    className="flex-1 h-px"
-                    style={{ background: "#23252a" }}
+                    style={{ flex: 1, height: 1, background: "var(--border)" }}
                   />
                   <span
                     style={{
-                      color: "#383b3f",
-                      fontSize: "12px",
-                      fontFamily: "monospace",
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      fontFamily: "var(--font-mono)",
+                      letterSpacing: "0.06em",
                     }}
                   >
                     end of {ending.branch?.name}
                   </span>
                   <div
-                    className="flex-1 h-px"
-                    style={{ background: "#23252a" }}
+                    style={{ flex: 1, height: 1, background: "var(--border)" }}
                   />
                 </div>
 
                 {/* Post-read actions */}
-                <div className="flex items-center justify-between mt-6">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 12,
+                  }}
+                >
                   <StarRating
                     publishingId={ending.id}
                     avgRating={ending.avgRating || 0}
@@ -564,10 +728,10 @@ export default function StoryRead() {
                       whileTap={{ scale: 0.98 }}
                       onClick={handleFork}
                       disabled={forking}
-                      className="btn-secondary text-xs px-3 py-2 flex items-center gap-1.5"
+                      className="btn btn-secondary"
+                      style={{ gap: 6 }}
                     >
-                      <GitFork size={12} />
-                      Fork and continue
+                      <GitFork size={13} /> Fork and continue
                     </motion.button>
                   )}
                 </div>
@@ -576,16 +740,22 @@ export default function StoryRead() {
           </div>
 
           {/*Sidebar*/}
-          <div className="w-56 flex-shrink-0 hidden lg:block">
-            <div className="sticky top-24">
+          <div style={{ width: 220, flexShrink: 0 }} className="hide-mobile">
+            <div style={{ position: "sticky", top: 80 }}>
               <p
-                className="text-xs font-medium mb-3"
-                style={{ color: "#8a8f98" }}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--text-muted)",
+                  marginBottom: 12,
+                  fontFamily: "var(--font-body)",
+                }}
               >
                 {endings.length} ending{endings.length !== 1 ? "s" : ""}
               </p>
-
-              <div className="space-y-1.5">
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {endings.map((e) => (
                   <EndingCard
                     key={e.id}
@@ -596,34 +766,64 @@ export default function StoryRead() {
                 ))}
               </div>
 
-              {/* Forked from */}
               {story.forkedFrom && (
                 <div
-                  className="mt-6 p-3 rounded"
                   style={{
-                    background: "#0f1011",
-                    border: "1px solid #23252a",
+                    marginTop: 24,
+                    padding: "14px 16px",
+                    borderRadius: 10,
+                    background: "var(--bg-subtle)",
+                    border: "1.5px solid var(--border)",
                   }}
                 >
-                  <p className="text-xs mb-1" style={{ color: "#62666d" }}>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--text-muted)",
+                      marginBottom: 8,
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
                     Forked from
                   </p>
                   <button
                     onClick={() =>
                       navigate(`/stories/${story.forkedFrom!.id}/read`)
                     }
-                    className="text-xs transition-colors duration-100"
-                    style={{ color: "#8dd6ff" }}
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: "var(--accent)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "var(--font-body)",
+                      padding: 0,
+                      transition: "color 0.15s",
+                      textAlign: "left",
+                    }}
                     onMouseEnter={(e) =>
-                      ((e.target as HTMLElement).style.color = "#a8e0ff")
+                      ((e.currentTarget as HTMLElement).style.color =
+                        "var(--accent-hover)")
                     }
                     onMouseLeave={(e) =>
-                      ((e.target as HTMLElement).style.color = "#8dd6ff")
+                      ((e.currentTarget as HTMLElement).style.color =
+                        "var(--accent)")
                     }
                   >
                     {story.forkedFrom.title}
                   </button>
-                  <p className="text-xs mt-0.5" style={{ color: "#62666d" }}>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      marginTop: 3,
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
                     by {story.forkedFrom.author.username}
                   </p>
                 </div>
@@ -632,6 +832,10 @@ export default function StoryRead() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) { .hide-mobile { display: none !important; } }
+      `}</style>
     </div>
   );
 }
