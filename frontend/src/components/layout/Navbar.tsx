@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useClickOutside } from "../../hooks/useClickOutside";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -35,14 +36,8 @@ export default function Navbar() {
   }, [location]);
 
   // close profile dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node))
-        setProfileOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+
+  useClickOutside(profileRef, () => setProfileOpen(false));
 
   const active = (href: string) => location.pathname === href;
 

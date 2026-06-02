@@ -19,16 +19,7 @@ import {
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Publishing } from "../types";
-
-const timeAgo = (date: string) => {
-  const diff = Date.now() - new Date(date).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days > 30) return new Date(date).toLocaleDateString();
-  if (days > 0) return `${days}d ago`;
-  const hours = Math.floor(diff / 3600000);
-  if (hours > 0) return `${hours}h ago`;
-  return "just now";
-};
+import { timeAgo } from "../utils/format";
 
 /*Star Rating*/
 function StarRating({

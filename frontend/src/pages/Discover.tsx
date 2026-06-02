@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { storyService, forkService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
+import { useDebounce } from "../hooks/useDebounce";
 
 const genres = [
   "All",
@@ -350,12 +351,13 @@ export default function Discover() {
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("All");
   const [sort, setSort] = useState<"latest" | "top">("latest");
+  const debouncedSearch = useDebounce(search, 400);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["discover", search, genre, sort],
+    queryKey: ["discover", debouncedSearch, search, genre, sort],
     queryFn: () =>
       storyService.discover({
-        search: search || undefined,
+        search: debouncedSearch || undefined,
         genre: genre === "All" ? undefined : genre,
         sort,
       }),
