@@ -9,8 +9,6 @@ import {
   ImagePlus,
   Loader2,
   Trash2,
-  Globe,
-  Lock,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -58,7 +56,6 @@ export default function StoryEdit() {
     formState: { errors, isDirty },
   } = useForm<Form>({ resolver: zodResolver(schema) });
   const selectedGenre = watch("genre");
-  const isPublished = watch("isPublished");
 
   const { data, isLoading } = useQuery({
     queryKey: ["story", storyId],
@@ -370,83 +367,6 @@ export default function StoryEdit() {
                   onChange={handleCoverChange}
                 />
               </div>
-            </div>
-
-            {/* Publish toggle */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "14px 16px",
-                borderRadius: 10,
-                background: isPublished ? "#f0fdf4" : "var(--bg-subtle)",
-                border: `1.5px solid ${isPublished ? "#bbf7d0" : "var(--border)"}`,
-                transition: "all 0.2s",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {isPublished ? (
-                  <Globe size={15} style={{ color: "#16a34a" }} />
-                ) : (
-                  <Lock size={15} style={{ color: "var(--text-muted)" }} />
-                )}
-                <div>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: isPublished ? "#15803d" : "var(--text-primary)",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    {isPublished ? "Published" : "Draft"}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: isPublished ? "#16a34a" : "var(--text-muted)",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    {isPublished
-                      ? "Visible to everyone on Discover"
-                      : "Only visible to you and collaborators"}
-                  </p>
-                </div>
-              </div>
-              {/* Toggle */}
-              <button
-                type="button"
-                onClick={() =>
-                  setValue("isPublished", !isPublished, { shouldDirty: true })
-                }
-                style={{
-                  width: 40,
-                  height: 22,
-                  borderRadius: 99,
-                  position: "relative",
-                  background: isPublished ? "#16a34a" : "var(--border-strong)",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "background 0.2s",
-                  flexShrink: 0,
-                }}
-              >
-                <span
-                  style={{
-                    position: "absolute",
-                    top: 3,
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    background: "white",
-                    transition: "left 0.2s",
-                    left: isPublished ? 21 : 3,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                  }}
-                />
-              </button>
             </div>
 
             {/* Title */}

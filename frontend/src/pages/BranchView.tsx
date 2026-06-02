@@ -21,10 +21,11 @@ import {
   branchService,
   commitService,
   aiService,
+  publishService,
 } from "../services/api";
 import type { Branch, Commit } from "../types";
 
-/* ── Commit Modal ── */
+/* Commit Modal */
 function CommitModal({
   onCommit,
   onClose,
@@ -587,6 +588,14 @@ export default function BranchView() {
     },
   });
 
+  const publishMutation = useMutation({
+    mutationFn: () => publishService.publish(storyId!, branchId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+      alert("Branch published successfully");
+    },
+  });
+
   const branchMutation = useMutation({
     mutationFn: (name: string) =>
       branchService.createBranch(storyId!, {
@@ -881,6 +890,25 @@ export default function BranchView() {
           >
             <History size={13} /> History
           </button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => publishMutation.mutate()}
+            disabled={publishMutation.isPending}
+            className="btn btn-secondary btn-sm"
+            style={{ gap: 5 }}
+          >
+            {publishMutation.isPending ? (
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />
+            ) : (
+              "🌍"
+            )}
+            Publish
+          </motion.button>
 
           <button
             onClick={() => setShowAI(!showAI)}
