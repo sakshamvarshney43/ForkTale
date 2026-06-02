@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,139 +18,266 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    setIsMobileOpen(false);
-    setIsProfileOpen(false);
+    setMobileOpen(false);
+    setProfileOpen(false);
   }, [location]);
 
-  const isActive = (href: string) => location.pathname === href;
+  // close profile dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node))
+        setProfileOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const active = (href: string) => location.pathname === href;
+
+  /* shared link style */
+  const navLink = (isActive: boolean): React.CSSProperties => ({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "6px 12px",
+    borderRadius: 6,
+    fontSize: 14,
+    fontWeight: 500,
+    fontFamily: "var(--font-body)",
+    textDecoration: "none",
+    cursor: "pointer",
+    transition: "all 0.15s",
+    color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+    background: isActive ? "var(--bg-muted)" : "transparent",
+  });
 
   return (
     <>
-      <motion.nav
+      {/* Bar*/}
+      <motion.header
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
         style={{
-          background: isScrolled ? "rgba(8, 9, 10, 0.92)" : "transparent",
-          borderBottom: isScrolled
-            ? "1px solid #23252a"
-            : "1px solid transparent",
-          backdropFilter: isScrolled ? "blur(12px)" : "none",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          background: scrolled ? "rgba(255,255,255,0.94)" : "var(--bg)",
+          borderBottom: `1px solid ${scrolled ? "var(--border)" : "var(--border)"}`,
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+          transition: "background 0.2s, box-shadow 0.2s",
+          boxShadow: scrolled ? "var(--shadow-sm)" : "none",
         }}
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14">
-            {/* ── Logo ── */}
-            <Link to="/" className="flex items-center gap-2 group">
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 32px" }}>
+          <div
+            style={{
+              height: 56,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+            }}
+          >
+            {/* Logo */}
+            <Link
+              to="/"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                textDecoration: "none",
+                flexShrink: 0,
+              }}
+            >
               <div
-                className="w-7 h-7 rounded flex items-center justify-center"
-                style={{ background: "#8dd6ff" }}
+                style={{
+                  width: 28,
+                  height: 28,
+                  background: "var(--text-primary)",
+                  borderRadius: 7,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <GitBranch size={14} className="text-pitch-black" />
+                <GitBranch size={14} color="white" />
               </div>
               <span
-                className="font-semibold text-sm tracking-tight"
-                style={{ color: "#f7f8f8", letterSpacing: "-0.13px" }}
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-body)",
+                  letterSpacing: "-0.02em",
+                }}
               >
                 ForkTale
               </span>
             </Link>
 
-            {/* ── Desktop Nav ── */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop centre links */}
+            <nav
+              style={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
+              className="hide-mobile"
+            >
               <Link
                 to="/discover"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-body-sm transition-all duration-150"
-                style={{
-                  color: isActive("/discover") ? "#f7f8f8" : "#8a8f98",
-                  background: isActive("/discover") ? "#161718" : "transparent",
-                  fontSize: "13px",
+                style={navLink(active("/discover"))}
+                onMouseEnter={(e) => {
+                  if (!active("/discover")) {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "var(--bg-subtle)";
+                    (e.currentTarget as HTMLElement).style.color =
+                      "var(--text-primary)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active("/discover")) {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "transparent";
+                    (e.currentTarget as HTMLElement).style.color =
+                      "var(--text-secondary)";
+                  }
                 }}
               >
-                <Compass size={13} />
-                Discover
+                <Compass size={14} /> Discover
               </Link>
-
               {isAuthenticated && (
                 <Link
                   to="/dashboard"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded transition-all duration-150"
-                  style={{
-                    color: isActive("/dashboard") ? "#f7f8f8" : "#8a8f98",
-                    background: isActive("/dashboard")
-                      ? "#161718"
-                      : "transparent",
-                    fontSize: "13px",
+                  style={navLink(active("/dashboard"))}
+                  onMouseEnter={(e) => {
+                    if (!active("/dashboard")) {
+                      (e.currentTarget as HTMLElement).style.background =
+                        "var(--bg-subtle)";
+                      (e.currentTarget as HTMLElement).style.color =
+                        "var(--text-primary)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active("/dashboard")) {
+                      (e.currentTarget as HTMLElement).style.background =
+                        "transparent";
+                      (e.currentTarget as HTMLElement).style.color =
+                        "var(--text-secondary)";
+                    }
                   }}
                 >
-                  <LayoutDashboard size={13} />
-                  Dashboard
+                  <LayoutDashboard size={14} /> Dashboard
                 </Link>
               )}
-            </div>
+            </nav>
 
-            {/* ── Right Side ── */}
-            <div className="hidden md:flex items-center gap-2">
+            {/* Desktop right */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexShrink: 0,
+              }}
+              className="hide-mobile"
+            >
               {isAuthenticated ? (
                 <>
-                  {/* New Story */}
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => navigate("/stories/create")}
-                    className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
+                    className="btn btn-primary btn-sm"
+                    style={{ gap: 6 }}
                   >
-                    <Plus size={13} />
-                    New Story
+                    <Plus size={13} /> New story
                   </motion.button>
 
-                  {/* Profile */}
-                  <div className="relative">
+                  {/* Profile dropdown */}
+                  <div ref={profileRef} style={{ position: "relative" }}>
                     <button
-                      onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded transition-all duration-150"
+                      onClick={() => setProfileOpen(!profileOpen)}
                       style={{
-                        border: "1px solid #23252a",
-                        background: isProfileOpen ? "#161718" : "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 7,
+                        padding: "5px 10px 5px 6px",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                        background: profileOpen
+                          ? "var(--bg-muted)"
+                          : "transparent",
+                        border: "1.5px solid var(--border)",
+                        transition: "all 0.15s",
+                        fontFamily: "var(--font-body)",
+                      }}
+                      onMouseEnter={(e) =>
+                        ((e.currentTarget as HTMLElement).style.borderColor =
+                          "var(--border-strong)")
+                      }
+                      onMouseLeave={(e) => {
+                        if (!profileOpen)
+                          (e.currentTarget as HTMLElement).style.borderColor =
+                            "var(--border)";
                       }}
                     >
                       {user?.avatar ? (
                         <img
                           src={user.avatar}
                           alt={user.username}
-                          className="w-5 h-5 rounded-full object-cover"
+                          style={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
                         />
                       ) : (
                         <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold"
-                          style={{ background: "#8dd6ff", color: "#08090a" }}
+                          style={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: "50%",
+                            background: "var(--accent)",
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            fontFamily: "var(--font-body)",
+                          }}
                         >
                           {user?.username?.[0]?.toUpperCase()}
                         </div>
                       )}
                       <span
-                        className="text-xs"
-                        style={{ color: "#d0d6e0", letterSpacing: "-0.1px" }}
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: "var(--text-primary)",
+                          fontFamily: "var(--font-body)",
+                        }}
                       >
                         {user?.username}
                       </span>
                       <ChevronDown
                         size={12}
                         style={{
-                          color: "#62666d",
-                          transform: isProfileOpen
+                          color: "var(--text-muted)",
+                          transform: profileOpen
                             ? "rotate(180deg)"
                             : "rotate(0deg)",
                           transition: "transform 0.15s",
@@ -159,90 +286,111 @@ export default function Navbar() {
                     </button>
 
                     <AnimatePresence>
-                      {isProfileOpen && (
+                      {profileOpen && (
                         <motion.div
-                          initial={{ opacity: 0, y: 4, scale: 0.97 }}
+                          initial={{ opacity: 0, y: 6, scale: 0.97 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                          transition={{ duration: 0.12 }}
-                          className="absolute right-0 mt-1.5 w-48"
+                          exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                          transition={{ duration: 0.13 }}
                           style={{
-                            background: "#0f1011",
-                            border: "1px solid #23252a",
-                            borderRadius: "6px",
-                            boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+                            position: "absolute",
+                            right: 0,
+                            top: "calc(100% + 6px)",
+                            width: 192,
+                            background: "var(--bg)",
+                            border: "1.5px solid var(--border)",
+                            borderRadius: 10,
+                            boxShadow: "var(--shadow-xl)",
+                            overflow: "hidden",
+                            padding: 4,
+                            zIndex: 100,
                           }}
                         >
-                          <div className="p-1">
+                          {[
+                            {
+                              icon: <User size={13} />,
+                              label: "Profile",
+                              to: `/u/${user?.username}`,
+                            },
+                            {
+                              icon: <LayoutDashboard size={13} />,
+                              label: "Dashboard",
+                              to: "/dashboard",
+                            },
+                          ].map((item) => (
                             <Link
-                              to={`/u/${user?.username}`}
-                              className="flex items-center gap-2.5 px-2.5 py-2 rounded transition-all duration-100"
-                              style={{ color: "#8a8f98", fontSize: "13px" }}
+                              key={item.label}
+                              to={item.to}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 9,
+                                padding: "8px 10px",
+                                borderRadius: 7,
+                                fontSize: 13,
+                                color: "var(--text-secondary)",
+                                fontFamily: "var(--font-body)",
+                                textDecoration: "none",
+                                transition: "all 0.12s",
+                              }}
                               onMouseEnter={(e) => {
                                 (
                                   e.currentTarget as HTMLElement
-                                ).style.background = "#161718";
+                                ).style.background = "var(--bg-subtle)";
                                 (e.currentTarget as HTMLElement).style.color =
-                                  "#f7f8f8";
+                                  "var(--text-primary)";
                               }}
                               onMouseLeave={(e) => {
                                 (
                                   e.currentTarget as HTMLElement
                                 ).style.background = "transparent";
                                 (e.currentTarget as HTMLElement).style.color =
-                                  "#8a8f98";
+                                  "var(--text-secondary)";
                               }}
                             >
-                              <User size={13} />
-                              Profile
+                              {item.icon}
+                              {item.label}
                             </Link>
-                            <Link
-                              to="/dashboard"
-                              className="flex items-center gap-2.5 px-2.5 py-2 rounded transition-all duration-100"
-                              style={{ color: "#8a8f98", fontSize: "13px" }}
-                              onMouseEnter={(e) => {
-                                (
-                                  e.currentTarget as HTMLElement
-                                ).style.background = "#161718";
-                                (e.currentTarget as HTMLElement).style.color =
-                                  "#f7f8f8";
-                              }}
-                              onMouseLeave={(e) => {
-                                (
-                                  e.currentTarget as HTMLElement
-                                ).style.background = "transparent";
-                                (e.currentTarget as HTMLElement).style.color =
-                                  "#8a8f98";
-                              }}
-                            >
-                              <LayoutDashboard size={13} />
-                              Dashboard
-                            </Link>
-                          </div>
-
+                          ))}
                           <div
-                            style={{ borderTop: "1px solid #23252a" }}
-                            className="p-1"
+                            style={{
+                              height: 1,
+                              background: "var(--border)",
+                              margin: "4px 0",
+                            }}
+                          />
+                          <button
+                            onClick={logout}
+                            style={{
+                              width: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 9,
+                              padding: "8px 10px",
+                              border: "none",
+                              background: "none",
+                              cursor: "pointer",
+                              fontSize: 13,
+                              color: "#dc2626",
+                              fontFamily: "var(--font-body)",
+                              borderRadius: 7,
+                              transition: "background 0.12s",
+                              textAlign: "left",
+                            }}
+                            onMouseEnter={(e) =>
+                              ((
+                                e.currentTarget as HTMLElement
+                              ).style.background = "#fef2f2")
+                            }
+                            onMouseLeave={(e) =>
+                              ((
+                                e.currentTarget as HTMLElement
+                              ).style.background = "transparent")
+                            }
                           >
-                            <button
-                              onClick={logout}
-                              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded transition-all duration-100"
-                              style={{ color: "#eb5757", fontSize: "13px" }}
-                              onMouseEnter={(e) => {
-                                (
-                                  e.currentTarget as HTMLElement
-                                ).style.background = "rgba(235, 87, 87, 0.08)";
-                              }}
-                              onMouseLeave={(e) => {
-                                (
-                                  e.currentTarget as HTMLElement
-                                ).style.background = "transparent";
-                              }}
-                            >
-                              <LogOut size={13} />
-                              Log out
-                            </button>
-                          </div>
+                            <LogOut size={13} />
+                            Log out
+                          </button>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -250,18 +398,14 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    className="btn-ghost text-xs px-3 py-1.5"
-                    style={{ fontSize: "13px" }}
-                  >
-                    Log in
+                  <Link to="/login">
+                    <button className="btn btn-ghost btn-sm">Log in</button>
                   </Link>
                   <Link to="/register">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="btn-primary text-xs px-3 py-1.5"
+                      className="btn btn-primary btn-sm"
                     >
                       Get started
                     </motion.button>
@@ -270,135 +414,190 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* ── Mobile Toggle ── */}
+            {/* Mobile hamburger */}
             <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="md:hidden p-1.5 rounded transition-colors"
-              style={{ color: "#8a8f98", border: "1px solid #23252a" }}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="show-mobile"
+              style={{
+                padding: 8,
+                background: "none",
+                border: "1.5px solid var(--border)",
+                borderRadius: 7,
+                cursor: "pointer",
+                color: "var(--text-secondary)",
+                display: "none",
+              }}
             >
-              <AnimatePresence mode="wait">
-                {isMobileOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                  >
-                    <X size={16} />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                  >
-                    <Menu size={16} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {mobileOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
         </div>
-      </motion.nav>
+      </motion.header>
 
-      {/* ── Mobile Menu ── */}
+      {/*Mobile menu*/}
       <AnimatePresence>
-        {isMobileOpen && (
+        {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed top-14 left-0 right-0 z-40 md:hidden overflow-hidden"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
             style={{
-              background: "#0f1011",
-              borderBottom: "1px solid #23252a",
+              position: "fixed",
+              top: 56,
+              left: 0,
+              right: 0,
+              zIndex: 49,
+              background: "var(--bg)",
+              borderBottom: "1px solid var(--border)",
+              boxShadow: "var(--shadow-md)",
             }}
           >
-            <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1">
-              <Link
-                to="/discover"
-                className="flex items-center gap-2 px-3 py-2 rounded"
-                style={{
-                  color: isActive("/discover") ? "#f7f8f8" : "#8a8f98",
-                  background: isActive("/discover") ? "#161718" : "transparent",
-                  fontSize: "13px",
-                }}
-              >
-                <Compass size={13} /> Discover
-              </Link>
+            <div
+              style={{
+                maxWidth: 1120,
+                margin: "0 auto",
+                padding: "12px 24px 16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {[
+                {
+                  label: "Discover",
+                  to: "/discover",
+                  icon: <Compass size={14} />,
+                  show: true,
+                },
+                {
+                  label: "Dashboard",
+                  to: "/dashboard",
+                  icon: <LayoutDashboard size={14} />,
+                  show: isAuthenticated,
+                },
+                {
+                  label: "Profile",
+                  to: `/u/${user?.username}`,
+                  icon: <User size={14} />,
+                  show: isAuthenticated,
+                },
+              ]
+                .filter((l) => l.show)
+                .map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 12px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: active(l.to)
+                        ? "var(--text-primary)"
+                        : "var(--text-secondary)",
+                      background: active(l.to)
+                        ? "var(--bg-muted)"
+                        : "transparent",
+                      fontFamily: "var(--font-body)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {l.icon}
+                    {l.label}
+                  </Link>
+                ))}
 
               {isAuthenticated && (
                 <>
                   <Link
-                    to="/dashboard"
-                    className="flex items-center gap-2 px-3 py-2 rounded"
+                    to="/stories/create"
                     style={{
-                      color: isActive("/dashboard") ? "#f7f8f8" : "#8a8f98",
-                      background: isActive("/dashboard")
-                        ? "#161718"
-                        : "transparent",
-                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 12px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "var(--accent)",
+                      fontFamily: "var(--font-body)",
+                      textDecoration: "none",
                     }}
                   >
-                    <LayoutDashboard size={13} /> Dashboard
-                  </Link>
-                  <Link
-                    to="/stories/create"
-                    className="flex items-center gap-2 px-3 py-2 rounded"
-                    style={{ color: "#8dd6ff", fontSize: "13px" }}
-                  >
-                    <Plus size={13} /> New Story
-                  </Link>
-                  <Link
-                    to={`/u/${user?.username}`}
-                    className="flex items-center gap-2 px-3 py-2 rounded"
-                    style={{ color: "#8a8f98", fontSize: "13px" }}
-                  >
-                    <User size={13} /> Profile
+                    <Plus size={14} />
+                    New story
                   </Link>
                   <div
-                    style={{ borderTop: "1px solid #23252a" }}
-                    className="pt-1 mt-1"
+                    style={{
+                      height: 1,
+                      background: "var(--border)",
+                      margin: "4px 0",
+                    }}
+                  />
+                  <button
+                    onClick={logout}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 12px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: "#dc2626",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "var(--font-body)",
+                      textAlign: "left",
+                    }}
                   >
-                    <button
-                      onClick={logout}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded"
-                      style={{ color: "#eb5757", fontSize: "13px" }}
-                    >
-                      <LogOut size={13} /> Log out
-                    </button>
-                  </div>
+                    <LogOut size={14} />
+                    Log out
+                  </button>
                 </>
               )}
-
               {!isAuthenticated && (
-                <>
-                  <Link
-                    to="/login"
-                    className="flex items-center gap-2 px-3 py-2 rounded"
-                    style={{ color: "#8a8f98", fontSize: "13px" }}
-                  >
-                    Log in
+                <div style={{ display: "flex", gap: 8, padding: "8px 0 0" }}>
+                  <Link to="/login" style={{ flex: 1 }}>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ width: "100%", justifyContent: "center" }}
+                    >
+                      Log in
+                    </button>
                   </Link>
-                  <Link
-                    to="/register"
-                    className="flex items-center gap-2 px-3 py-2 rounded"
-                    style={{ color: "#8dd6ff", fontSize: "13px" }}
-                  >
-                    Get started
+                  <Link to="/register" style={{ flex: 1 }}>
+                    <button
+                      className="btn btn-primary"
+                      style={{ width: "100%", justifyContent: "center" }}
+                    >
+                      Get started
+                    </button>
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="h-14" />
+      <div style={{ height: 56 }} />
+
+      {/* Responsive CSS*/}
+      <style>{`
+        @media (max-width: 768px) {
+          .hide-mobile { display: none !important; }
+          .show-mobile { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .show-mobile { display: none !important; }
+        }
+      `}</style>
     </>
   );
 }
