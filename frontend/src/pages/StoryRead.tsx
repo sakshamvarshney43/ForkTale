@@ -41,11 +41,18 @@ function StarRating({
     mutationFn: (stars: number) => ratingService.rate(publishingId, stars),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
+    onError: (err: any) => {
+      alert(err.response?.data?.message || "Could not save rating");
+    },
   });
+
   const deleteMutation = useMutation({
     mutationFn: () => ratingService.deleteRating(publishingId),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
+    onError: (err: any) => {
+      alert(err.response?.data?.message || "Could not remove rating");
+    },
   });
 
   return (

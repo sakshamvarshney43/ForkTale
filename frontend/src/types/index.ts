@@ -14,6 +14,8 @@ export interface Story {
   title: string;
   description: string | null;
   coverImage: string | null;
+  avgRating?: number;
+  totalRatings?: number;
   genre: string | null;
   tags: string[];
   isPublished: boolean;

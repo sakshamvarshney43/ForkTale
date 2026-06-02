@@ -7,6 +7,7 @@ import {
   GitFork,
   GitBranch,
   Globe,
+  Star,
   SlidersHorizontal,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -242,6 +243,13 @@ function DiscoverCard({ story }: { story: Story }) {
               },
               { icon: <GitFork size={11} />, val: story._count?.forks || 0 },
               { icon: <Globe size={11} />, val: `${story.wordCount} words` },
+              {
+                icon: <Star size={11} />,
+                val:
+                  (story.avgRating ?? 0) > 0
+                    ? `${story.avgRating?.toFixed(1)} (${story.totalRatings ?? 0})`
+                    : "No ratings",
+              },
             ].map((s, i) => (
               <span
                 key={i}

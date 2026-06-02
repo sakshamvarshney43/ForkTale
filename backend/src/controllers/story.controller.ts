@@ -446,8 +446,42 @@ export const discoverStories = async (req: AuthRequest, res: Response) => {
       orderBy: sort === "latest" ? { createdAt: "desc" } : { createdAt: "asc" },
     });
 
+    const storiesWithRatings = await Promise.all(
+      stories.map(async (story) => {
+        const publishings = await prisma.publishing.findMany({
+          where: {
+            branch: {
+              storyId: story.id,
+            },
+            isActive: true,
+          },
+        });
+
+        const publishingIds = publishings.map((p) => p.id);
+
+        const ratings = await prisma.rating.findMany({
+          where: {
+            publishingId: {
+              in: publishingIds,
+            },
+          },
+        });
+
+        const avgRating =
+          ratings.length > 0
+            ? ratings.reduce((sum, r) => sum + r.stars, 0) / ratings.length
+            : 0;
+
+        return {
+          ...story,
+          avgRating: Math.round(avgRating * 10) / 10,
+          totalRatings: ratings.length,
+        };
+      }),
+    );
+
     return res.status(200).json({
-      stories,
+      stories: storiesWithRatings,
     });
   } catch (error) {
     console.error("DiscoverStories error:", error);
