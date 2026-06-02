@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   BookOpen,
@@ -17,76 +17,116 @@ import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
 
 interface MutationResponse {
-  data: {
-    user: any;
-  };
+  data: { user: any };
 }
 
-// ─────────────────────────────────────────
-// STORY CARD
-// ─────────────────────────────────────────
 function ProfileStoryCard({ story }: { story: Story }) {
   const navigate = useNavigate();
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group rounded-md overflow-hidden cursor-pointer transition-colors duration-150"
-      style={{ background: "#0f1011", border: "1px solid #23252a" }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#383b3f")}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#23252a")}
       onClick={() => navigate(`/stories/${story.id}/read`)}
+      className="card card-hover"
+      style={{ overflow: "hidden", cursor: "pointer" }}
     >
-      {/* Cover */}
-      <div className="w-full h-28 overflow-hidden">
+      <div
+        style={{
+          width: "100%",
+          height: 120,
+          background: "var(--bg-muted)",
+          overflow: "hidden",
+        }}
+      >
         {story.coverImage ? (
           <img
             src={story.coverImage}
             alt={story.title}
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.3s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.03)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           />
         ) : (
           <div
-            className="w-full h-full flex items-center justify-center"
-            style={{ background: "#161718" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            <BookOpen size={20} style={{ color: "#383b3f" }} />
+            <BookOpen size={20} style={{ color: "var(--border-strong)" }} />
           </div>
         )}
       </div>
-
-      <div className="p-3">
+      <div style={{ padding: "14px 16px" }}>
         <h3
-          className="font-medium text-sm line-clamp-1 mb-1 transition-colors duration-100"
-          style={{ color: "#d0d6e0", letterSpacing: "-0.1px" }}
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            letterSpacing: "-0.01em",
+            marginBottom: 5,
+            fontFamily: "var(--font-body)",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
         >
           {story.title}
         </h3>
-
         {story.description && (
           <p
-            className="text-xs line-clamp-2 mb-2"
-            style={{ color: "#62666d", lineHeight: "1.5" }}
+            style={{
+              fontSize: 13,
+              color: "var(--text-muted)",
+              lineHeight: 1.5,
+              marginBottom: 10,
+              fontFamily: "var(--font-body)",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
           >
             {story.description}
           </p>
         )}
-
-        <div className="flex items-center gap-3">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            paddingTop: 10,
+            borderTop: "1px solid var(--border)",
+          }}
+        >
           {story.genre && (
-            <span
-              className="text-xs px-1.5 py-0.5 rounded"
-              style={{ background: "#23252a", color: "#8a8f98" }}
-            >
+            <span className="badge badge-default" style={{ fontSize: 11 }}>
               {story.genre}
             </span>
           )}
           <span
-            className="flex items-center gap-1 text-xs ml-auto"
-            style={{ color: "#62666d" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: 12,
+              color: "var(--text-muted)",
+              marginLeft: "auto",
+              fontFamily: "var(--font-body)",
+            }}
           >
-            <Globe size={10} />
+            <Globe size={11} />
             {story.wordCount}w
           </span>
         </div>
@@ -95,9 +135,6 @@ function ProfileStoryCard({ story }: { story: Story }) {
   );
 }
 
-// ─────────────────────────────────────────
-// EDIT PROFILE FORM
-// ─────────────────────────────────────────
 function EditProfileForm({
   user,
   onClose,
@@ -119,9 +156,8 @@ function EditProfileForm({
       queryClient.invalidateQueries({ queryKey: ["profile", username] });
       onClose();
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || "Something went wrong.");
-    },
+    onError: (err: any) =>
+      setError(err.response?.data?.message || "Something went wrong."),
   });
 
   return (
@@ -129,69 +165,77 @@ function EditProfileForm({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: "rgba(8, 9, 10, 0.85)" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 16px",
+        background: "rgba(0,0,0,0.4)",
+      }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 8 }}
         transition={{ duration: 0.15 }}
-        className="w-full max-w-md rounded-md p-5"
         style={{
-          background: "#0f1011",
-          border: "1px solid #23252a",
-          boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+          width: "100%",
+          maxWidth: 440,
+          background: "var(--bg)",
+          border: "1.5px solid var(--border)",
+          borderRadius: 16,
+          padding: 28,
+          boxShadow: "var(--shadow-xl)",
         }}
       >
         <h3
-          className="font-medium text-sm mb-4"
-          style={{ color: "#f7f8f8", letterSpacing: "-0.1px" }}
+          style={{
+            fontSize: 17,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            marginBottom: 20,
+            fontFamily: "var(--font-body)",
+            letterSpacing: "-0.01em",
+          }}
         >
           Edit profile
         </h3>
 
         {error && (
           <div
-            className="mb-4 px-3 py-2.5 rounded text-xs"
-            style={{
-              background: "rgba(235, 87, 87, 0.08)",
-              border: "1px solid rgba(235, 87, 87, 0.2)",
-              color: "#eb5757",
-            }}
+            className="alert alert-danger"
+            style={{ marginBottom: 16, fontSize: 13 }}
           >
             {error}
           </div>
         )}
 
-        <div className="space-y-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label
-              className="block mb-1.5 text-xs font-medium"
-              style={{ color: "#8a8f98" }}
-            >
-              Name
-            </label>
+            <label className="label">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input"
-              style={{ fontSize: "13px" }}
             />
           </div>
-
           <div>
-            <label
-              className="block mb-1.5 text-xs font-medium"
-              style={{ color: "#8a8f98" }}
-            >
-              Username
-            </label>
-            <div className="relative">
+            <label className="label">Username</label>
+            <div style={{ position: "relative" }}>
               <span
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-xs"
-                style={{ color: "#62666d" }}
+                style={{
+                  position: "absolute",
+                  left: 11,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  fontSize: 13,
+                  color: "var(--text-muted)",
+                  pointerEvents: "none",
+                }}
               >
                 @
               </span>
@@ -199,36 +243,45 @@ function EditProfileForm({
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="input pl-7"
-                style={{ fontSize: "13px" }}
+                className="input"
+                style={{ paddingLeft: 26 }}
               />
             </div>
           </div>
-
           <div>
-            <label
-              className="block mb-1.5 text-xs font-medium"
-              style={{ color: "#8a8f98" }}
-            >
-              Bio
-            </label>
+            <label className="label">Bio</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
-              placeholder="Tell the world about yourself..."
-              className="input resize-none"
-              style={{ fontSize: "13px", lineHeight: "1.5" }}
               maxLength={200}
+              placeholder="Tell the world about yourself..."
+              className="input"
+              style={{ resize: "none", lineHeight: 1.6 }}
             />
-            <p className="text-xs mt-1 text-right" style={{ color: "#62666d" }}>
+            <p
+              style={{
+                fontSize: 11,
+                color: "var(--text-muted)",
+                textAlign: "right",
+                marginTop: 4,
+                fontFamily: "var(--font-body)",
+              }}
+            >
               {bio.length}/200
             </p>
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 mt-5">
-          <button onClick={onClose} className="btn-ghost text-xs px-3 py-1.5">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 8,
+            marginTop: 24,
+          }}
+        >
+          <button onClick={onClose} className="btn btn-ghost">
             Cancel
           </button>
           <motion.button
@@ -236,14 +289,18 @@ function EditProfileForm({
             whileTap={{ scale: 0.98 }}
             onClick={() => updateMutation.mutate()}
             disabled={updateMutation.isPending}
-            className="btn-primary text-xs px-4 py-1.5 flex items-center gap-1.5"
+            className="btn btn-primary"
+            style={{ gap: 6 }}
           >
             {updateMutation.isPending ? (
-              <Loader2 size={12} className="animate-spin" />
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />
             ) : (
-              <Save size={12} />
+              <Save size={13} />
             )}
-            Save
+            Save changes
           </motion.button>
         </div>
       </motion.div>
@@ -251,21 +308,15 @@ function EditProfileForm({
   );
 }
 
-// ─────────────────────────────────────────
-// MAIN PROFILE PAGE MODULE
-// ─────────────────────────────────────────
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { user: authUser, updateUser } = useAuth();
   const queryClient = useQueryClient();
-
   const [showEdit, setShowEdit] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-
   const isOwnProfile = authUser?.username === username;
 
-  // ── Fetch profile ──
   const { data, isLoading } = useQuery({
     queryKey: ["profile", username],
     queryFn: () => userServices.getPublicProfile(username!),
@@ -275,13 +326,12 @@ export default function Profile() {
   const profile = data?.data?.user;
   const stories: Story[] = profile?.stories || [];
 
-  // ── Avatar upload ──
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
       setUploadingAvatar(true);
-      const res = await userServices.updateAvatar(file); // Fixed method assignment
+      const res = await userServices.updateAvatar(file);
       updateUser(res.data.user);
       queryClient.invalidateQueries({ queryKey: ["profile", username] });
     } catch {
@@ -291,180 +341,294 @@ export default function Profile() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#08090a" }}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg)",
+        }}
       >
         <Loader2
-          size={18}
-          className="animate-spin"
-          style={{ color: "#8a8f98" }}
+          size={20}
+          style={{
+            color: "var(--text-muted)",
+            animation: "spin 0.7s linear infinite",
+          }}
         />
       </div>
     );
-  }
 
-  if (!profile) {
+  if (!profile)
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#08090a" }}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg)",
+        }}
       >
-        <div className="text-center">
-          <User
-            size={28}
-            className="mx-auto mb-3"
-            style={{ color: "#383b3f" }}
-          />
-          <p style={{ color: "#8a8f98", fontSize: "14px" }}>User not found.</p>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              background: "var(--bg-muted)",
+              borderRadius: 14,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 14px",
+            }}
+          >
+            <User size={24} style={{ color: "var(--text-muted)" }} />
+          </div>
+          <p
+            style={{
+              fontSize: 14,
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            User not found.
+          </p>
         </div>
       </div>
     );
-  }
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
-      <div className="max-w-4xl mx-auto">
-        {/* ── Back ── */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 mb-6 text-xs transition-colors duration-150"
-          style={{ color: "#62666d" }}
-          onMouseEnter={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "#f7f8f8")
-          }
-          onMouseLeave={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "#62666d")
-          }
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      {/* Profile header band */}
+      <div
+        style={{
+          borderBottom: "1px solid var(--border)",
+          background: "var(--bg)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1000,
+            margin: "0 auto",
+            padding: "32px 32px 36px",
+          }}
         >
-          <ArrowLeft size={13} />
-          Back
-        </motion.button>
+          {/* Back */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => navigate(-1)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              marginBottom: 24,
+              fontSize: 13,
+              color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "var(--font-body)",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.color =
+                "var(--text-primary)")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.color =
+                "var(--text-muted)")
+            }
+          >
+            <ArrowLeft size={14} /> Back
+          </motion.button>
 
-        {/* ── Profile Header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-6 mb-8 pb-8"
-          style={{ borderBottom: "1px solid #23252a" }}
-        >
-          {/* Avatar */}
-          <div className="relative flex-shrink-0">
-            {profile.avatar ? (
-              <img
-                src={profile.avatar}
-                alt={profile.username}
-                className="w-16 h-16 rounded-full object-cover"
-                style={{ border: "2px solid #23252a" }}
-              />
-            ) : (
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-semibold"
-                style={{
-                  background: "#8dd6ff",
-                  color: "#08090a",
-                  border: "2px solid #23252a",
-                }}
-              >
-                {profile.username ? profile.username[0].toUpperCase() : "?"}
-              </div>
-            )}
-
-            {/* Avatar upload button */}
-            {isOwnProfile && (
-              <label
-                htmlFor="avatar-input"
-                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center cursor-pointer transition-colors duration-150"
-                style={{
-                  background: "#161718",
-                  border: "1px solid #23252a",
-                  color: "#8a8f98",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "#23252a";
-                  (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "#161718";
-                  (e.currentTarget as HTMLElement).style.color = "#8a8f98";
-                }}
-              >
-                {uploadingAvatar ? (
-                  <Loader2 size={10} className="animate-spin" />
-                ) : (
-                  <Camera size={10} />
-                )}
-                <input
-                  id="avatar-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-              </label>
-            )}
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h1
-                  className="font-semibold mb-0.5"
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ display: "flex", alignItems: "flex-start", gap: 24 }}
+          >
+            {/* Avatar */}
+            <div style={{ position: "relative", flexShrink: 0 }}>
+              {profile.avatar ? (
+                <img
+                  src={profile.avatar}
+                  alt={profile.username}
                   style={{
-                    fontSize: "20px",
-                    letterSpacing: "-0.22px",
-                    color: "#f7f8f8",
+                    width: 72,
+                    height: 72,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "3px solid var(--bg)",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: "50%",
+                    background: "var(--accent)",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 24,
+                    fontWeight: 700,
+                    fontFamily: "var(--font-body)",
+                    border: "3px solid var(--bg)",
+                    boxShadow: "var(--shadow-md)",
                   }}
                 >
-                  {profile.name || profile.username}
-                </h1>
-                <p className="text-sm mb-2" style={{ color: "#62666d" }}>
-                  @{profile.username}
-                </p>
-                {profile.bio && (
-                  <p
-                    className="text-sm mb-3"
+                  {profile.username?.[0]?.toUpperCase() || "?"}
+                </div>
+              )}
+              {isOwnProfile && (
+                <label
+                  htmlFor="avatar-input"
+                  style={{
+                    position: "absolute",
+                    bottom: -2,
+                    right: -2,
+                    width: 26,
+                    height: 26,
+                    borderRadius: "50%",
+                    background: "var(--bg)",
+                    border: "1.5px solid var(--border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "var(--text-secondary)",
+                    transition: "all 0.15s",
+                    boxShadow: "var(--shadow-sm)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "var(--text-primary)";
+                    (e.currentTarget as HTMLElement).style.color = "white";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "var(--bg)";
+                    (e.currentTarget as HTMLElement).style.color =
+                      "var(--text-secondary)";
+                  }}
+                >
+                  {uploadingAvatar ? (
+                    <Loader2
+                      size={11}
+                      style={{ animation: "spin 0.7s linear infinite" }}
+                    />
+                  ) : (
+                    <Camera size={11} />
+                  )}
+                  <input
+                    id="avatar-input"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+              )}
+            </div>
+
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  gap: 16,
+                }}
+              >
+                <div>
+                  <h1
                     style={{
-                      color: "#8a8f98",
-                      lineHeight: "1.5",
-                      maxWidth: "480px",
+                      fontSize: "clamp(20px,2.5vw,28px)",
+                      fontWeight: 400,
+                      fontStyle: "italic",
+                      letterSpacing: "-0.03em",
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-display)",
+                      lineHeight: 1.1,
+                      marginBottom: 4,
                     }}
                   >
-                    {profile.bio}
+                    {profile.name || profile.username}
+                  </h1>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "var(--text-muted)",
+                      marginBottom: 10,
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    @{profile.username}
                   </p>
-                )}
-
-                {/* Stats */}
-                <div className="flex items-center gap-5">
-                  <div>
-                    <span
-                      className="font-semibold text-sm"
-                      style={{ color: "#f7f8f8" }}
+                  {profile.bio && (
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: "var(--text-secondary)",
+                        lineHeight: 1.65,
+                        maxWidth: 480,
+                        marginBottom: 16,
+                        fontFamily: "var(--font-body)",
+                      }}
                     >
-                      {profile._count?.stories || 0}
-                    </span>
-                    <span className="text-xs ml-1" style={{ color: "#62666d" }}>
-                      stories
-                    </span>
-                  </div>
-                  <div>
+                      {profile.bio}
+                    </p>
+                  )}
+                  {/* Stats */}
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 24 }}
+                  >
+                    {[
+                      { val: profile._count?.stories || 0, label: "stories" },
+                      {
+                        val: profile._count?.collaborations || 0,
+                        label: "collaborations",
+                      },
+                    ].map((s) => (
+                      <div key={s.label}>
+                        <span
+                          style={{
+                            fontSize: 16,
+                            fontWeight: 700,
+                            color: "var(--text-primary)",
+                            fontFamily: "var(--font-body)",
+                          }}
+                        >
+                          {s.val}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 13,
+                            color: "var(--text-muted)",
+                            marginLeft: 5,
+                            fontFamily: "var(--font-body)",
+                          }}
+                        >
+                          {s.label}
+                        </span>
+                      </div>
+                    ))}
                     <span
-                      className="font-semibold text-sm"
-                      style={{ color: "#f7f8f8" }}
+                      style={{
+                        fontSize: 13,
+                        color: "var(--text-muted)",
+                        fontFamily: "var(--font-body)",
+                      }}
                     >
-                      {profile._count?.collaborations || 0}
-                    </span>
-                    <span className="text-xs ml-1" style={{ color: "#62666d" }}>
-                      collaborations
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-xs" style={{ color: "#62666d" }}>
                       Joined{" "}
                       {profile.createdAt
                         ? new Date(profile.createdAt).toLocaleDateString(
@@ -475,61 +639,90 @@ export default function Profile() {
                     </span>
                   </div>
                 </div>
+
+                {isOwnProfile && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowEdit(true)}
+                    className="btn btn-secondary btn-sm"
+                    style={{ gap: 6, flexShrink: 0 }}
+                  >
+                    <Edit2 size={13} /> Edit profile
+                  </motion.button>
+                )}
               </div>
-
-              {/* Edit button */}
-              {isOwnProfile && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowEdit(true)}
-                  className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5 flex-shrink-0"
-                >
-                  <Edit2 size={12} />
-                  Edit profile
-                </motion.button>
-              )}
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
+      </div>
 
-        {/* ── Stories ── */}
+      {/* Stories */}
+      <div
+        style={{ maxWidth: 1000, margin: "0 auto", padding: "36px 32px 80px" }}
+      >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-medium text-sm" style={{ color: "#f7f8f8" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 24,
+            }}
+          >
+            <h2
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
               Published stories
-              <span
-                className="ml-2 px-1.5 py-0.5 rounded text-xs"
-                style={{
-                  background: "#23252a",
-                  color: "#62666d",
-                  fontSize: "11px",
-                }}
-              >
-                {stories.length}
-              </span>
             </h2>
+            <span className="badge badge-default">{stories.length}</span>
           </div>
 
           {stories.length === 0 ? (
-            <div className="text-center py-16">
-              <BookOpen
-                size={28}
-                className="mx-auto mb-3"
-                style={{ color: "#383b3f" }}
-              />
-              <p className="text-sm" style={{ color: "#8a8f98" }}>
+            <div style={{ textAlign: "center", padding: "72px 0" }}>
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  background: "var(--bg-muted)",
+                  borderRadius: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 14px",
+                }}
+              >
+                <BookOpen size={22} style={{ color: "var(--text-muted)" }} />
+              </div>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--text-secondary)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
                 {isOwnProfile
                   ? "You have no published stories yet"
                   : "No published stories yet"}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                gap: 20,
+              }}
+            >
               {stories.map((story) => (
                 <ProfileStoryCard key={story.id} story={story} />
               ))}
@@ -538,10 +731,11 @@ export default function Profile() {
         </motion.div>
       </div>
 
-      {/* ── Edit Modal ── */}
-      {showEdit && (
-        <EditProfileForm user={profile} onClose={() => setShowEdit(false)} />
-      )}
+      <AnimatePresence>
+        {showEdit && (
+          <EditProfileForm user={profile} onClose={() => setShowEdit(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

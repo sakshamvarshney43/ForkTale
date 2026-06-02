@@ -13,7 +13,6 @@ import { useQuery } from "@tanstack/react-query";
 import { storyService, branchService, commitService } from "../services/api";
 import type { Branch, Commit } from "../types";
 
-// Helper
 const timeAgo = (date: string) => {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
@@ -25,7 +24,6 @@ const timeAgo = (date: string) => {
   return "just now";
 };
 
-//Commit Card
 function CommitCard({
   commit,
   isLatest,
@@ -44,203 +42,268 @@ function CommitCard({
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative"
+      style={{
+        position: "relative",
+        display: "flex",
+        gap: 16,
+        marginBottom: 4,
+      }}
     >
       {/* Timeline line */}
       <div
-        className="absolute left-3.5 top-8 bottom-0 w-px"
-        style={{ background: "#23252a" }}
+        style={{
+          position: "absolute",
+          left: 13,
+          top: 36,
+          bottom: 0,
+          width: 1,
+          background: "var(--border)",
+        }}
       />
 
-      <div className="flex gap-4">
-        {/* Dot */}
-        <div className="relative flex-shrink-0 mt-3">
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center"
-            style={{
-              background: isLatest ? "rgba(141, 214, 255, 0.1)" : "#161718",
-              border: isLatest
-                ? "1px solid rgba(141, 214, 255, 0.3)"
-                : "1px solid #23252a",
-            }}
-          >
-            <GitCommit
-              size={12}
-              style={{ color: isLatest ? "#8dd6ff" : "#62666d" }}
-            />
-          </div>
-        </div>
-
-        {/* Card */}
+      {/* Dot */}
+      <div
+        style={{
+          flexShrink: 0,
+          marginTop: 12,
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         <div
-          className="flex-1 mb-3 rounded-md transition-colors duration-150"
           style={{
-            background: "#0f1011",
-            border: "1px solid #23252a",
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: isLatest ? "var(--accent-subtle)" : "var(--bg-subtle)",
+            border: `1.5px solid ${isLatest ? "var(--accent-border)" : "var(--border)"}`,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#383b3f")}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#23252a")}
         >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3 p-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                {isLatest && (
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded"
-                    style={{
-                      background: "rgba(141, 214, 255, 0.08)",
-                      border: "1px solid rgba(141, 214, 255, 0.15)",
-                      color: "#8dd6ff",
-                      fontSize: "10px",
-                    }}
-                  >
-                    latest
-                  </span>
-                )}
-                <h3
-                  className="font-medium text-sm truncate"
-                  style={{ color: "#d0d6e0", letterSpacing: "-0.1px" }}
-                >
-                  {commit.message}
-                </h3>
-              </div>
+          <GitCommit
+            size={12}
+            style={{ color: isLatest ? "var(--accent)" : "var(--text-muted)" }}
+          />
+        </div>
+      </div>
 
-              <div className="flex items-center gap-3">
-                {/* Author */}
-                <div className="flex items-center gap-1.5">
-                  {commit.author?.avatar ? (
-                    <img
-                      src={commit.author.avatar}
-                      alt={commit.author.username}
-                      className="w-4 h-4 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center"
-                      style={{
-                        background: "#8dd6ff",
-                        color: "#08090a",
-                        fontSize: "9px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {commit.author?.username?.[0]?.toUpperCase()}
-                    </div>
-                  )}
-                  <span style={{ color: "#62666d", fontSize: "12px" }}>
-                    {commit.author?.username}
-                  </span>
-                </div>
-
-                {/* Time */}
-                <span
-                  className="flex items-center gap-1"
-                  style={{ color: "#62666d", fontSize: "12px" }}
-                >
-                  <Clock size={10} />
-                  {timeAgo(commit.createdAt)}
+      {/* Card */}
+      <div
+        style={{
+          flex: 1,
+          marginBottom: 12,
+          borderRadius: 10,
+          background: "var(--bg)",
+          border: "1.5px solid var(--border)",
+          boxShadow: "var(--shadow-xs)",
+          transition: "border-color 0.15s, box-shadow 0.15s",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.borderColor =
+            "var(--border-strong)";
+          (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+          (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-xs)";
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 12,
+            padding: "14px 16px",
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 6,
+              }}
+            >
+              {isLatest && (
+                <span className="badge badge-accent" style={{ fontSize: 10 }}>
+                  latest
                 </span>
-
-                {/* Word count */}
-                <span style={{ color: "#62666d", fontSize: "12px" }}>
-                  {commit.wordCount}w
-                </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="px-2 py-1 rounded text-xs transition-colors duration-100"
+              )}
+              <h3
                 style={{
-                  color: "#8a8f98",
-                  border: "1px solid #23252a",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "#383b3f";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "#8a8f98";
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "#23252a";
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-body)",
+                  letterSpacing: "-0.01em",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {expanded ? "Hide" : "Preview"}
-              </button>
-
-              {isLatest && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() =>
-                    navigate(`/stories/${storyId}/branches/${branchId}`)
-                  }
-                  className="btn-primary text-xs px-2.5 py-1 flex items-center gap-1"
+                {commit.message}
+              </h3>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                {commit.author?.avatar ? (
+                  <img
+                    src={commit.author.avatar}
+                    alt={commit.author.username}
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      background: "var(--accent)",
+                      color: "white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 8,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {commit.author?.username?.[0]?.toUpperCase()}
+                  </div>
+                )}
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-body)",
+                  }}
                 >
-                  Edit
-                  <ChevronRight size={11} />
-                </motion.button>
-              )}
+                  {commit.author?.username}
+                </span>
+              </div>
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                <Clock size={11} />
+                {timeAgo(commit.createdAt)}
+              </span>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                {commit.wordCount}w
+              </span>
             </div>
           </div>
 
-          {/* Preview */}
-          {expanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.15 }}
-              style={{ borderTop: "1px solid #23252a" }}
+          {/* Actions */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              flexShrink: 0,
+            }}
+          >
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: 12, padding: "5px 10px" }}
             >
-              <div className="p-3">
-                <p
-                  className="text-xs leading-relaxed line-clamp-6"
-                  style={{
-                    color: "#8a8f98",
-                    fontFamily: "Georgia, serif",
-                    lineHeight: "1.7",
-                  }}
-                >
-                  {commit.content}
-                </p>
-              </div>
-            </motion.div>
-          )}
+              {expanded ? "Hide" : "Preview"}
+            </button>
+            {isLatest && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() =>
+                  navigate(`/stories/${storyId}/branches/${branchId}`)
+                }
+                className="btn btn-primary btn-sm"
+                style={{ fontSize: 12, gap: 4 }}
+              >
+                Edit <ChevronRight size={11} />
+              </motion.button>
+            )}
+          </div>
         </div>
+
+        {/* Preview */}
+        {expanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              borderTop: "1px solid var(--border)",
+              padding: "14px 16px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                lineHeight: 1.75,
+                fontFamily: "var(--font-display)",
+                fontStyle: "italic",
+                display: "-webkit-box",
+                WebkitLineClamp: 6,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {commit.content}
+            </p>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
 }
 
-//Page
 export default function CommitHistory() {
   const { storyId } = useParams<{ storyId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  const branchIdFromUrl = searchParams.get("branch");
   const [activeBranchId, setActiveBranchId] = useState<string>(
-    branchIdFromUrl || "",
+    searchParams.get("branch") || "",
   );
 
-  //Fetch Story
   const { data: storyData } = useQuery<any>({
     queryKey: ["story", storyId],
     queryFn: () => storyService.getMyStory(storyId!),
   });
-
-  //Fetch Branch
   const { data: branchesData } = useQuery<any>({
     queryKey: ["branches", storyId],
     queryFn: () => branchService.getBranches(storyId!),
   });
-
-  //Fetch Commit
   const { data: commitsData, isLoading: commitsLoading } = useQuery<any>({
     queryKey: ["commits", storyId, activeBranchId],
     queryFn: () => commitService.getCommits(storyId!, activeBranchId),
@@ -253,105 +316,151 @@ export default function CommitHistory() {
   const activeBranch = branches.find((b) => b.id === activeBranchId);
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
-      <div className="max-w-3xl mx-auto">
-        {/*Header*/}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-8"
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      {/* Page header */}
+      <div style={{ borderBottom: "1px solid var(--border)" }}>
+        <div
+          style={{ maxWidth: 800, margin: "0 auto", padding: "32px 32px 0" }}
         >
-          <button
-            onClick={() => navigate(-1)}
-            className="p-1.5 rounded transition-colors duration-150"
-            style={{ color: "#62666d", border: "1px solid #23252a" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-              (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#62666d";
-              (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              marginBottom: 28,
             }}
           >
-            <ArrowLeft size={14} />
-          </button>
-          <div>
-            <h1
-              className="font-semibold"
-              style={{
-                fontSize: "18px",
-                letterSpacing: "-0.22px",
-                color: "#f7f8f8",
-              }}
-            >
-              Commit history
-            </h1>
-            <p style={{ color: "#62666d", fontSize: "12px" }}>{story?.title}</p>
-          </div>
-        </motion.div>
-
-        {/*Branch tabs*/}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.05 }}
-          className="flex gap-1 mb-6 flex-wrap"
-          style={{ borderBottom: "1px solid #23252a", paddingBottom: "0" }}
-        >
-          {branches.map((branch) => (
             <button
-              key={branch.id}
-              onClick={() => setActiveBranchId(branch.id)}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-all duration-150"
-              style={{
-                color: activeBranchId === branch.id ? "#8dd6ff" : "#8a8f98",
-                borderBottom:
-                  activeBranchId === branch.id
-                    ? "1px solid #8dd6ff"
-                    : "1px solid transparent",
-                marginBottom: "-1px",
-              }}
+              onClick={() => navigate(-1)}
+              className="btn btn-secondary btn-sm"
+              style={{ padding: "7px 10px" }}
             >
-              <GitBranch size={11} />
-              {branch.name}
-              {branch.isDefault && (
-                <span
-                  className="px-1 rounded"
-                  style={{
-                    background: "#23252a",
-                    color: "#62666d",
-                    fontSize: "10px",
-                  }}
-                >
-                  default
-                </span>
-              )}
+              <ArrowLeft size={14} />
             </button>
-          ))}
-        </motion.div>
+            <div>
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--accent)",
+                  marginBottom: 3,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Commit history
+              </p>
+              <h1
+                style={{
+                  fontSize: "clamp(18px,2.5vw,26px)",
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  letterSpacing: "-0.03em",
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-display)",
+                  lineHeight: 1,
+                }}
+              >
+                {story?.title}
+              </h1>
+            </div>
+          </motion.div>
 
-        {/*Stats bar*/}
+          {/* Branch tabs */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.05 }}
+            style={{ display: "flex", gap: 0, flexWrap: "wrap" }}
+          >
+            {branches.map((branch) => (
+              <button
+                key={branch.id}
+                onClick={() => setActiveBranchId(branch.id)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "10px 14px",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-body)",
+                  color:
+                    activeBranchId === branch.id
+                      ? "var(--text-primary)"
+                      : "var(--text-muted)",
+                  borderBottom: `2px solid ${activeBranchId === branch.id ? "var(--text-primary)" : "transparent"}`,
+                  marginBottom: -1,
+                  transition: "all 0.15s",
+                }}
+              >
+                <GitBranch size={12} />
+                {branch.name}
+                {branch.isDefault && (
+                  <span
+                    className="badge badge-default"
+                    style={{ fontSize: 10 }}
+                  >
+                    default
+                  </span>
+                )}
+              </button>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div
+        style={{ maxWidth: 800, margin: "0 auto", padding: "28px 32px 80px" }}
+      >
+        {/* Stats bar */}
         {activeBranch && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.08 }}
-            className="flex items-center gap-4 mb-6 px-3 py-2 rounded"
-            style={{ background: "#0f1011", border: "1px solid #23252a" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginBottom: 28,
+              padding: "12px 16px",
+              borderRadius: 10,
+              background: "var(--bg-subtle)",
+              border: "1.5px solid var(--border)",
+            }}
           >
             <span
-              className="flex items-center gap-1.5 text-xs"
-              style={{ color: "#8a8f98" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 13,
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-body)",
+              }}
             >
-              <GitCommit size={11} style={{ color: "#8dd6ff" }} />
+              <GitCommit size={13} style={{ color: "var(--accent)" }} />
               {commits.length} commits
             </span>
             <span
-              className="flex items-center gap-1.5 text-xs"
-              style={{ color: "#8a8f98" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 13,
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-body)",
+              }}
             >
-              <GitBranch size={11} style={{ color: "#8dd6ff" }} />
+              <GitBranch size={13} style={{ color: "var(--accent)" }} />
               {activeBranch.name}
             </span>
             <motion.button
@@ -360,46 +469,74 @@ export default function CommitHistory() {
               onClick={() =>
                 navigate(`/stories/${storyId}/branches/${activeBranchId}`)
               }
-              className="ml-auto btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
+              className="btn btn-primary btn-sm"
+              style={{ marginLeft: "auto", gap: 5 }}
             >
-              Open editor
-              <ChevronRight size={11} />
+              Open editor <ChevronRight size={12} />
             </motion.button>
           </motion.div>
         )}
 
-        {/*Commits*/}
+        {/* Commits */}
         {commitsLoading ? (
-          <div className="flex items-center justify-center py-16">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              padding: "64px 0",
+            }}
+          >
             <Loader2
-              size={18}
-              className="animate-spin"
-              style={{ color: "#8a8f98" }}
+              size={20}
+              style={{
+                color: "var(--text-muted)",
+                animation: "spin 0.7s linear infinite",
+              }}
             />
           </div>
         ) : commits.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-16"
+            style={{ textAlign: "center", padding: "80px 0" }}
           >
-            <GitCommit
-              size={28}
-              className="mx-auto mb-3"
-              style={{ color: "#383b3f" }}
-            />
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                background: "var(--bg-muted)",
+                borderRadius: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 14px",
+              }}
+            >
+              <GitCommit size={22} style={{ color: "var(--text-muted)" }} />
+            </div>
             <h3
-              className="font-medium text-sm mb-1"
-              style={{ color: "#8a8f98" }}
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                marginBottom: 6,
+                fontFamily: "var(--font-body)",
+              }}
             >
               No commits yet
             </h3>
-            <p className="text-xs" style={{ color: "#62666d" }}>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
               Start writing to create your first commit
             </p>
           </motion.div>
         ) : (
-          <div className="relative">
+          <div style={{ position: "relative" }}>
             {commits.map((commit, index) => (
               <CommitCard
                 key={commit.id}

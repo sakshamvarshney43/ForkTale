@@ -24,9 +24,18 @@ import {
 import { useAuth } from "../context/AuthContext";
 import type { Collaborator } from "../types";
 
-// ─────────────────────────────────────────
-// INVITE FORM
-// ─────────────────────────────────────────
+/*Role badge colors*/
+const roleStyle = (role: string) =>
+  role === "EDITOR"
+    ? {
+        color: "var(--accent)",
+        bg: "var(--accent-subtle)",
+        border: "var(--accent-border)",
+      }
+    : { color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" };
+
+/* Invite Form */
+
 function InviteForm({
   storyId,
   onSuccess,
@@ -38,58 +47,69 @@ function InviteForm({
   const [username, setUsername] = useState("");
   const [role, setRole] = useState<"VIEWER" | "EDITOR">("EDITOR");
   const [error, setError] = useState("");
-  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showDrop, setShowDrop] = useState(false);
 
   const inviteMutation = useMutation({
     mutationFn: () => collaborateService.invite(storyId, { username, role }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["collaborators", storyId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] });
       setUsername("");
       setError("");
       onSuccess();
     },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || "Could not invite user.");
-    },
+    onError: (err: any) =>
+      setError(err.response?.data?.message || "Could not invite user."),
   });
 
   return (
     <div
-      className="rounded-md p-4 mb-6"
       style={{
-        background: "#0f1011",
-        border: "1px solid #23252a",
+        background: "var(--bg)",
+        border: "1.5px solid var(--border)",
+        borderRadius: 12,
+        padding: "20px",
+        marginBottom: 24,
+        boxShadow: "var(--shadow-sm)",
       }}
     >
       <h3
-        className="font-medium text-xs mb-3 flex items-center gap-2"
-        style={{ color: "#8a8f98" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: 13,
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+        }}
       >
-        <UserPlus size={13} style={{ color: "#8dd6ff" }} />
-        Invite collaborator
+        <UserPlus size={14} style={{ color: "var(--accent)" }} /> Invite
+        collaborator
       </h3>
 
       {error && (
         <div
-          className="mb-3 px-3 py-2 rounded text-xs"
-          style={{
-            background: "rgba(235, 87, 87, 0.08)",
-            border: "1px solid rgba(235, 87, 87, 0.2)",
-            color: "#eb5757",
-          }}
+          className="alert alert-danger"
+          style={{ marginBottom: 14, fontSize: 13 }}
         >
           {error}
         </div>
       )}
 
-      <div className="flex gap-2">
-        {/* Username input */}
-        <div className="relative flex-1">
+      <div style={{ display: "flex", gap: 8 }}>
+        {/* Username */}
+        <div style={{ position: "relative", flex: 1 }}>
           <span
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-xs"
-            style={{ color: "#62666d" }}
+            style={{
+              position: "absolute",
+              left: 11,
+              top: "50%",
+              transform: "translateY(-50%)",
+              fontSize: 13,
+              color: "var(--text-muted)",
+              pointerEvents: "none",
+            }}
           >
             @
           </span>
@@ -99,132 +119,144 @@ function InviteForm({
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && username.trim()) {
-                inviteMutation.mutate();
-              }
+              if (e.key === "Enter" && username.trim()) inviteMutation.mutate();
             }}
-            className="input pl-7"
-            style={{
-              fontSize: "13px",
-              height: "34px",
-              padding: "0 12px 0 24px",
-            }}
+            className="input"
+            style={{ paddingLeft: 26, fontSize: 13 }}
           />
         </div>
 
-        {/* Role selector */}
-        <div className="relative">
+        {/* Role dropdown */}
+        <div style={{ position: "relative" }}>
           <button
-            onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-            className="flex items-center gap-1.5 px-3 rounded text-xs transition-colors duration-150"
+            onClick={() => setShowDrop(!showDrop)}
             style={{
-              background: "#161718",
-              border: "1px solid #23252a",
-              color: "#8a8f98",
-              height: "34px",
-              minWidth: "90px",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "0 12px",
+              height: "100%",
+              minWidth: 100,
+              borderRadius: 8,
+              cursor: "pointer",
+              background: "var(--bg-subtle)",
+              border: "1.5px solid var(--border)",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              fontWeight: 500,
+              color: roleStyle(role).color,
+              transition: "border-color 0.15s",
             }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
-            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.borderColor =
+                "var(--border-strong)")
+            }
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
+              if (!showDrop)
+                (e.currentTarget as HTMLElement).style.borderColor =
+                  "var(--border)";
             }}
           >
-            {role === "EDITOR" ? (
-              <Edit3 size={11} style={{ color: "#8dd6ff" }} />
-            ) : (
-              <Eye size={11} style={{ color: "#5fed83" }} />
-            )}
+            {role === "EDITOR" ? <Edit3 size={12} /> : <Eye size={12} />}
             {role}
             <ChevronDown
-              size={10}
+              size={11}
               style={{
-                color: "#62666d",
-                transform: showRoleDropdown ? "rotate(180deg)" : "rotate(0)",
+                color: "var(--text-muted)",
+                transform: showDrop ? "rotate(180deg)" : "rotate(0)",
                 transition: "transform 0.15s",
               }}
             />
           </button>
-
           <AnimatePresence>
-            {showRoleDropdown && (
+            {showDrop && (
               <motion.div
                 initial={{ opacity: 0, y: 4, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                transition={{ duration: 0.1 }}
-                className="absolute right-0 mt-1 w-40 rounded-md overflow-hidden z-10"
+                transition={{ duration: 0.12 }}
                 style={{
-                  background: "#161718",
-                  border: "1px solid #23252a",
-                  boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+                  position: "absolute",
+                  right: 0,
+                  top: "calc(100% + 4px)",
+                  width: 180,
+                  background: "var(--bg)",
+                  border: "1.5px solid var(--border)",
+                  borderRadius: 10,
+                  boxShadow: "var(--shadow-xl)",
+                  padding: 4,
+                  zIndex: 20,
                 }}
               >
-                <div className="p-1">
-                  {(["EDITOR", "VIEWER"] as const).map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => {
-                        setRole(r);
-                        setShowRoleDropdown(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs transition-colors duration-100"
-                      style={{
-                        color: role === r ? "#f7f8f8" : "#8a8f98",
-                        background: role === r ? "#23252a" : "transparent",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (role !== r) {
-                          (e.currentTarget as HTMLElement).style.background =
-                            "#23252a";
-                          (e.currentTarget as HTMLElement).style.color =
-                            "#f7f8f8";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (role !== r) {
-                          (e.currentTarget as HTMLElement).style.background =
-                            "transparent";
-                          (e.currentTarget as HTMLElement).style.color =
-                            "#8a8f98";
-                        }
-                      }}
-                    >
-                      {r === "EDITOR" ? (
-                        <Edit3 size={11} style={{ color: "#8dd6ff" }} />
-                      ) : (
-                        <Eye size={11} style={{ color: "#5fed83" }} />
-                      )}
-                      <div>
-                        <p>{r}</p>
-                        <p style={{ color: "#62666d", fontSize: "10px" }}>
-                          {r === "EDITOR"
-                            ? "Can write and commit"
-                            : "Can read only"}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                {(["EDITOR", "VIEWER"] as const).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => {
+                      setRole(r);
+                      setShowDrop(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 10,
+                      padding: "10px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      borderRadius: 7,
+                      fontSize: 13,
+                      fontFamily: "var(--font-body)",
+                      textAlign: "left",
+                      background:
+                        role === r ? "var(--bg-muted)" : "transparent",
+                      color: "var(--text-primary)",
+                      transition: "background 0.12s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (role !== r)
+                        (e.currentTarget as HTMLElement).style.background =
+                          "var(--bg-subtle)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (role !== r)
+                        (e.currentTarget as HTMLElement).style.background =
+                          "transparent";
+                    }}
+                  >
+                    <span style={{ color: roleStyle(r).color, marginTop: 2 }}>
+                      {r === "EDITOR" ? <Edit3 size={13} /> : <Eye size={13} />}
+                    </span>
+                    <div>
+                      <p style={{ fontWeight: 600, marginBottom: 1 }}>{r}</p>
+                      <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                        {r === "EDITOR"
+                          ? "Can write & commit"
+                          : "Can read only"}
+                      </p>
+                    </div>
+                  </button>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Invite button */}
+        {/* Submit */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => username.trim() && inviteMutation.mutate()}
           disabled={!username.trim() || inviteMutation.isPending}
-          className="btn-primary text-xs px-3 flex items-center gap-1.5"
-          style={{ height: "34px" }}
+          className="btn btn-primary"
+          style={{ gap: 6, whiteSpace: "nowrap" }}
         >
           {inviteMutation.isPending ? (
-            <Loader2 size={12} className="animate-spin" />
+            <Loader2
+              size={13}
+              style={{ animation: "spin 0.7s linear infinite" }}
+            />
           ) : (
-            <UserPlus size={12} />
+            <UserPlus size={13} />
           )}
           Invite
         </motion.button>
@@ -233,9 +265,7 @@ function InviteForm({
   );
 }
 
-// ─────────────────────────────────────────
-// COLLABORATOR ROW
-// ─────────────────────────────────────────
+/* Collaborator Row */
 function CollaboratorRow({
   collaborator,
   storyId,
@@ -246,199 +276,264 @@ function CollaboratorRow({
   isAuthor: boolean;
 }) {
   const queryClient = useQueryClient();
-  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showDrop, setShowDrop] = useState(false);
+  const rs = roleStyle(collaborator.role);
 
   const updateRoleMutation = useMutation({
     mutationFn: (role: "VIEWER" | "EDITOR") =>
       collaborateService.updateRole(storyId, collaborator.id, role),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["collaborators", storyId],
-      });
-      setShowRoleDropdown(false);
+      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] });
+      setShowDrop(false);
     },
   });
-
   const removeMutation = useMutation({
     mutationFn: () => collaborateService.remove(storyId, collaborator.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["collaborators", storyId],
-      });
-    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] }),
   });
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-between px-3 py-2.5 rounded-md transition-colors duration-150"
       style={{
-        background: "#0f1011",
-        border: "1px solid #23252a",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "12px 16px",
+        borderRadius: 10,
+        background: "var(--bg)",
+        border: "1.5px solid var(--border)",
+        transition: "border-color 0.15s",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#383b3f")}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#23252a")}
+      onMouseEnter={(e) =>
+        ((e.currentTarget as HTMLElement).style.borderColor =
+          "var(--border-strong)")
+      }
+      onMouseLeave={(e) =>
+        ((e.currentTarget as HTMLElement).style.borderColor = "var(--border)")
+      }
     >
-      {/* User info */}
-      <div className="flex items-center gap-3">
+      {/* User */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {collaborator.user.avatar ? (
           <img
             src={collaborator.user.avatar}
             alt={collaborator.user.username}
-            className="w-7 h-7 rounded-full object-cover"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
           />
         ) : (
           <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
             style={{
-              background: "#8dd6ff",
-              color: "#08090a",
-              fontSize: "10px",
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              background: "var(--accent)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: "var(--font-body)",
             }}
           >
             {collaborator.user.username[0].toUpperCase()}
           </div>
         )}
         <div>
-          <p className="text-xs font-medium" style={{ color: "#d0d6e0" }}>
+          <p
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
             {collaborator.user.name || collaborator.user.username}
           </p>
-          <p style={{ color: "#62666d", fontSize: "11px" }}>
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
             @{collaborator.user.username}
           </p>
         </div>
       </div>
 
       {/* Role + actions */}
-      <div className="flex items-center gap-2">
-        {/* Role badge / dropdown */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {isAuthor ? (
-          <div className="relative">
+          <div style={{ position: "relative" }}>
             <button
-              onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors duration-150"
+              onClick={() => setShowDrop(!showDrop)}
               style={{
-                background: "#161718",
-                border: "1px solid #23252a",
-                color: collaborator.role === "EDITOR" ? "#8dd6ff" : "#5fed83",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "5px 10px",
+                borderRadius: 7,
+                cursor: "pointer",
+                background: rs.bg,
+                border: `1px solid ${rs.border}`,
+                fontSize: 12,
+                fontWeight: 600,
+                color: rs.color,
+                fontFamily: "var(--font-body)",
+                transition: "opacity 0.15s",
               }}
               onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor = "#383b3f")
+                ((e.currentTarget as HTMLElement).style.opacity = "0.75")
               }
               onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor = "#23252a")
+                ((e.currentTarget as HTMLElement).style.opacity = "1")
               }
             >
               {collaborator.role === "EDITOR" ? (
-                <Edit3 size={10} />
+                <Edit3 size={11} />
               ) : (
-                <Eye size={10} />
+                <Eye size={11} />
               )}
               {collaborator.role}
-              <ChevronDown size={10} style={{ color: "#62666d" }} />
+              <ChevronDown
+                size={10}
+                style={{
+                  color: rs.color,
+                  transform: showDrop ? "rotate(180deg)" : "rotate(0)",
+                  transition: "transform 0.15s",
+                }}
+              />
             </button>
-
             <AnimatePresence>
-              {showRoleDropdown && (
+              {showDrop && (
                 <motion.div
                   initial={{ opacity: 0, y: 4, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                  transition={{ duration: 0.1 }}
-                  className="absolute right-0 mt-1 w-36 rounded-md overflow-hidden z-10"
+                  transition={{ duration: 0.12 }}
                   style={{
-                    background: "#161718",
-                    border: "1px solid #23252a",
-                    boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+                    position: "absolute",
+                    right: 0,
+                    top: "calc(100% + 4px)",
+                    width: 160,
+                    background: "var(--bg)",
+                    border: "1.5px solid var(--border)",
+                    borderRadius: 10,
+                    boxShadow: "var(--shadow-xl)",
+                    padding: 4,
+                    zIndex: 20,
                   }}
                 >
-                  <div className="p-1">
-                    {(["EDITOR", "VIEWER"] as const).map((r) => (
-                      <button
-                        key={r}
-                        onClick={() => updateRoleMutation.mutate(r)}
-                        disabled={updateRoleMutation.isPending}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs transition-colors duration-100"
-                        style={{
-                          color:
-                            collaborator.role === r ? "#f7f8f8" : "#8a8f98",
-                          background:
-                            collaborator.role === r ? "#23252a" : "transparent",
-                        }}
-                        onMouseEnter={(e) => {
-                          if (collaborator.role !== r) {
-                            (e.currentTarget as HTMLElement).style.background =
-                              "#23252a";
-                            (e.currentTarget as HTMLElement).style.color =
-                              "#f7f8f8";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (collaborator.role !== r) {
-                            (e.currentTarget as HTMLElement).style.background =
-                              "transparent";
-                            (e.currentTarget as HTMLElement).style.color =
-                              "#8a8f98";
-                          }
-                        }}
-                      >
-                        {r === "EDITOR" ? (
-                          <Edit3 size={10} style={{ color: "#8dd6ff" }} />
-                        ) : (
-                          <Eye size={10} style={{ color: "#5fed83" }} />
-                        )}
-                        {r}
-                      </button>
-                    ))}
-                  </div>
+                  {(["EDITOR", "VIEWER"] as const).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => updateRoleMutation.mutate(r)}
+                      disabled={updateRoleMutation.isPending}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "9px 10px",
+                        border: "none",
+                        cursor: "pointer",
+                        borderRadius: 7,
+                        fontSize: 13,
+                        fontFamily: "var(--font-body)",
+                        background:
+                          collaborator.role === r
+                            ? "var(--bg-muted)"
+                            : "transparent",
+                        color: roleStyle(r).color,
+                        fontWeight: 500,
+                        transition: "background 0.12s",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (collaborator.role !== r)
+                          (e.currentTarget as HTMLElement).style.background =
+                            "var(--bg-subtle)";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (collaborator.role !== r)
+                          (e.currentTarget as HTMLElement).style.background =
+                            "transparent";
+                      }}
+                    >
+                      {r === "EDITOR" ? <Edit3 size={12} /> : <Eye size={12} />}
+                      {r}
+                    </button>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         ) : (
           <span
-            className="flex items-center gap-1 px-2 py-0.5 rounded text-xs"
             style={{
-              background: "#161718",
-              border: "1px solid #23252a",
-              color: collaborator.role === "EDITOR" ? "#8dd6ff" : "#5fed83",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "5px 10px",
+              borderRadius: 7,
+              fontSize: 12,
+              fontWeight: 600,
+              background: rs.bg,
+              border: `1px solid ${rs.border}`,
+              color: rs.color,
+              fontFamily: "var(--font-body)",
             }}
           >
             {collaborator.role === "EDITOR" ? (
-              <Edit3 size={10} />
+              <Edit3 size={11} />
             ) : (
-              <Eye size={10} />
+              <Eye size={11} />
             )}
             {collaborator.role}
           </span>
         )}
 
-        {/* Remove */}
         {isAuthor && (
           <button
             onClick={() => {
-              if (confirm("Remove this collaborator?")) {
-                removeMutation.mutate();
-              }
+              if (confirm("Remove this collaborator?")) removeMutation.mutate();
             }}
             disabled={removeMutation.isPending}
-            className="p-1.5 rounded transition-colors duration-100"
-            style={{ color: "#62666d" }}
+            style={{
+              padding: 6,
+              borderRadius: 6,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              display: "flex",
+              transition: "all 0.15s",
+            }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#eb5757";
-              (e.currentTarget as HTMLElement).style.background =
-                "rgba(235, 87, 87, 0.08)";
+              (e.currentTarget as HTMLElement).style.color = "#dc2626";
+              (e.currentTarget as HTMLElement).style.background = "#fef2f2";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#62666d";
+              (e.currentTarget as HTMLElement).style.color =
+                "var(--text-muted)";
               (e.currentTarget as HTMLElement).style.background = "transparent";
             }}
           >
             {removeMutation.isPending ? (
-              <Loader2 size={12} className="animate-spin" />
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />
             ) : (
-              <Trash2 size={12} />
+              <Trash2 size={13} />
             )}
           </button>
         )}
@@ -447,9 +542,7 @@ function CollaboratorRow({
   );
 }
 
-// ─────────────────────────────────────────
-// PAGE
-// ─────────────────────────────────────────
+/* Page */
 export default function Collaborate() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
@@ -457,19 +550,14 @@ export default function Collaborate() {
   const queryClient = useQueryClient();
   const [publishingBranchId, setPublishingBranchId] = useState("");
 
-  // ── Fetch story ──
   const { data: storyData } = useQuery({
     queryKey: ["story", storyId],
     queryFn: () => storyService.getMyStory(storyId!),
   });
-
-  // ── Fetch collaborators ──
   const { data: collabData, isLoading } = useQuery({
     queryKey: ["collaborators", storyId],
     queryFn: () => collaborateService.getCollaborators(storyId!),
   });
-
-  // ── Fetch endings ──
   const { data: endingsData } = useQuery({
     queryKey: ["endings", storyId],
     queryFn: () => publishService.getEndings(storyId!),
@@ -481,7 +569,6 @@ export default function Collaborate() {
   const isAuthor = story?.authorId === user?.id;
   const branches = story?.branches || [];
 
-  // ── Publish mutation ──
   const publishMutation = useMutation({
     mutationFn: () => publishService.publish(storyId!, publishingBranchId),
     onSuccess: () => {
@@ -490,8 +577,6 @@ export default function Collaborate() {
       setPublishingBranchId("");
     },
   });
-
-  // ── Unpublish mutation ──
   const unpublishMutation = useMutation({
     mutationFn: (publishingId: string) =>
       publishService.unpublish(storyId!, publishingId),
@@ -502,45 +587,65 @@ export default function Collaborate() {
   });
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ background: "#08090a" }}>
-      <div className="max-w-3xl mx-auto">
-        {/* ── Header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-8"
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      {/* Header */}
+      <div style={{ borderBottom: "1px solid var(--border)" }}>
+        <div
+          style={{ maxWidth: 760, margin: "0 auto", padding: "32px 32px 0" }}
         >
-          <button
-            onClick={() => navigate(-1)}
-            className="p-1.5 rounded transition-colors duration-150"
-            style={{ color: "#62666d", border: "1px solid #23252a" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-              (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#62666d";
-              (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              marginBottom: 28,
             }}
           >
-            <ArrowLeft size={14} />
-          </button>
-          <div>
-            <h1
-              className="font-semibold"
-              style={{
-                fontSize: "18px",
-                letterSpacing: "-0.22px",
-                color: "#f7f8f8",
-              }}
+            <button
+              onClick={() => navigate(-1)}
+              className="btn btn-secondary btn-sm"
+              style={{ padding: "7px 10px" }}
             >
-              Collaborate
-            </h1>
-            <p style={{ color: "#62666d", fontSize: "12px" }}>{story?.title}</p>
-          </div>
-        </motion.div>
+              <ArrowLeft size={14} />
+            </button>
+            <div>
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--accent)",
+                  marginBottom: 3,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Collaborate
+              </p>
+              <h1
+                style={{
+                  fontSize: "clamp(18px,2.5vw,26px)",
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  letterSpacing: "-0.03em",
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-display)",
+                  lineHeight: 1,
+                }}
+              >
+                {story?.title}
+              </h1>
+            </div>
+          </motion.div>
+        </div>
+      </div>
 
-        {/* ── Invite (author only) ── */}
+      <div
+        style={{ maxWidth: 760, margin: "0 auto", padding: "28px 32px 80px" }}
+      >
+        {/* Invite */}
         {isAuthor && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -551,120 +656,174 @@ export default function Collaborate() {
           </motion.div>
         )}
 
-        {/* ── Collaborators list ── */}
+        {/* Collaborators */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="mb-8"
+          style={{ marginBottom: 36 }}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <Users size={13} style={{ color: "#8dd6ff" }} />
-            <h2 className="font-medium text-xs" style={{ color: "#8a8f98" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 14,
+            }}
+          >
+            <Users size={14} style={{ color: "var(--accent)" }} />
+            <h2
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
               Collaborators
-              <span
-                className="ml-2 px-1.5 py-0.5 rounded"
-                style={{
-                  background: "#23252a",
-                  color: "#62666d",
-                  fontSize: "11px",
-                }}
-              >
-                {collaborators.length}
-              </span>
             </h2>
+            <span className="badge badge-default">{collaborators.length}</span>
           </div>
 
-          {/* Author row */}
-          {story && (
-            <div
-              className="flex items-center gap-3 px-3 py-2.5 rounded-md mb-2"
-              style={{
-                background: "#0f1011",
-                border: "1px solid #23252a",
-              }}
-            >
-              {story.author?.avatar ? (
-                <img
-                  src={story.author.avatar}
-                  alt={story.author.username}
-                  className="w-7 h-7 rounded-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
-                  style={{
-                    background: "#8dd6ff",
-                    color: "#08090a",
-                    fontSize: "10px",
-                  }}
-                >
-                  {story.author?.username?.[0]?.toUpperCase()}
-                </div>
-              )}
-              <div className="flex-1">
-                <p className="text-xs font-medium" style={{ color: "#d0d6e0" }}>
-                  {story.author?.name || story.author?.username}
-                </p>
-                <p style={{ color: "#62666d", fontSize: "11px" }}>
-                  @{story.author?.username}
-                </p>
-              </div>
-              <span
-                className="flex items-center gap-1 px-2 py-0.5 rounded text-xs"
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {/* Author row */}
+            {story && (
+              <div
                 style={{
-                  background: "rgba(141, 214, 255, 0.08)",
-                  border: "1px solid rgba(141, 214, 255, 0.15)",
-                  color: "#8dd6ff",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  background: "var(--bg-subtle)",
+                  border: "1.5px solid var(--border)",
                 }}
               >
-                <Crown size={10} />
-                Author
-              </span>
-            </div>
-          )}
+                {story.author?.avatar ? (
+                  <img
+                    src={story.author.avatar}
+                    alt={story.author.username}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "var(--text-primary)",
+                      color: "white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    {story.author?.username?.[0]?.toUpperCase()}
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    {story.author?.name || story.author?.username}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    @{story.author?.username}
+                  </p>
+                </div>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "4px 10px",
+                    borderRadius: 7,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: "var(--bg-muted)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  <Crown size={11} /> Author
+                </span>
+              </div>
+            )}
 
-          {/* Collaborator rows */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2
-                size={16}
-                className="animate-spin"
-                style={{ color: "#8a8f98" }}
-              />
-            </div>
-          ) : collaborators.length === 0 ? (
-            <div
-              className="text-center py-8 rounded-md"
-              style={{
-                background: "#0f1011",
-                border: "1px solid #23252a",
-              }}
-            >
-              <Users
-                size={24}
-                className="mx-auto mb-2"
-                style={{ color: "#383b3f" }}
-              />
-              <p className="text-xs" style={{ color: "#62666d" }}>
-                No collaborators yet
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {collaborators.map((c) => (
+            {isLoading ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  padding: "32px 0",
+                }}
+              >
+                <Loader2
+                  size={18}
+                  style={{
+                    color: "var(--text-muted)",
+                    animation: "spin 0.7s linear infinite",
+                  }}
+                />
+              </div>
+            ) : collaborators.length === 0 ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "32px",
+                  borderRadius: 10,
+                  background: "var(--bg-subtle)",
+                  border: "1.5px solid var(--border)",
+                }}
+              >
+                <Users
+                  size={22}
+                  style={{ color: "var(--text-muted)", margin: "0 auto 8px" }}
+                />
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  No collaborators yet
+                </p>
+              </div>
+            ) : (
+              collaborators.map((c) => (
                 <CollaboratorRow
                   key={c.id}
                   collaborator={c}
                   storyId={storyId!}
                   isAuthor={isAuthor}
                 />
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </motion.div>
 
-        {/* ── Publish endings (author only) ── */}
+        {/* Publish endings */}
         {isAuthor && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -672,34 +831,61 @@ export default function Collaborate() {
             transition={{ delay: 0.15 }}
           >
             <div
-              style={{ height: "1px", background: "#23252a" }}
-              className="mb-6"
+              style={{
+                height: 1,
+                background: "var(--border)",
+                marginBottom: 28,
+              }}
             />
 
-            <div className="flex items-center gap-2 mb-4">
-              <GitBranch size={13} style={{ color: "#8dd6ff" }} />
-              <h2 className="font-medium text-xs" style={{ color: "#8a8f98" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 16,
+              }}
+            >
+              <GitBranch size={14} style={{ color: "var(--accent)" }} />
+              <h2
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
                 Publish endings
               </h2>
             </div>
 
-            {/* Publish a branch */}
+            {/* Publish selector */}
             <div
-              className="rounded-md p-4 mb-4"
               style={{
-                background: "#0f1011",
-                border: "1px solid #23252a",
+                background: "var(--bg)",
+                border: "1.5px solid var(--border)",
+                borderRadius: 12,
+                padding: "20px",
+                marginBottom: 16,
+                boxShadow: "var(--shadow-sm)",
               }}
             >
-              <p className="text-xs mb-3" style={{ color: "#8a8f98" }}>
-                Publish a branch as a story ending
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "var(--text-secondary)",
+                  marginBottom: 14,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Publish a branch as a story ending visible to all readers
               </p>
-              <div className="flex gap-2">
+              <div style={{ display: "flex", gap: 8 }}>
                 <select
                   value={publishingBranchId}
                   onChange={(e) => setPublishingBranchId(e.target.value)}
-                  className="input flex-1"
-                  style={{ fontSize: "13px", height: "34px", padding: "0 8px" }}
+                  className="input"
+                  style={{ flex: 1, fontSize: 13, cursor: "pointer" }}
                 >
                   <option value="">Select a branch...</option>
                   {branches.map((b: any) => (
@@ -714,51 +900,75 @@ export default function Collaborate() {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => publishMutation.mutate()}
                   disabled={!publishingBranchId || publishMutation.isPending}
-                  className="btn-primary text-xs px-3 flex items-center gap-1.5"
-                  style={{ height: "34px" }}
+                  className="btn btn-primary"
+                  style={{ gap: 6, whiteSpace: "nowrap" }}
                 >
                   {publishMutation.isPending ? (
-                    <Loader2 size={12} className="animate-spin" />
+                    <Loader2
+                      size={13}
+                      style={{ animation: "spin 0.7s linear infinite" }}
+                    />
                   ) : (
-                    <Globe size={12} />
+                    <Globe size={13} />
                   )}
                   Publish
                 </motion.button>
               </div>
               {publishMutation.isError && (
-                <p className="mt-2 text-xs" style={{ color: "#eb5757" }}>
+                <p
+                  style={{
+                    marginTop: 10,
+                    fontSize: 12,
+                    color: "#dc2626",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
                   {(publishMutation.error as any)?.response?.data?.message ||
                     "Could not publish."}
                 </p>
               )}
             </div>
 
-            {/* Published endings */}
+            {/* Published list */}
             {endings.length > 0 && (
-              <div className="space-y-1.5">
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {endings.map((ending: any) => (
                   <div
                     key={ending.id}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-md"
                     style={{
-                      background: "#0f1011",
-                      border: "1px solid rgba(95, 237, 131, 0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "12px 16px",
+                      borderRadius: 10,
+                      background: "#f0fdf4",
+                      border: "1px solid #bbf7d0",
                     }}
                   >
-                    <div className="flex items-center gap-2">
-                      <Globe size={12} style={{ color: "#5fed83" }} />
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      <Globe size={13} style={{ color: "#16a34a" }} />
                       <span
-                        className="text-xs font-medium"
-                        style={{ color: "#d0d6e0" }}
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          fontFamily: "var(--font-body)",
+                        }}
                       >
                         {ending.branch?.name}
                       </span>
                       <span
-                        className="text-xs px-1.5 py-0.5 rounded"
                         style={{
-                          background: "rgba(95, 237, 131, 0.08)",
-                          border: "1px solid rgba(95, 237, 131, 0.15)",
-                          color: "#5fed83",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: "2px 8px",
+                          borderRadius: 99,
+                          background: "#dcfce7",
+                          border: "1px solid #bbf7d0",
+                          color: "#16a34a",
+                          fontFamily: "var(--font-body)",
                         }}
                       >
                         Published
@@ -766,31 +976,34 @@ export default function Collaborate() {
                     </div>
                     <button
                       onClick={() => {
-                        if (confirm("Unpublish this ending?")) {
+                        if (confirm("Unpublish this ending?"))
                           unpublishMutation.mutate(ending.id);
-                        }
                       }}
                       disabled={unpublishMutation.isPending}
-                      className="flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors duration-100"
                       style={{
-                        color: "#62666d",
-                        border: "1px solid #23252a",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                        padding: "6px 12px",
+                        borderRadius: 7,
+                        background: "transparent",
+                        border: "1px solid #fecaca",
+                        color: "#dc2626",
+                        fontSize: 12,
+                        fontFamily: "var(--font-body)",
+                        cursor: "pointer",
+                        transition: "background 0.15s",
                       }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.color =
-                          "#eb5757";
-                        (e.currentTarget as HTMLElement).style.borderColor =
-                          "rgba(235, 87, 87, 0.2)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.color =
-                          "#62666d";
-                        (e.currentTarget as HTMLElement).style.borderColor =
-                          "#23252a";
-                      }}
+                      onMouseEnter={(e) =>
+                        ((e.currentTarget as HTMLElement).style.background =
+                          "#fef2f2")
+                      }
+                      onMouseLeave={(e) =>
+                        ((e.currentTarget as HTMLElement).style.background =
+                          "transparent")
+                      }
                     >
-                      <Lock size={10} />
-                      Unpublish
+                      <Lock size={11} /> Unpublish
                     </button>
                   </div>
                 ))}

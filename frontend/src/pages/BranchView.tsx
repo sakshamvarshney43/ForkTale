@@ -24,25 +24,32 @@ import {
 } from "../services/api";
 import type { Branch, Commit } from "../types";
 
-// Commit Modal
+/* ── Commit Modal ── */
 function CommitModal({
   onCommit,
   onClose,
   loading,
 }: {
-  onCommit: (message: string) => void;
+  onCommit: (msg: string) => void;
   onClose: () => void;
   loading: boolean;
 }) {
   const [message, setMessage] = useState("");
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: "rgba(8, 9, 10, 0.85)" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 16px",
+        background: "rgba(0,0,0,0.5)",
+      }}
       onClick={onClose}
     >
       <motion.div
@@ -50,38 +57,60 @@ function CommitModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 8 }}
         transition={{ duration: 0.15 }}
-        className="w-full max-w-md rounded-md p-5"
         style={{
-          background: "#0f1011",
-          border: "1px solid #23252a",
-          boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+          width: "100%",
+          maxWidth: 440,
+          background: "var(--bg)",
+          border: "1.5px solid var(--border)",
+          borderRadius: 14,
+          padding: 24,
+          boxShadow: "var(--shadow-xl)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <GitCommit size={14} style={{ color: "#8dd6ff" }} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 18,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <GitCommit size={15} style={{ color: "var(--accent)" }} />
             <h3
-              className="font-medium text-sm"
-              style={{ color: "#f7f8f8", letterSpacing: "-0.1px" }}
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
             >
               Save commit
             </h3>
           </div>
           <button
             onClick={onClose}
-            style={{ color: "#62666d" }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              display: "flex",
+              padding: 2,
+            }}
             onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "#f7f8f8")
+              ((e.currentTarget as HTMLElement).style.color =
+                "var(--text-primary)")
             }
             onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "#62666d")
+              ((e.currentTarget as HTMLElement).style.color =
+                "var(--text-muted)")
             }
           >
-            <X size={14} />
+            <X size={15} />
           </button>
         </div>
-
         <input
           autoFocus
           type="text"
@@ -91,12 +120,11 @@ function CommitModal({
           onKeyDown={(e) => {
             if (e.key === "Enter" && message.trim()) onCommit(message.trim());
           }}
-          className="input w-full mb-4"
-          style={{ fontSize: "13px" }}
+          className="input"
+          style={{ marginBottom: 16, fontSize: 14 }}
         />
-
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="btn-ghost text-xs px-3 py-1.5">
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <button onClick={onClose} className="btn btn-ghost">
             Cancel
           </button>
           <motion.button
@@ -104,12 +132,16 @@ function CommitModal({
             whileTap={{ scale: 0.98 }}
             onClick={() => message.trim() && onCommit(message.trim())}
             disabled={!message.trim() || loading}
-            className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
+            className="btn btn-primary"
+            style={{ gap: 6 }}
           >
             {loading ? (
-              <Loader2 size={12} className="animate-spin" />
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />
             ) : (
-              <Check size={12} />
+              <Check size={13} />
             )}
             Commit
           </motion.button>
@@ -119,7 +151,7 @@ function CommitModal({
   );
 }
 
-// New Branch Modal
+/*New Branch Modal */
 function NewBranchModal({
   onCreate,
   onClose,
@@ -130,14 +162,21 @@ function NewBranchModal({
   loading: boolean;
 }) {
   const [name, setName] = useState("");
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: "rgba(8, 9, 10, 0.85)" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 16px",
+        background: "rgba(0,0,0,0.5)",
+      }}
       onClick={onClose}
     >
       <motion.div
@@ -145,38 +184,60 @@ function NewBranchModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 8 }}
         transition={{ duration: 0.15 }}
-        className="w-full max-w-md rounded-md p-5"
         style={{
-          background: "#0f1011",
-          border: "1px solid #23252a",
-          boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+          width: "100%",
+          maxWidth: 440,
+          background: "var(--bg)",
+          border: "1.5px solid var(--border)",
+          borderRadius: 14,
+          padding: 24,
+          boxShadow: "var(--shadow-xl)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <GitBranch size={14} style={{ color: "#8dd6ff" }} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 18,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <GitBranch size={15} style={{ color: "var(--accent)" }} />
             <h3
-              className="font-medium text-sm"
-              style={{ color: "#f7f8f8", letterSpacing: "-0.1px" }}
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
             >
               New branch
             </h3>
           </div>
           <button
             onClick={onClose}
-            style={{ color: "#62666d" }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              display: "flex",
+              padding: 2,
+            }}
             onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "#f7f8f8")
+              ((e.currentTarget as HTMLElement).style.color =
+                "var(--text-primary)")
             }
             onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "#62666d")
+              ((e.currentTarget as HTMLElement).style.color =
+                "var(--text-muted)")
             }
           >
-            <X size={14} />
+            <X size={15} />
           </button>
         </div>
-
         <input
           autoFocus
           type="text"
@@ -186,15 +247,21 @@ function NewBranchModal({
           onKeyDown={(e) => {
             if (e.key === "Enter" && name.trim()) onCreate(name.trim());
           }}
-          className="input w-full mb-1"
-          style={{ fontSize: "13px" }}
+          className="input"
+          style={{ marginBottom: 6, fontSize: 14 }}
         />
-        <p className="text-xs mb-4" style={{ color: "#62666d" }}>
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--text-muted)",
+            marginBottom: 16,
+            fontFamily: "var(--font-body)",
+          }}
+        >
           Letters, numbers, hyphens and underscores only
         </p>
-
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="btn-ghost text-xs px-3 py-1.5">
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <button onClick={onClose} className="btn btn-ghost">
             Cancel
           </button>
           <motion.button
@@ -202,12 +269,16 @@ function NewBranchModal({
             whileTap={{ scale: 0.98 }}
             onClick={() => name.trim() && onCreate(name.trim())}
             disabled={!name.trim() || loading}
-            className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
+            className="btn btn-primary"
+            style={{ gap: 6 }}
           >
             {loading ? (
-              <Loader2 size={12} className="animate-spin" />
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />
             ) : (
-              <Plus size={12} />
+              <Plus size={13} />
             )}
             Create
           </motion.button>
@@ -217,7 +288,7 @@ function NewBranchModal({
   );
 }
 
-// AI panel
+/*AI Panel */
 function AIPanel({
   content,
   genre,
@@ -245,7 +316,6 @@ function AIPanel({
     setActiveAction(key);
     setStreamedText("");
     setFixedText("");
-
     if (key === "grammar") {
       try {
         const res = await aiService.fixGrammar(content);
@@ -255,7 +325,6 @@ function AIPanel({
       }
       return;
     }
-
     setIsStreaming(true);
     try {
       let response;
@@ -264,28 +333,20 @@ function AIPanel({
       else if (key === "twist")
         response = await aiService.suggestTwist(content, genre);
       else response = await aiService.improveWriting(content);
-
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-
       if (!reader) return;
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
+        const lines = decoder.decode(value).split("\n");
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const data = line.slice(6);
             if (data === "[DONE]") break;
             try {
-              const parsed = JSON.parse(data);
-              if (parsed.text) {
-                setStreamedText((prev) => prev + parsed.text);
-              }
+              const p = JSON.parse(data);
+              if (p.text) setStreamedText((prev) => prev + p.text);
             } catch {}
           }
         }
@@ -301,70 +362,106 @@ function AIPanel({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 12 }}
+      initial={{ opacity: 0, x: 16 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 12 }}
+      exit={{ opacity: 0, x: 16 }}
       transition={{ duration: 0.2 }}
-      className="flex flex-col h-full"
       style={{
-        width: "280px",
-        borderLeft: "1px solid #23252a",
-        background: "#0f1011",
+        width: 280,
+        flexShrink: 0,
+        borderLeft: "1px solid var(--border)",
+        background: "var(--bg-subtle)",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
       }}
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3"
-        style={{ borderBottom: "1px solid #23252a" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "14px 16px",
+          borderBottom: "1px solid var(--border)",
+        }}
       >
-        <div className="flex items-center gap-2">
-          <Sparkles size={13} style={{ color: "#5fed83" }} />
-          <span className="text-xs font-medium" style={{ color: "#f7f8f8" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <Sparkles size={14} style={{ color: "#16a34a" }} />
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
             AI Assistant
           </span>
         </div>
         <button
           onClick={onClose}
-          style={{ color: "#62666d" }}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--text-muted)",
+            display: "flex",
+          }}
           onMouseEnter={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "#f7f8f8")
+            ((e.currentTarget as HTMLElement).style.color =
+              "var(--text-primary)")
           }
           onMouseLeave={(e) =>
-            ((e.currentTarget as HTMLElement).style.color = "#62666d")
+            ((e.currentTarget as HTMLElement).style.color = "var(--text-muted)")
           }
         >
-          <X size={13} />
+          <X size={14} />
         </button>
       </div>
 
       {/* Actions */}
-      <div className="p-3 space-y-1">
+      <div style={{ padding: "10px 10px 0" }}>
         {actions.map((action) => (
           <button
             key={action.key}
             onClick={() => runAction(action.key)}
             disabled={isStreaming}
-            className="w-full text-left px-3 py-2 rounded text-xs transition-colors duration-100"
             style={{
+              width: "100%",
+              textAlign: "left",
+              padding: "9px 12px",
+              borderRadius: 8,
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              fontWeight: 500,
+              cursor: "pointer",
+              border: "none",
+              marginBottom: 4,
+              transition: "all 0.15s",
               background:
-                activeAction === action.key ? "#161718" : "transparent",
-              color: activeAction === action.key ? "#8dd6ff" : "#8a8f98",
-              border:
                 activeAction === action.key
-                  ? "1px solid rgba(141, 214, 255, 0.2)"
-                  : "1px solid transparent",
+                  ? "var(--accent-subtle)"
+                  : "transparent",
+              color:
+                activeAction === action.key
+                  ? "var(--accent)"
+                  : "var(--text-secondary)",
             }}
             onMouseEnter={(e) => {
               if (activeAction !== action.key) {
-                (e.currentTarget as HTMLElement).style.background = "#161718";
-                (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
+                (e.currentTarget as HTMLElement).style.background =
+                  "var(--bg-muted)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-primary)";
               }
             }}
             onMouseLeave={(e) => {
               if (activeAction !== action.key) {
                 (e.currentTarget as HTMLElement).style.background =
                   "transparent";
-                (e.currentTarget as HTMLElement).style.color = "#8a8f98";
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-secondary)";
               }
             }}
           >
@@ -377,25 +474,38 @@ function AIPanel({
       {result && (
         <>
           <div
-            style={{ height: "1px", background: "#23252a", margin: "0 12px" }}
+            style={{
+              height: 1,
+              background: "var(--border)",
+              margin: "8px 12px",
+            }}
           />
-          <div className="flex-1 overflow-y-auto p-3">
+          <div style={{ flex: 1, overflowY: "auto", padding: "0 12px 12px" }}>
             <p
-              className="text-xs leading-relaxed mb-3"
-              style={{ color: "#d0d6e0", lineHeight: "1.6" }}
+              style={{
+                fontSize: 13,
+                color: "var(--text-secondary)",
+                lineHeight: 1.7,
+                marginBottom: 12,
+                fontFamily: "var(--font-body)",
+              }}
             >
               {result}
               {isStreaming && (
-                <span
-                  className="inline-block w-0.5 h-3 ml-0.5 align-middle"
+                <motion.span
+                  animate={{ opacity: [1, 0, 1] }}
+                  transition={{ repeat: Infinity, duration: 0.9 }}
                   style={{
-                    background: "#5fed83",
-                    animation: "pulse 1s infinite",
+                    display: "inline-block",
+                    width: 2,
+                    height: 13,
+                    background: "#16a34a",
+                    marginLeft: 2,
+                    verticalAlign: "middle",
                   }}
                 />
               )}
             </p>
-
             {!isStreaming && result && (
               <motion.button
                 initial={{ opacity: 0 }}
@@ -403,7 +513,12 @@ function AIPanel({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onInsert(result)}
-                className="btn-primary w-full text-xs py-2"
+                className="btn btn-primary"
+                style={{
+                  width: "100%",
+                  justifyContent: "center",
+                  fontSize: 13,
+                }}
               >
                 Insert into editor
               </motion.button>
@@ -415,8 +530,7 @@ function AIPanel({
   );
 }
 
-// Branch View Page
-
+/*Main Editor*/
 export default function BranchView() {
   const { storyId, branchId } = useParams<{
     storyId: string;
@@ -428,24 +542,19 @@ export default function BranchView() {
   const [content, setContent] = useState("");
   const [showCommitModal, setShowCommitModal] = useState(false);
   const [showBranchModal, setShowBranchModal] = useState(false);
-  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  const [showBranchDrop, setShowBranchDrop] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Fetch story
   const { data: storyData } = useQuery({
     queryKey: ["story", storyId],
     queryFn: () => storyService.getMyStory(storyId!),
   });
-
-  // Fetch branches
   const { data: branchesData } = useQuery({
     queryKey: ["branches", storyId],
     queryFn: () => branchService.getBranches(storyId!),
   });
-
-  //Fetch latest commit
   const { data: latestData, isLoading: commitLoading } = useQuery({
     queryKey: ["latestCommit", storyId, branchId],
     queryFn: () => commitService.getLatestCommit(storyId!, branchId!),
@@ -456,7 +565,6 @@ export default function BranchView() {
   const currentBranch = branches.find((b) => b.id === branchId);
   const latestCommit: Commit | null = latestData?.data?.commit || null;
 
-  // Populate editor with latest content
   useEffect(() => {
     if (latestCommit?.content) {
       setContent(latestCommit.content);
@@ -464,13 +572,9 @@ export default function BranchView() {
     }
   }, [latestCommit]);
 
-  //Commit mutation
   const commitMutation = useMutation({
     mutationFn: (message: string) =>
-      commitService.createCommit(storyId!, branchId!, {
-        message,
-        content,
-      }),
+      commitService.createCommit(storyId!, branchId!, { message, content }),
     onSuccess: () => {
       setHasChanges(false);
       setShowCommitModal(false);
@@ -483,7 +587,6 @@ export default function BranchView() {
     },
   });
 
-  //New branch mutation
   const branchMutation = useMutation({
     mutationFn: (name: string) =>
       branchService.createBranch(storyId!, {
@@ -491,197 +594,261 @@ export default function BranchView() {
         fromCommitId: latestCommit?.id,
       }),
     onSuccess: (res) => {
-      const newBranch = res.data.branch;
       setShowBranchModal(false);
       queryClient.invalidateQueries({ queryKey: ["branches", storyId] });
-      navigate(`/stories/${storyId}/branches/${newBranch.id}`);
+      navigate(`/stories/${storyId}/branches/${res.data.branch.id}`);
     },
   });
 
-  // Handle content change
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
-    setHasChanges(true);
-  };
+  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
 
-  //Insert AI text
-  const handleInsert = (text: string) => {
-    setContent((prev) => prev + "\n\n" + text);
-    setHasChanges(true);
-    setShowAI(false);
-  };
-
-  if (commitLoading) {
+  if (commitLoading)
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#08090a" }}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg)",
+        }}
       >
         <Loader2
-          size={18}
-          className="animate-spin"
-          style={{ color: "#8a8f98" }}
+          size={20}
+          style={{
+            color: "var(--text-muted)",
+            animation: "spin 0.7s linear infinite",
+          }}
         />
       </div>
     );
-  }
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: "#08090a" }}>
-      {/*Top Bar*/}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        background: "var(--bg)",
+      }}
+    >
+      {/* Top bar*/}
       <div
-        className="flex items-center justify-between px-4 py-2.5 flex-shrink-0"
-        style={{ borderBottom: "1px solid #23252a", background: "#0f1011" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 16px",
+          height: 52,
+          flexShrink: 0,
+          borderBottom: "1px solid var(--border)",
+          background: "var(--bg)",
+          boxShadow: "var(--shadow-xs)",
+        }}
       >
         {/* Left */}
-        <div className="flex items-center gap-3">
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button
             onClick={() => navigate("/dashboard")}
-            className="p-1.5 rounded transition-colors duration-150"
-            style={{ color: "#62666d" }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "#f7f8f8")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "#62666d")
-            }
+            style={{
+              padding: 6,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              display: "flex",
+              borderRadius: 6,
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background =
+                "var(--bg-muted)";
+              (e.currentTarget as HTMLElement).style.color =
+                "var(--text-primary)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+              (e.currentTarget as HTMLElement).style.color =
+                "var(--text-muted)";
+            }}
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={15} />
           </button>
 
-          <div
-            style={{ width: "1px", height: "16px", background: "#23252a" }}
-          />
+          <div style={{ width: 1, height: 18, background: "var(--border)" }} />
 
           <span
-            className="text-sm font-medium"
-            style={{ color: "#d0d6e0", letterSpacing: "-0.1px" }}
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-body)",
+              letterSpacing: "-0.01em",
+            }}
           >
             {story?.title}
           </span>
 
           {/* Branch switcher */}
-          <div className="relative">
+          <div style={{ position: "relative" }}>
             <button
-              onClick={() => setShowBranchDropdown(!showBranchDropdown)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors duration-150"
+              onClick={() => setShowBranchDrop(!showBranchDrop)}
               style={{
-                background: "#161718",
-                border: "1px solid #23252a",
-                color: "#8dd6ff",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "5px 10px",
+                borderRadius: 7,
+                cursor: "pointer",
+                background: "var(--bg-subtle)",
+                border: "1.5px solid var(--border)",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--accent)",
+                fontFamily: "var(--font-mono)",
+                transition: "border-color 0.15s",
               }}
               onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor = "#383b3f")
+                ((e.currentTarget as HTMLElement).style.borderColor =
+                  "var(--accent-border)")
               }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor = "#23252a")
-              }
+              onMouseLeave={(e) => {
+                if (!showBranchDrop)
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--border)";
+              }}
             >
               <GitBranch size={11} />
               {currentBranch?.name || "main"}
               <ChevronDown
                 size={11}
                 style={{
-                  color: "#62666d",
-                  transform: showBranchDropdown
-                    ? "rotate(180deg)"
-                    : "rotate(0)",
+                  color: "var(--text-muted)",
+                  transform: showBranchDrop ? "rotate(180deg)" : "rotate(0)",
                   transition: "transform 0.15s",
                 }}
               />
             </button>
 
             <AnimatePresence>
-              {showBranchDropdown && (
+              {showBranchDrop && (
                 <motion.div
                   initial={{ opacity: 0, y: 4, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.97 }}
                   transition={{ duration: 0.12 }}
-                  className="absolute left-0 mt-1 w-48 rounded-md overflow-hidden z-10"
                   style={{
-                    background: "#161718",
-                    border: "1px solid #23252a",
-                    boxShadow: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+                    position: "absolute",
+                    left: 0,
+                    top: "calc(100% + 4px)",
+                    width: 200,
+                    background: "var(--bg)",
+                    border: "1.5px solid var(--border)",
+                    borderRadius: 10,
+                    boxShadow: "var(--shadow-xl)",
+                    padding: 4,
+                    zIndex: 30,
                   }}
                 >
-                  <div className="p-1">
-                    {branches.map((branch) => (
-                      <button
-                        key={branch.id}
-                        onClick={() => {
-                          navigate(`/stories/${storyId}/branches/${branch.id}`);
-                          setShowBranchDropdown(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs transition-colors duration-100"
-                        style={{
-                          color: branch.id === branchId ? "#8dd6ff" : "#8a8f98",
-                          background:
-                            branch.id === branchId ? "#23252a" : "transparent",
-                        }}
-                        onMouseEnter={(e) => {
-                          if (branch.id !== branchId) {
-                            (e.currentTarget as HTMLElement).style.background =
-                              "#23252a";
-                            (e.currentTarget as HTMLElement).style.color =
-                              "#f7f8f8";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (branch.id !== branchId) {
-                            (e.currentTarget as HTMLElement).style.background =
-                              "transparent";
-                            (e.currentTarget as HTMLElement).style.color =
-                              "#8a8f98";
-                          }
-                        }}
-                      >
-                        <GitBranch size={11} />
-                        {branch.name}
-                        {branch.isDefault && (
-                          <span
-                            className="ml-auto text-xs px-1 rounded"
-                            style={{
-                              background: "#23252a",
-                              color: "#62666d",
-                              fontSize: "10px",
-                            }}
-                          >
-                            default
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div
-                    style={{ borderTop: "1px solid #23252a" }}
-                    className="p-1"
-                  >
+                  {branches.map((branch) => (
                     <button
+                      key={branch.id}
                       onClick={() => {
-                        setShowBranchModal(true);
-                        setShowBranchDropdown(false);
+                        navigate(`/stories/${storyId}/branches/${branch.id}`);
+                        setShowBranchDrop(false);
                       }}
-                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs transition-colors duration-100"
-                      style={{ color: "#8a8f98" }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "8px 10px",
+                        border: "none",
+                        cursor: "pointer",
+                        borderRadius: 7,
+                        fontSize: 12,
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 500,
+                        background:
+                          branch.id === branchId
+                            ? "var(--accent-subtle)"
+                            : "transparent",
+                        color:
+                          branch.id === branchId
+                            ? "var(--accent)"
+                            : "var(--text-secondary)",
+                        transition: "all 0.12s",
+                      }}
                       onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.background =
-                          "#23252a";
-                        (e.currentTarget as HTMLElement).style.color =
-                          "#f7f8f8";
+                        if (branch.id !== branchId) {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "var(--bg-muted)";
+                          (e.currentTarget as HTMLElement).style.color =
+                            "var(--text-primary)";
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background =
-                          "transparent";
-                        (e.currentTarget as HTMLElement).style.color =
-                          "#8a8f98";
+                        if (branch.id !== branchId) {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "transparent";
+                          (e.currentTarget as HTMLElement).style.color =
+                            "var(--text-secondary)";
+                        }
                       }}
                     >
-                      <Plus size={11} />
-                      New branch
+                      <GitBranch size={11} /> {branch.name}
+                      {branch.isDefault && (
+                        <span
+                          className="badge badge-default"
+                          style={{ fontSize: 10, marginLeft: "auto" }}
+                        >
+                          default
+                        </span>
+                      )}
                     </button>
-                  </div>
+                  ))}
+                  <div
+                    style={{
+                      height: 1,
+                      background: "var(--border)",
+                      margin: "4px 0",
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      setShowBranchModal(true);
+                      setShowBranchDrop(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 10px",
+                      border: "none",
+                      cursor: "pointer",
+                      borderRadius: 7,
+                      fontSize: 12,
+                      fontFamily: "var(--font-body)",
+                      color: "var(--text-secondary)",
+                      background: "transparent",
+                      transition: "all 0.12s",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.background =
+                        "var(--bg-muted)";
+                      (e.currentTarget as HTMLElement).style.color =
+                        "var(--text-primary)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.background =
+                        "transparent";
+                      (e.currentTarget as HTMLElement).style.color =
+                        "var(--text-secondary)";
+                    }}
+                  >
+                    <Plus size={11} /> New branch
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -689,138 +856,156 @@ export default function BranchView() {
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-2">
-          {/* Unsaved indicator */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {hasChanges && (
             <span
-              className="flex items-center gap-1 text-xs"
-              style={{ color: "#62666d" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 12,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-body)",
+              }}
             >
-              <AlertCircle size={11} />
-              Unsaved
+              <AlertCircle size={12} style={{ color: "#d97706" }} /> Unsaved
             </span>
           )}
 
-          {/* Commit history */}
           <button
             onClick={() =>
               navigate(`/stories/${storyId}/commits?branch=${branchId}`)
             }
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors duration-150"
-            style={{
-              color: "#8a8f98",
-              border: "1px solid #23252a",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-              (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#8a8f98";
-              (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
-            }}
+            className="btn btn-ghost btn-sm"
+            style={{ gap: 5 }}
           >
-            <History size={12} />
-            History
+            <History size={13} /> History
           </button>
 
-          {/* AI toggle */}
           <button
             onClick={() => setShowAI(!showAI)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-all duration-150"
-            style={
-              showAI
-                ? {
-                    background: "rgba(95, 237, 131, 0.1)",
-                    border: "1px solid rgba(95, 237, 131, 0.2)",
-                    color: "#5fed83",
-                  }
-                : {
-                    color: "#8a8f98",
-                    border: "1px solid #23252a",
-                  }
-            }
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "6px 12px",
+              borderRadius: 7,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              border: "1.5px solid",
+              transition: "all 0.15s",
+              background: showAI ? "#f0fdf4" : "transparent",
+              borderColor: showAI ? "#bbf7d0" : "var(--border)",
+              color: showAI ? "#16a34a" : "var(--text-secondary)",
+              fontFamily: "var(--font-body)",
+            }}
             onMouseEnter={(e) => {
               if (!showAI) {
-                (e.currentTarget as HTMLElement).style.color = "#f7f8f8";
-                (e.currentTarget as HTMLElement).style.borderColor = "#383b3f";
+                (e.currentTarget as HTMLElement).style.borderColor =
+                  "var(--border-strong)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-primary)";
               }
             }}
             onMouseLeave={(e) => {
               if (!showAI) {
-                (e.currentTarget as HTMLElement).style.color = "#8a8f98";
-                (e.currentTarget as HTMLElement).style.borderColor = "#23252a";
+                (e.currentTarget as HTMLElement).style.borderColor =
+                  "var(--border)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-secondary)";
               }
             }}
           >
-            <Sparkles size={12} />
-            AI
+            <Sparkles size={13} /> AI
           </button>
 
-          {/* Commit button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowCommitModal(true)}
             disabled={!hasChanges}
-            className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
-            style={{ opacity: hasChanges ? 1 : 0.4 }}
+            className="btn btn-primary btn-sm"
+            style={{ gap: 5, opacity: hasChanges ? 1 : 0.4 }}
           >
-            <Save size={12} />
-            Commit
+            <Save size={13} /> Commit
           </motion.button>
         </div>
       </div>
 
-      {/*Editor Area*/}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Editor */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Word count bar */}
+      {/*Editor area*/}
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {/* Writing pane */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          {/* word count bar */}
           <div
-            className="flex items-center justify-between px-6 py-1.5"
-            style={{ borderBottom: "1px solid #161718" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "7px 32px",
+              borderBottom: "1px solid var(--border)",
+              background: "var(--bg-subtle)",
+            }}
           >
             <span
               style={{
-                color: "#62666d",
-                fontSize: "11px",
-                fontFamily: "monospace",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-mono)",
               }}
             >
-              {currentBranch?.name} /
-              {latestCommit ? ` ${latestCommit.message}` : " no commits yet"}
+              {currentBranch?.name} /{" "}
+              {latestCommit ? latestCommit.message : "no commits yet"}
             </span>
             <span
               style={{
-                color: "#62666d",
-                fontSize: "11px",
-                fontFamily: "monospace",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-mono)",
               }}
             >
-              {content.trim().split(/\s+/).filter(Boolean).length} words
+              {wordCount} {wordCount === 1 ? "word" : "words"}
             </span>
           </div>
 
           {/* Textarea */}
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={handleContentChange}
-            placeholder="Start writing your story..."
-            className="flex-1 resize-none outline-none p-8 font-serif"
-            style={{
-              background: "#08090a",
-              color: "#d0d6e0",
-              fontSize: "16px",
-              lineHeight: "1.8",
-              letterSpacing: "0.01px",
-              caretColor: "#8dd6ff",
-              maxWidth: "720px",
-              margin: "0 auto",
-              width: "100%",
-            }}
-          />
+          <div style={{ flex: 1, overflowY: "auto", background: "var(--bg)" }}>
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+                setHasChanges(true);
+              }}
+              placeholder="Start writing your story..."
+              style={{
+                display: "block",
+                width: "100%",
+                maxWidth: 720,
+                margin: "0 auto",
+                minHeight: "100%",
+                padding: "48px 32px",
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                resize: "none",
+                fontFamily: "'Instrument Serif', Georgia, serif",
+                fontSize: 17,
+                lineHeight: 1.85,
+                color: "var(--text-primary)",
+                caretColor: "var(--accent)",
+                letterSpacing: "0.01em",
+              }}
+            />
+          </div>
         </div>
 
         {/* AI Panel */}
@@ -829,14 +1014,18 @@ export default function BranchView() {
             <AIPanel
               content={content}
               genre={story?.genre || undefined}
-              onInsert={handleInsert}
+              onInsert={(text) => {
+                setContent((prev) => prev + "\n\n" + text);
+                setHasChanges(true);
+                setShowAI(false);
+              }}
               onClose={() => setShowAI(false)}
             />
           )}
         </AnimatePresence>
       </div>
 
-      {/*Modals*/}
+      {/* Modals */}
       <AnimatePresence>
         {showCommitModal && (
           <CommitModal
@@ -846,7 +1035,6 @@ export default function BranchView() {
           />
         )}
       </AnimatePresence>
-
       <AnimatePresence>
         {showBranchModal && (
           <NewBranchModal
