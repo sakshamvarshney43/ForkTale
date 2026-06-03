@@ -5,6 +5,7 @@ import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { AIProvider } from "./context/AIContext";
 import "./index.css";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <AIProvider>
           <App />
+          <Analytics />
         </AIProvider>
       </AuthProvider>
     </QueryClientProvider>
