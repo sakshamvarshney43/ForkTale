@@ -7,6 +7,8 @@ import { Pool } from "pg";
 
 const connectionString = process.env.DATABASE_URL as string;
 
+console.log("DATABASE_URL =", connectionString);
+
 const pool = new Pool({
   connectionString,
 });
