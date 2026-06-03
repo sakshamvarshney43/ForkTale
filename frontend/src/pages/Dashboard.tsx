@@ -15,7 +15,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { storyService, forkService } from "../services/api";
+import { storyService, collaborateService, forkService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
 
@@ -481,7 +481,9 @@ function SkeletonCard() {
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"stories" | "forks">("stories");
+  const [activeTab, setActiveTab] = useState<
+    "stories" | "forks" | "collaborating"
+  >("stories");
 
   const { data: storiesData, isLoading: storiesLoading } = useQuery({
     queryKey: ["myStories"],
@@ -492,12 +494,24 @@ export default function Dashboard() {
     queryFn: () => forkService.getMyForks(),
   });
 
+  const { data: collaborationsData, isLoading: collaborationsLoading } =
+    useQuery({
+      queryKey: ["myCollaborations"],
+      queryFn: () => collaborateService.getMyCollaborations(),
+    });
+
   const stories: Story[] = storiesData?.data?.stories || [];
   const forks: Story[] = forksData?.data?.forks || [];
+  const collaborations = collaborationsData?.data?.collaborations || [];
 
   const tabs = [
     { key: "stories", label: "My stories", count: stories.length },
     { key: "forks", label: "Forked", count: forks.length },
+    {
+      key: "collaborating",
+      label: "Collaborating",
+      count: collaborations.length,
+    },
   ];
 
   return (
@@ -807,6 +821,77 @@ export default function Dashboard() {
             </div>
           ))}
       </div>
+      {/* Collaborating tab */}
+      {activeTab === "collaborating" &&
+        (collaborationsLoading ? (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: 20,
+            }}
+          >
+            {[1, 2].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : collaborations.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ textAlign: "center", padding: "96px 0" }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                background: "var(--bg-muted)",
+                borderRadius: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+              }}
+            >
+              <Users size={24} style={{ color: "var(--text-muted)" }} />
+            </div>
+
+            <h3
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                marginBottom: 6,
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              No collaborations yet
+            </h3>
+
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--text-muted)",
+                marginBottom: 24,
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              You haven't been invited to collaborate on any stories.
+            </p>
+          </motion.div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: 20,
+            }}
+          >
+            {collaborations.map((collab: any) => (
+              <StoryCard key={collab.story.id} story={collab.story} />
+            ))}
+          </div>
+        ))}
     </div>
   );
 }

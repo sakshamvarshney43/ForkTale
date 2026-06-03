@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Globe,
   Type,
+  Users,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -24,6 +25,7 @@ import {
   commitService,
   aiService,
   publishService,
+  collaborateService,
 } from "../services/api";
 import type { Branch, Commit } from "../types";
 
@@ -556,6 +558,9 @@ export default function BranchView() {
   const [showBranchDrop, setShowBranchDrop] = useState(false);
   const [showFontMenu, setShowFontMenu] = useState(false);
   const [showAI, setShowAI] = useState(false);
+  const [showCollaborators, setShowCollaborators] = useState(false);
+  const [inviteUsername, setInviteUsername] = useState("");
+  const [inviteRole, setInviteRole] = useState<"VIEWER" | "EDITOR">("EDITOR");
   const [hasChanges, setHasChanges] = useState(false);
   const [fontIdx, setFontIdx] = useState(0);
   const [sizeIdx, setSizeIdx] = useState(1);
@@ -575,7 +580,13 @@ export default function BranchView() {
     queryFn: () => commitService.getLatestCommit(storyId!, branchId!),
   });
 
+  const { data: collaboratorsData } = useQuery({
+    queryKey: ["collaborators", storyId],
+    queryFn: () => collaborateService.getCollaborators(storyId!),
+  });
+
   const story = storyData?.data?.story;
+  const collaborators = collaboratorsData?.data?.collaborators || [];
   const branches: Branch[] = branchesData?.data?.branches || [];
   const currentBranch = branches.find((b) => b.id === branchId);
   const latestCommit: Commit | null = latestData?.data?.commit || null;
@@ -611,6 +622,20 @@ export default function BranchView() {
       });
       queryClient.invalidateQueries({
         queryKey: ["commits", storyId, branchId],
+      });
+    },
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: () =>
+      collaborateService.invite(storyId!, {
+        username: inviteUsername,
+        role: inviteRole,
+      }),
+    onSuccess: () => {
+      setInviteUsername("");
+      queryClient.invalidateQueries({
+        queryKey: ["collaborators", storyId],
       });
     },
   });
@@ -1150,6 +1175,27 @@ export default function BranchView() {
             Publish
           </motion.button>
 
+          <button
+            onClick={() => setShowCollaborators(true)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "6px 12px",
+              borderRadius: 7,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              border: "1.5px solid var(--border)",
+              background: "transparent",
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            <Users size={13} />
+            Collaborators
+          </button>
+
           {/* AI */}
           <button
             onClick={() => setShowAI(!showAI)}
@@ -1301,6 +1347,86 @@ export default function BranchView() {
             onClose={() => setShowBranchModal(false)}
             loading={branchMutation.isPending}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCollaborators && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 60,
+            }}
+            onClick={() => setShowCollaborators(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 420,
+                background: "var(--bg)",
+                borderRadius: 12,
+                padding: 24,
+                border: "1px solid var(--border)",
+              }}
+            >
+              <h3 style={{ marginBottom: 16 }}>Collaborators</h3>
+
+              <input
+                className="input"
+                placeholder="Username"
+                value={inviteUsername}
+                onChange={(e) => setInviteUsername(e.target.value)}
+              />
+
+              <select
+                className="input"
+                value={inviteRole}
+                onChange={(e) =>
+                  setInviteRole(e.target.value as "VIEWER" | "EDITOR")
+                }
+                style={{ marginTop: 12 }}
+              >
+                <option value="EDITOR">EDITOR</option>
+                <option value="VIEWER">VIEWER</option>
+              </select>
+
+              <button
+                className="btn btn-primary"
+                style={{ marginTop: 12 }}
+                onClick={() => inviteMutation.mutate()}
+              >
+                Invite
+              </button>
+
+              <div style={{ marginTop: 24 }}>
+                {collaborators.map((c: any) => (
+                  <div
+                    key={c.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <span>
+                      {c.user.username} ({c.role})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
