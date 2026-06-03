@@ -5,7 +5,7 @@
   "main": "src/app.ts",
   "scripts": {
     "dev": "nodemon --exec tsx src/app.ts",
-    "build": "echo Build complete",
+    "build": "prisma generate",
     "start": "tsx src/app.ts"
   },
   "keywords": [],
