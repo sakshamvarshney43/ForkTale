@@ -254,18 +254,31 @@ export const getMyCollaborations = async (req: AuthRequest, res: Response) => {
                 avatar: true,
               },
             },
+            branches: {
+              orderBy: {
+                createdAt: "asc",
+              },
+            },
             _count: {
-              select: { branches: true },
+              select: {
+                branches: true,
+              },
             },
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
-    return res.status(200).json({ collaborations });
+    return res.status(200).json({
+      collaborations,
+    });
   } catch (error) {
     console.error("GetMyCollaborations error:", error);
-    return res.status(500).json({ message: "Server error." });
+    return res.status(500).json({
+      message: "Server error.",
+    });
   }
 };

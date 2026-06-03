@@ -37,7 +37,7 @@ function StoryCard({ story }: { story: Story }) {
       animate={{ opacity: 1, y: 0 }}
       className="card"
       style={{
-        overflow: "hidden",
+        overflow: "visible",
         display: "flex",
         flexDirection: "column",
         position: "relative",
@@ -820,78 +820,79 @@ export default function Dashboard() {
               ))}
             </div>
           ))}
-      </div>
-      {/* Collaborating tab */}
-      {activeTab === "collaborating" &&
-        (collaborationsLoading ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-              gap: 20,
-            }}
-          >
-            {[1, 2].map((i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        ) : collaborations.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{ textAlign: "center", padding: "96px 0" }}
-          >
+        {/* Collaborating tab */}
+        {activeTab === "collaborating" &&
+          (collaborationsLoading ? (
             <div
               style={{
-                width: 56,
-                height: 56,
-                background: "var(--bg-muted)",
-                borderRadius: 14,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 16px",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                gap: 20,
               }}
             >
-              <Users size={24} style={{ color: "var(--text-muted)" }} />
+              {[1, 2].map((i) => (
+                <SkeletonCard key={i} />
+              ))}
             </div>
+          ) : collaborations.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ textAlign: "center", padding: "96px 0" }}
+            >
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  background: "var(--bg-muted)",
+                  borderRadius: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 16px",
+                }}
+              >
+                <Users size={24} style={{ color: "var(--text-muted)" }} />
+              </div>
 
-            <h3
+              <h3
+                style={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  marginBottom: 6,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                No collaborations yet
+              </h3>
+
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--text-muted)",
+                  marginBottom: 24,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                You haven't been invited to collaborate on any stories.
+              </p>
+            </motion.div>
+          ) : (
+            <div
               style={{
-                fontSize: 16,
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                marginBottom: 6,
-                fontFamily: "var(--font-body)",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                gap: 20,
               }}
             >
-              No collaborations yet
-            </h3>
-
-            <p
-              style={{
-                fontSize: 14,
-                color: "var(--text-muted)",
-                marginBottom: 24,
-                fontFamily: "var(--font-body)",
-              }}
-            >
-              You haven't been invited to collaborate on any stories.
-            </p>
-          </motion.div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-              gap: 20,
-            }}
-          >
-            {collaborations.map((collab: any) => (
-              <StoryCard key={collab.story.id} story={collab.story} />
-            ))}
-          </div>
-        ))}
+              {collaborations.map((collab: any) => {
+                console.log("COLLAB STORY", collab.story);
+                return <StoryCard key={collab.story.id} story={collab.story} />;
+              })}
+            </div>
+          ))}
+      </div>
     </div>
   );
 }

@@ -33,7 +33,9 @@ export const createCommit = async (req: AuthRequest, res: Response) => {
     //check if branch exist and belong to the story
     const branch = await prisma.branch.findFirst({
       where: { id: branchId as string, storyId: storyId as string },
-      include: {
+      select: {
+        id: true,
+        isDefault: true,
         commits: {
           orderBy: { createdAt: "desc" },
           take: 1,
@@ -43,6 +45,20 @@ export const createCommit = async (req: AuthRequest, res: Response) => {
 
     if (!branch) {
       return res.status(404).json({ message: "Branch not found" });
+    }
+
+    // Prevent collaborators from editing the author's main branch
+    if (branch.isDefault) {
+      const story = await prisma.story.findUnique({
+        where: { id: storyId as string },
+      });
+
+      if (story && story.authorId !== req.user!.id) {
+        return res.status(403).json({
+          message:
+            "Collaborators cannot edit the main branch. Create your own branch first.",
+        });
+      }
     }
 
     //Get parent commit

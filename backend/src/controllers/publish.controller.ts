@@ -30,9 +30,26 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Story not found" });
     }
 
-    if (story.authorId !== userId) {
+    // Author can always publish
+    let canPublish = story.authorId === userId;
+
+    // If not author, check if user is an EDITOR collaborator
+    if (!canPublish) {
+      const collaborator = await prisma.collaborator.findUnique({
+        where: {
+          storyId_userId: {
+            storyId: storyId as string,
+            userId,
+          },
+        },
+      });
+
+      canPublish = collaborator?.role === "EDITOR";
+    }
+
+    if (!canPublish) {
       return res.status(403).json({
-        message: "Only the author can publish endings",
+        message: "Only the author or EDITOR collaborators can publish endings",
       });
     }
 
