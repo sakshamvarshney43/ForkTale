@@ -98,19 +98,11 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
           },
         },
       });
-      console.log("PUBLISH storyId =", storyId);
-      console.log("PUBLISH branchId =", branchId);
 
       await prisma.story.update({
         where: { id: storyId as string },
         data: { isPublished: true },
       });
-
-      const checkStory = await prisma.story.findUnique({
-        where: { id: storyId as string },
-      });
-
-      console.log("AFTER UPDATE isPublished =", checkStory?.isPublished);
 
       return res.status(200).json({
         message: "Published ending updated",
