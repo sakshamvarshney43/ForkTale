@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
+import PermissionNotice from "../components/PermissionNotice";
 import {
   GitBranch,
   GitCommit,
@@ -551,6 +553,7 @@ export default function BranchView() {
   }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const [content, setContent] = useState("");
   const [showCommitModal, setShowCommitModal] = useState(false);
@@ -586,10 +589,22 @@ export default function BranchView() {
   });
 
   const story = storyData?.data?.story;
+  console.log("STORY", story);
   const collaborators = collaboratorsData?.data?.collaborators || [];
   const branches: Branch[] = branchesData?.data?.branches || [];
   const currentBranch = branches.find((b) => b.id === branchId);
   const latestCommit: Commit | null = latestData?.data?.commit || null;
+  const isAuthor = story?.authorId === user?.id;
+
+  const myCollaboration = story?.collaborators?.find(
+    (c: any) => c.userId === user?.id,
+  );
+  const role = isAuthor ? "AUTHOR" : myCollaboration?.role || "VIEWER";
+  const isMainBranch = currentBranch?.isDefault;
+  const canEditMainBranch = isAuthor;
+  const mainBranchLocked =
+    role === "EDITOR" && isMainBranch && !canEditMainBranch;
+  const isViewer = role === "VIEWER";
 
   useEffect(() => {
     if (latestCommit?.content) {
@@ -1235,7 +1250,7 @@ export default function BranchView() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowCommitModal(true)}
-            disabled={!hasChanges}
+            disabled={!hasChanges || mainBranchLocked || isViewer}
             className="btn btn-primary btn-sm"
             style={{
               gap: 5,
@@ -1249,6 +1264,21 @@ export default function BranchView() {
           </motion.button>
         </div>
       </div>
+
+      {mainBranchLocked && (
+        <PermissionNotice
+          title="Main branch protected"
+          message="You cannot edit the author's main branch. Create a new branch to contribute."
+        />
+      )}
+
+      {isViewer && (
+        <PermissionNotice
+          type="info"
+          title="Read-only access"
+          message="You can view this story but cannot create commits or publish changes."
+        />
+      )}
 
       {/* ── Status bar ── */}
       <div
@@ -1286,6 +1316,7 @@ export default function BranchView() {
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <div style={{ flex: 1, overflowY: "auto", background: "var(--bg)" }}>
           <textarea
+            readOnly={mainBranchLocked || isViewer}
             ref={textareaRef}
             value={content}
             onChange={(e) => {

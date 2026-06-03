@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import PermissionNotice from "../components/PermissionNotice";
 import {
   ArrowLeft,
   BookOpen,
@@ -27,14 +28,17 @@ function StarRating({
   avgRating,
   totalRatings,
   userRating,
+  isAuthor,
 }: {
   publishingId: string;
   avgRating: number;
   totalRatings: number;
   userRating: number | null;
+  isAuthor: boolean;
 }) {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+  const ratingDisabled = !isAuthenticated || isAuthor;
   const [hovered, setHovered] = useState(0);
 
   const rateMutation = useMutation({
@@ -56,69 +60,80 @@ function StarRating({
   });
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            disabled={!isAuthenticated}
-            onClick={() =>
-              userRating === star
-                ? deleteMutation.mutate()
-                : rateMutation.mutate(star)
-            }
-            onMouseEnter={() => isAuthenticated && setHovered(star)}
-            onMouseLeave={() => setHovered(0)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: isAuthenticated ? "pointer" : "default",
-              padding: 1,
-              transform: hovered >= star ? "scale(1.18)" : "scale(1)",
-              transition: "transform 0.1s",
-            }}
-          >
-            <Star
-              size={16}
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              disabled={ratingDisabled}
+              onClick={() =>
+                userRating === star
+                  ? deleteMutation.mutate()
+                  : rateMutation.mutate(star)
+              }
+              onMouseEnter={() => isAuthenticated && setHovered(star)}
+              onMouseLeave={() => setHovered(0)}
               style={{
-                color:
-                  hovered >= star || (userRating ?? 0) >= star
-                    ? "#f59e0b"
-                    : "var(--border-strong)",
-                fill:
-                  hovered >= star || (userRating ?? 0) >= star
-                    ? "#f59e0b"
-                    : "transparent",
-                transition: "all 0.1s",
+                background: "none",
+                border: "none",
+                cursor: ratingDisabled ? "default" : "pointer",
+                padding: 1,
+                transform: hovered >= star ? "scale(1.18)" : "scale(1)",
+                transition: "transform 0.1s",
               }}
-            />
-          </button>
-        ))}
-      </div>
-      <span
-        style={{
-          fontSize: 13,
-          color: "var(--text-muted)",
-          fontFamily: "var(--font-body)",
-        }}
-      >
-        {avgRating > 0 ? avgRating.toFixed(1) : "—"}
-        {totalRatings > 0 && ` (${totalRatings})`}
-      </span>
-      {userRating && (
+            >
+              <Star
+                size={16}
+                style={{
+                  color:
+                    hovered >= star || (userRating ?? 0) >= star
+                      ? "#f59e0b"
+                      : "var(--border-strong)",
+                  fill:
+                    hovered >= star || (userRating ?? 0) >= star
+                      ? "#f59e0b"
+                      : "transparent",
+                  transition: "all 0.1s",
+                }}
+              />
+            </button>
+          ))}
+        </div>
         <span
           style={{
-            fontSize: 11,
-            padding: "2px 8px",
-            borderRadius: 99,
+            fontSize: 13,
+            color: "var(--text-muted)",
             fontFamily: "var(--font-body)",
-            background: "#fffbeb",
-            border: "1px solid #fde68a",
-            color: "#92400e",
           }}
         >
-          Your rating: {userRating}★
+          {avgRating > 0 ? avgRating.toFixed(1) : "—"}
+          {totalRatings > 0 && ` (${totalRatings})`}
         </span>
+        {userRating && (
+          <span
+            style={{
+              fontSize: 11,
+              padding: "2px 8px",
+              borderRadius: 99,
+              fontFamily: "var(--font-body)",
+              background: "#fffbeb",
+              border: "1px solid #fde68a",
+              color: "#92400e",
+            }}
+          >
+            Your rating: {userRating}★
+          </span>
+        )}
+      </div>
+
+      {isAuthor && (
+        <div style={{ marginTop: 8 }}>
+          <PermissionNotice
+            title="Authors cannot rate their own stories"
+            message="Ratings are only available to readers."
+          />
+        </div>
       )}
     </div>
   );
@@ -665,6 +680,7 @@ export default function StoryRead() {
                     avgRating={ending.avgRating || 0}
                     totalRatings={ending.totalRatings || 0}
                     userRating={ending.userRating || null}
+                    isAuthor={story.authorId === user?.id}
                   />
                 </div>
                 {/* Prose */}
@@ -737,6 +753,7 @@ export default function StoryRead() {
                     avgRating={ending.avgRating || 0}
                     totalRatings={ending.totalRatings || 0}
                     userRating={ending.userRating || null}
+                    isAuthor={story.authorId === user?.id}
                   />
                   {story.authorId !== user?.id && (
                     <motion.button

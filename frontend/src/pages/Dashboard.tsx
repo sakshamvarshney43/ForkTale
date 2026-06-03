@@ -23,6 +23,8 @@ function StoryCard({ story }: { story: Story }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const isAuthor = story.authorId === user?.id;
 
   const deleteMutation = useMutation({
     mutationFn: () => storyService.deleteStory(story.id),
@@ -231,14 +233,19 @@ function StoryCard({ story }: { story: Story }) {
                 }}
               >
                 {[
-                  {
-                    icon: <Edit size={13} />,
-                    label: "Edit story",
-                    onClick: () => {
-                      navigate(`/stories/${story.id}/edit`);
-                      setMenuOpen(false);
-                    },
-                  },
+                  ...(isAuthor
+                    ? [
+                        {
+                          icon: <Edit size={13} />,
+                          label: "Edit story",
+                          onClick: () => {
+                            navigate(`/stories/${story.id}/edit`);
+                            setMenuOpen(false);
+                          },
+                        },
+                      ]
+                    : []),
+
                   ...(defaultBranch
                     ? [
                         {
@@ -253,14 +260,19 @@ function StoryCard({ story }: { story: Story }) {
                         },
                       ]
                     : []),
-                  {
-                    icon: <Users size={13} />,
-                    label: "Collaborators",
-                    onClick: () => {
-                      navigate(`/stories/${story.id}/collaborate`);
-                      setMenuOpen(false);
-                    },
-                  },
+
+                  ...(isAuthor
+                    ? [
+                        {
+                          icon: <Users size={13} />,
+                          label: "Collaborators",
+                          onClick: () => {
+                            navigate(`/stories/${story.id}/collaborate`);
+                            setMenuOpen(false);
+                          },
+                        },
+                      ]
+                    : []),
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -298,46 +310,52 @@ function StoryCard({ story }: { story: Story }) {
                     {item.label}
                   </button>
                 ))}
-                <div
-                  style={{
-                    height: 1,
-                    background: "var(--border)",
-                    margin: "4px 0",
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    if (confirm("Delete this story?")) deleteMutation.mutate();
-                    setMenuOpen(false);
-                  }}
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 10px",
-                    border: "none",
-                    background: "none",
-                    cursor: "pointer",
-                    fontSize: 13,
-                    color: "#dc2626",
-                    fontFamily: "var(--font-body)",
-                    borderRadius: 6,
-                    transition: "background 0.12s",
-                    textAlign: "left",
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.background =
-                      "#fef2f2")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.background =
-                      "transparent")
-                  }
-                >
-                  <Trash2 size={13} />
-                  Delete
-                </button>
+
+                {isAuthor && (
+                  <>
+                    <div
+                      style={{
+                        height: 1,
+                        background: "var(--border)",
+                        margin: "4px 0",
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (confirm("Delete this story?"))
+                          deleteMutation.mutate();
+                        setMenuOpen(false);
+                      }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "8px 10px",
+                        border: "none",
+                        background: "none",
+                        cursor: "pointer",
+                        fontSize: 13,
+                        color: "#dc2626",
+                        fontFamily: "var(--font-body)",
+                        borderRadius: 6,
+                        transition: "background 0.12s",
+                        textAlign: "left",
+                      }}
+                      onMouseEnter={(e) =>
+                        ((e.currentTarget as HTMLElement).style.background =
+                          "#fef2f2")
+                      }
+                      onMouseLeave={(e) =>
+                        ((e.currentTarget as HTMLElement).style.background =
+                          "transparent")
+                      }
+                    >
+                      <Trash2 size={13} />
+                      Delete
+                    </button>
+                  </>
+                )}
               </motion.div>
             )}
           </div>
