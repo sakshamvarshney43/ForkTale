@@ -99,6 +99,11 @@ export const publishBranch = async (req: AuthRequest, res: Response) => {
         },
       });
 
+      await prisma.story.update({
+        where: { id: storyId as string },
+        data: { isPublished: true },
+      });
+
       return res.status(200).json({
         message: "Published ending updated",
         publishing: updated,
