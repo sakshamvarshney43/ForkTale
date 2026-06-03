@@ -28,7 +28,15 @@ function StoryCard({ story }: { story: Story }) {
 
   const deleteMutation = useMutation({
     mutationFn: () => storyService.deleteStory(story.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["myStories"] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["myStories"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["discover"],
+      });
+    },
   });
 
   const defaultBranch = story.branches?.[0];

@@ -51,16 +51,28 @@ function InviteForm({
 
   const inviteMutation = useMutation({
     mutationFn: () => collaborateService.invite(storyId, { username, role }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] });
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["collaborators", storyId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["myCollaborations"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["story", storyId],
+      });
+
       setUsername("");
       setError("");
       onSuccess();
     },
+
     onError: (err: any) =>
       setError(err.response?.data?.message || "Could not invite user."),
   });
-
   return (
     <div
       style={{
@@ -282,15 +294,31 @@ function CollaboratorRow({
   const updateRoleMutation = useMutation({
     mutationFn: (role: "VIEWER" | "EDITOR") =>
       collaborateService.updateRole(storyId, collaborator.id, role),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["collaborators", storyId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["story", storyId],
+      });
+
       setShowDrop(false);
     },
   });
   const removeMutation = useMutation({
     mutationFn: () => collaborateService.remove(storyId, collaborator.id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["collaborators", storyId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["story", storyId],
+      });
+
+      setShowDrop(false);
+    },
   });
 
   return (
@@ -571,18 +599,26 @@ export default function Collaborate() {
 
   const publishMutation = useMutation({
     mutationFn: () => publishService.publish(storyId!, publishingBranchId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["endings", storyId] });
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
-      setPublishingBranchId("");
-    },
   });
   const unpublishMutation = useMutation({
     mutationFn: (publishingId: string) =>
       publishService.unpublish(storyId!, publishingId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["endings", storyId] });
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["endings", storyId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["story", storyId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["myStories"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["discover"],
+      });
     },
   });
 

@@ -638,6 +638,14 @@ export default function BranchView() {
       queryClient.invalidateQueries({
         queryKey: ["commits", storyId, branchId],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["story", storyId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["branches", storyId],
+      });
     },
   });
 
@@ -657,8 +665,23 @@ export default function BranchView() {
 
   const publishMutation = useMutation({
     mutationFn: () => publishService.publish(storyId!, branchId!),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["story", storyId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["myStories"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["discover"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["publishedStories"],
+      });
+    },
   });
 
   const branchMutation = useMutation({

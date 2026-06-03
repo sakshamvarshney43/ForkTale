@@ -86,7 +86,12 @@ export default function StoryEdit() {
   });
   const deleteMutation = useMutation({
     mutationFn: () => storyService.deleteStory(storyId!),
-    onSuccess: () => navigate("/dashboard"),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["myStories"],
+      });
+      navigate("/dashboard");
+    },
   });
 
   const addTag = () => {

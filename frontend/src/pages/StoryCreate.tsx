@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { storyService } from "../services/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -29,6 +30,7 @@ const genres = [
 
 export default function StoryCreate() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [error, setError] = useState("");
@@ -64,6 +66,9 @@ export default function StoryCreate() {
       setError("");
       const res = await storyService.create({ ...data, tags });
       const story = res.data.story;
+      await queryClient.invalidateQueries({
+        queryKey: ["myStories"],
+      });
       const branch = story.branches?.[0];
       if (branch) navigate(`/stories/${story.id}/branches/${branch.id}`);
       else navigate("/dashboard");
