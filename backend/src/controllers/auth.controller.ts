@@ -116,9 +116,12 @@ export const login = async (req: Request, res: Response) => {
         createdAt: user.createdAt,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login error FULL:", error);
-    return res.status(500).json({ message: "Server error." });
+
+    return res.status(500).json({
+      message: error?.message || "Server error.",
+    });
   }
 };
 
