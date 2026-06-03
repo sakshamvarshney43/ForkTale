@@ -667,17 +667,33 @@ export default function StoryRead() {
                     userRating={ending.userRating || null}
                   />
                 </div>
-
                 {/* Prose */}
-                <div className="prose">
+
+                <div
+                  style={{
+                    maxWidth: 760,
+                    margin: "0 auto",
+                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontSize: 19,
+                    lineHeight: 2,
+                    color: "#1f2937",
+                    letterSpacing: "0.01em",
+                  }}
+                >
                   {ending.finalContent
                     .split("\n\n")
                     .filter(Boolean)
                     .map((para: string, i: number) => (
-                      <p key={i}>{para}</p>
+                      <p
+                        key={i}
+                        style={{
+                          marginBottom: 24,
+                        }}
+                      >
+                        {para}
+                      </p>
                     ))}
                 </div>
-
                 {/* End marker */}
                 <div
                   style={{
@@ -706,7 +722,6 @@ export default function StoryRead() {
                     style={{ flex: 1, height: 1, background: "var(--border)" }}
                   />
                 </div>
-
                 {/* Post-read actions */}
                 <div
                   style={{

@@ -14,6 +14,8 @@ import {
   X,
   Check,
   AlertCircle,
+  Globe,
+  Type,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -25,7 +27,20 @@ import {
 } from "../services/api";
 import type { Branch, Commit } from "../types";
 
-/* Commit Modal */
+/*Font & size options */
+const FONTS = [
+  { label: "Georgia", value: "Georgia, 'Times New Roman', serif" },
+  { label: "Merriweather", value: "'Merriweather', Georgia, serif" },
+  { label: "System", value: "system-ui, -apple-system, sans-serif" },
+  { label: "Mono", value: "'JetBrains Mono', 'Courier New', monospace" },
+];
+const SIZES = [
+  { label: "S", value: 15 },
+  { label: "M", value: 17 },
+  { label: "L", value: 19 },
+];
+
+/*Commit Modal */
 function CommitModal({
   onCommit,
   onClose,
@@ -49,7 +64,7 @@ function CommitModal({
         alignItems: "center",
         justifyContent: "center",
         padding: "0 16px",
-        background: "rgba(0,0,0,0.5)",
+        background: "rgba(0,0,0,0.45)",
       }}
       onClick={onClose}
     >
@@ -152,7 +167,7 @@ function CommitModal({
   );
 }
 
-/*New Branch Modal */
+/* New Branch Modal */
 function NewBranchModal({
   onCreate,
   onClose,
@@ -176,7 +191,7 @@ function NewBranchModal({
         alignItems: "center",
         justifyContent: "center",
         padding: "0 16px",
-        background: "rgba(0,0,0,0.5)",
+        background: "rgba(0,0,0,0.45)",
       }}
       onClick={onClose}
     >
@@ -289,7 +304,7 @@ function NewBranchModal({
   );
 }
 
-/*AI Panel */
+/*AI Panel*/
 function AIPanel({
   content,
   genre,
@@ -368,7 +383,7 @@ function AIPanel({
       exit={{ opacity: 0, x: 16 }}
       transition={{ duration: 0.2 }}
       style={{
-        width: 280,
+        width: 264,
         flexShrink: 0,
         borderLeft: "1px solid var(--border)",
         background: "var(--bg-subtle)",
@@ -377,7 +392,6 @@ function AIPanel({
         height: "100%",
       }}
     >
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -420,8 +434,6 @@ function AIPanel({
           <X size={14} />
         </button>
       </div>
-
-      {/* Actions */}
       <div style={{ padding: "10px 10px 0" }}>
         {actions.map((action) => (
           <button
@@ -470,8 +482,6 @@ function AIPanel({
           </button>
         ))}
       </div>
-
-      {/* Result */}
       {result && (
         <>
           <div
@@ -531,7 +541,7 @@ function AIPanel({
   );
 }
 
-/*Main Editor*/
+/*Main Editor */
 export default function BranchView() {
   const { storyId, branchId } = useParams<{
     storyId: string;
@@ -544,9 +554,13 @@ export default function BranchView() {
   const [showCommitModal, setShowCommitModal] = useState(false);
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [showBranchDrop, setShowBranchDrop] = useState(false);
+  const [showFontMenu, setShowFontMenu] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [fontIdx, setFontIdx] = useState(0);
+  const [sizeIdx, setSizeIdx] = useState(1);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fontMenuRef = useRef<HTMLDivElement>(null);
 
   const { data: storyData } = useQuery({
     queryKey: ["story", storyId],
@@ -573,6 +587,19 @@ export default function BranchView() {
     }
   }, [latestCommit]);
 
+  // close font menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        fontMenuRef.current &&
+        !fontMenuRef.current.contains(e.target as Node)
+      )
+        setShowFontMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const commitMutation = useMutation({
     mutationFn: (message: string) =>
       commitService.createCommit(storyId!, branchId!, { message, content }),
@@ -590,10 +617,8 @@ export default function BranchView() {
 
   const publishMutation = useMutation({
     mutationFn: () => publishService.publish(storyId!, branchId!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
-      alert("Branch published successfully");
-    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["story", storyId] }),
   });
 
   const branchMutation = useMutation({
@@ -641,7 +666,7 @@ export default function BranchView() {
         background: "var(--bg)",
       }}
     >
-      {/* Top bar*/}
+      {/*Toolbar*/}
       <div
         style={{
           display: "flex",
@@ -652,11 +677,12 @@ export default function BranchView() {
           flexShrink: 0,
           borderBottom: "1px solid var(--border)",
           background: "var(--bg)",
-          boxShadow: "var(--shadow-xs)",
         }}
       >
         {/* Left */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}
+        >
           <button
             onClick={() => navigate("/dashboard")}
             style={{
@@ -668,6 +694,7 @@ export default function BranchView() {
               display: "flex",
               borderRadius: 6,
               transition: "all 0.15s",
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.background =
@@ -684,7 +711,14 @@ export default function BranchView() {
             <ArrowLeft size={15} />
           </button>
 
-          <div style={{ width: 1, height: 18, background: "var(--border)" }} />
+          <div
+            style={{
+              width: 1,
+              height: 18,
+              background: "var(--border)",
+              flexShrink: 0,
+            }}
+          />
 
           <span
             style={{
@@ -693,13 +727,16 @@ export default function BranchView() {
               color: "var(--text-primary)",
               fontFamily: "var(--font-body)",
               letterSpacing: "-0.01em",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {story?.title}
           </span>
 
           {/* Branch switcher */}
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", flexShrink: 0 }}>
             <button
               onClick={() => setShowBranchDrop(!showBranchDrop)}
               style={{
@@ -805,7 +842,8 @@ export default function BranchView() {
                         }
                       }}
                     >
-                      <GitBranch size={11} /> {branch.name}
+                      <GitBranch size={11} />
+                      {branch.name}
                       {branch.isDefault && (
                         <span
                           className="badge badge-default"
@@ -856,7 +894,8 @@ export default function BranchView() {
                         "var(--text-secondary)";
                     }}
                   >
-                    <Plus size={11} /> New branch
+                    <Plus size={11} />
+                    New branch
                   </button>
                 </motion.div>
               )}
@@ -865,22 +904,202 @@ export default function BranchView() {
         </div>
 
         {/* Right */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            flexShrink: 0,
+          }}
+        >
+          {/* Unsaved */}
           {hasChanges && (
             <span
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
+                gap: 4,
                 fontSize: 12,
-                color: "var(--text-muted)",
+                color: "#d97706",
                 fontFamily: "var(--font-body)",
+                background: "#fffbeb",
+                border: "1px solid #fde68a",
+                padding: "3px 8px",
+                borderRadius: 99,
               }}
             >
-              <AlertCircle size={12} style={{ color: "#d97706" }} /> Unsaved
+              <AlertCircle size={11} />
+              Unsaved
             </span>
           )}
 
+          {/* Font picker */}
+          <div ref={fontMenuRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setShowFontMenu(!showFontMenu)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "5px 10px",
+                borderRadius: 7,
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: "pointer",
+                border: "1.5px solid var(--border)",
+                background: showFontMenu ? "var(--bg-muted)" : "transparent",
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-body)",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLElement).style.borderColor =
+                  "var(--border-strong)")
+              }
+              onMouseLeave={(e) => {
+                if (!showFontMenu)
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--border)";
+              }}
+            >
+              <Type size={12} />
+              {FONTS[fontIdx].label}
+            </button>
+
+            <AnimatePresence>
+              {showFontMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                  transition={{ duration: 0.12 }}
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "calc(100% + 4px)",
+                    width: 196,
+                    background: "var(--bg)",
+                    border: "1.5px solid var(--border)",
+                    borderRadius: 10,
+                    boxShadow: "var(--shadow-xl)",
+                    padding: 4,
+                    zIndex: 30,
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: "var(--text-muted)",
+                      padding: "6px 10px 4px",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    Font
+                  </p>
+                  {FONTS.map((f, i) => (
+                    <button
+                      key={f.label}
+                      onClick={() => {
+                        setFontIdx(i);
+                        setShowFontMenu(false);
+                      }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "8px 10px",
+                        border: "none",
+                        cursor: "pointer",
+                        borderRadius: 7,
+                        fontSize: 14,
+                        background:
+                          i === fontIdx
+                            ? "var(--accent-subtle)"
+                            : "transparent",
+                        color:
+                          i === fontIdx
+                            ? "var(--accent)"
+                            : "var(--text-primary)",
+                        fontFamily: f.value,
+                        transition: "background 0.12s",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (i !== fontIdx)
+                          (e.currentTarget as HTMLElement).style.background =
+                            "var(--bg-muted)";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (i !== fontIdx)
+                          (e.currentTarget as HTMLElement).style.background =
+                            "transparent";
+                      }}
+                    >
+                      {f.label}
+                      {i === fontIdx && <Check size={12} />}
+                    </button>
+                  ))}
+
+                  <div
+                    style={{
+                      height: 1,
+                      background: "var(--border)",
+                      margin: "6px 4px 4px",
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: "var(--text-muted)",
+                      padding: "2px 10px 6px",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    Size
+                  </p>
+                  <div
+                    style={{ display: "flex", gap: 4, padding: "0 6px 8px" }}
+                  >
+                    {SIZES.map((s, i) => (
+                      <button
+                        key={s.label}
+                        onClick={() => setSizeIdx(i)}
+                        style={{
+                          flex: 1,
+                          padding: "5px 0",
+                          border: "none",
+                          cursor: "pointer",
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          fontFamily: "var(--font-body)",
+                          background:
+                            i === sizeIdx
+                              ? "var(--text-primary)"
+                              : "var(--bg-muted)",
+                          color:
+                            i === sizeIdx ? "white" : "var(--text-secondary)",
+                          transition: "all 0.12s",
+                        }}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div style={{ width: 1, height: 18, background: "var(--border)" }} />
+
+          {/* History */}
           <button
             onClick={() =>
               navigate(`/stories/${storyId}/commits?branch=${branchId}`)
@@ -888,16 +1107,37 @@ export default function BranchView() {
             className="btn btn-ghost btn-sm"
             style={{ gap: 5 }}
           >
-            <History size={13} /> History
+            <History size={13} />
+            History
           </button>
 
+          {/* Publish */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => publishMutation.mutate()}
             disabled={publishMutation.isPending}
-            className="btn btn-secondary btn-sm"
-            style={{ gap: 5 }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "6px 12px",
+              borderRadius: 7,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              border: "1.5px solid #bbf7d0",
+              background: "#f0fdf4",
+              color: "#16a34a",
+              fontFamily: "var(--font-body)",
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.background = "#dcfce7")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.background = "#f0fdf4")
+            }
           >
             {publishMutation.isPending ? (
               <Loader2
@@ -905,11 +1145,12 @@ export default function BranchView() {
                 style={{ animation: "spin 0.7s linear infinite" }}
               />
             ) : (
-              "🌍"
+              <Globe size={13} />
             )}
             Publish
           </motion.button>
 
+          {/* AI */}
           <button
             onClick={() => setShowAI(!showAI)}
             style={{
@@ -929,114 +1170,104 @@ export default function BranchView() {
               fontFamily: "var(--font-body)",
             }}
             onMouseEnter={(e) => {
-              if (!showAI) {
+              if (!showAI)
                 (e.currentTarget as HTMLElement).style.borderColor =
                   "var(--border-strong)";
-                (e.currentTarget as HTMLElement).style.color =
-                  "var(--text-primary)";
-              }
             }}
             onMouseLeave={(e) => {
-              if (!showAI) {
+              if (!showAI)
                 (e.currentTarget as HTMLElement).style.borderColor =
                   "var(--border)";
-                (e.currentTarget as HTMLElement).style.color =
-                  "var(--text-secondary)";
-              }
             }}
           >
-            <Sparkles size={13} /> AI
+            <Sparkles size={13} />
+            AI
           </button>
 
+          {/* Commit */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowCommitModal(true)}
             disabled={!hasChanges}
             className="btn btn-primary btn-sm"
-            style={{ gap: 5, opacity: hasChanges ? 1 : 0.4 }}
+            style={{
+              gap: 5,
+              opacity: hasChanges ? 1 : 0.4,
+              minWidth: 80,
+              justifyContent: "center",
+            }}
           >
-            <Save size={13} /> Commit
+            <Save size={13} />
+            Commit
           </motion.button>
         </div>
       </div>
 
-      {/*Editor area*/}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* Writing pane */}
-        <div
+      {/* ── Status bar ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "5px 28px",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--bg-subtle)",
+        }}
+      >
+        <span
           style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
+            fontSize: 12,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-mono)",
           }}
         >
-          {/* word count bar */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "7px 32px",
-              borderBottom: "1px solid var(--border)",
-              background: "var(--bg-subtle)",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 12,
-                color: "var(--text-muted)",
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              {currentBranch?.name} /{" "}
-              {latestCommit ? latestCommit.message : "no commits yet"}
-            </span>
-            <span
-              style={{
-                fontSize: 12,
-                color: "var(--text-muted)",
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              {wordCount} {wordCount === 1 ? "word" : "words"}
-            </span>
-          </div>
+          {currentBranch?.name}
+          {latestCommit ? ` / ${latestCommit.message}` : " / no commits yet"}
+        </span>
+        <span
+          style={{
+            fontSize: 12,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {wordCount.toLocaleString()} {wordCount === 1 ? "word" : "words"}
+        </span>
+      </div>
 
-          {/* Textarea */}
-          <div style={{ flex: 1, overflowY: "auto", background: "var(--bg)" }}>
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-                setHasChanges(true);
-              }}
-              placeholder="Start writing your story..."
-              style={{
-                display: "block",
-                width: "100%",
-                maxWidth: 720,
-                margin: "0 auto",
-                minHeight: "100%",
-                padding: "48px 32px",
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                resize: "none",
-                fontFamily: "'Instrument Serif', Georgia, serif",
-                fontSize: 17,
-                lineHeight: 1.85,
-                color: "var(--text-primary)",
-                caretColor: "var(--accent)",
-                letterSpacing: "0.01em",
-              }}
-            />
-          </div>
+      {/*Writing area + AI */}
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        <div style={{ flex: 1, overflowY: "auto", background: "var(--bg)" }}>
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setHasChanges(true);
+            }}
+            placeholder="Start writing your story…"
+            style={{
+              display: "block",
+              width: "100%",
+              maxWidth: 680,
+              margin: "0 auto",
+              minHeight: "100%",
+              padding: "48px 32px 120px",
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              resize: "none",
+              fontFamily: FONTS[fontIdx].value,
+              fontSize: SIZES[sizeIdx].value,
+              lineHeight: 1.85,
+              color: "#1c1c1c",
+              caretColor: "var(--accent)",
+              letterSpacing: "0.008em",
+            }}
+          />
         </div>
 
-        {/* AI Panel */}
         <AnimatePresence>
           {showAI && (
             <AIPanel
@@ -1053,7 +1284,7 @@ export default function BranchView() {
         </AnimatePresence>
       </div>
 
-      {/* Modals */}
+      {/*Modals*/}
       <AnimatePresence>
         {showCommitModal && (
           <CommitModal
@@ -1072,6 +1303,11 @@ export default function BranchView() {
           />
         )}
       </AnimatePresence>
+
+      <style>{`
+        textarea::placeholder { color: #c4c4c4; font-style: italic; }
+        textarea:focus { outline: none; }
+      `}</style>
     </div>
   );
 }
