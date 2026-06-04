@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import ConfirmModal from "../components/ui/ConfirmModal";
 import {
   ArrowLeft,
   Users,
@@ -289,6 +290,7 @@ function CollaboratorRow({
 }) {
   const queryClient = useQueryClient();
   const [showDrop, setShowDrop] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
   const rs = roleStyle(collaborator.role);
 
   const updateRoleMutation = useMutation({
@@ -322,109 +324,208 @@ function CollaboratorRow({
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 16px",
-        borderRadius: 10,
-        background: "var(--bg)",
-        border: "1.5px solid var(--border)",
-        transition: "border-color 0.15s",
-      }}
-      onMouseEnter={(e) =>
-        ((e.currentTarget as HTMLElement).style.borderColor =
-          "var(--border-strong)")
-      }
-      onMouseLeave={(e) =>
-        ((e.currentTarget as HTMLElement).style.borderColor = "var(--border)")
-      }
-    >
-      {/* User */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {collaborator.user.avatar ? (
-          <img
-            src={collaborator.user.avatar}
-            alt={collaborator.user.username}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: "var(--accent)",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 13,
-              fontWeight: 700,
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            {collaborator.user.username[0].toUpperCase()}
-          </div>
-        )}
-        <div>
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            {collaborator.user.name || collaborator.user.username}
-          </p>
-          <p
-            style={{
-              fontSize: 12,
-              color: "var(--text-muted)",
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            @{collaborator.user.username}
-          </p>
-        </div>
-      </div>
-
-      {/* Role + actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        {isAuthor ? (
-          <div style={{ position: "relative" }}>
-            <button
-              onClick={() => setShowDrop(!showDrop)}
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 16px",
+          borderRadius: 10,
+          background: "var(--bg)",
+          border: "1.5px solid var(--border)",
+          transition: "border-color 0.15s",
+        }}
+        onMouseEnter={(e) =>
+          ((e.currentTarget as HTMLElement).style.borderColor =
+            "var(--border-strong)")
+        }
+        onMouseLeave={(e) =>
+          ((e.currentTarget as HTMLElement).style.borderColor = "var(--border)")
+        }
+      >
+        {/* User */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {collaborator.user.avatar ? (
+            <img
+              src={collaborator.user.avatar}
+              alt={collaborator.user.username}
               style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "var(--accent)",
+                color: "white",
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
+                justifyContent: "center",
+                fontSize: 13,
+                fontWeight: 700,
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              {collaborator.user.username[0].toUpperCase()}
+            </div>
+          )}
+          <div>
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              {collaborator.user.name || collaborator.user.username}
+            </p>
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              @{collaborator.user.username}
+            </p>
+          </div>
+        </div>
+
+        {/* Role + actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {isAuthor ? (
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setShowDrop(!showDrop)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "5px 10px",
+                  borderRadius: 7,
+                  cursor: "pointer",
+                  background: rs.bg,
+                  border: `1px solid ${rs.border}`,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: rs.color,
+                  fontFamily: "var(--font-body)",
+                  transition: "opacity 0.15s",
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLElement).style.opacity = "0.75")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLElement).style.opacity = "1")
+                }
+              >
+                {collaborator.role === "EDITOR" ? (
+                  <Edit3 size={11} />
+                ) : (
+                  <Eye size={11} />
+                )}
+                {collaborator.role}
+                <ChevronDown
+                  size={10}
+                  style={{
+                    color: rs.color,
+                    transform: showDrop ? "rotate(180deg)" : "rotate(0)",
+                    transition: "transform 0.15s",
+                  }}
+                />
+              </button>
+              <AnimatePresence>
+                {showDrop && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                    transition={{ duration: 0.12 }}
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      top: "calc(100% + 4px)",
+                      width: 160,
+                      background: "var(--bg)",
+                      border: "1.5px solid var(--border)",
+                      borderRadius: 10,
+                      boxShadow: "var(--shadow-xl)",
+                      padding: 4,
+                      zIndex: 20,
+                    }}
+                  >
+                    {(["EDITOR", "VIEWER"] as const).map((r) => (
+                      <button
+                        key={r}
+                        onClick={() => updateRoleMutation.mutate(r)}
+                        disabled={updateRoleMutation.isPending}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "9px 10px",
+                          border: "none",
+                          cursor: "pointer",
+                          borderRadius: 7,
+                          fontSize: 13,
+                          fontFamily: "var(--font-body)",
+                          background:
+                            collaborator.role === r
+                              ? "var(--bg-muted)"
+                              : "transparent",
+                          color: roleStyle(r).color,
+                          fontWeight: 500,
+                          transition: "background 0.12s",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (collaborator.role !== r)
+                            (e.currentTarget as HTMLElement).style.background =
+                              "var(--bg-subtle)";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (collaborator.role !== r)
+                            (e.currentTarget as HTMLElement).style.background =
+                              "transparent";
+                        }}
+                      >
+                        {r === "EDITOR" ? (
+                          <Edit3 size={12} />
+                        ) : (
+                          <Eye size={12} />
+                        )}
+                        {r}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
                 padding: "5px 10px",
                 borderRadius: 7,
-                cursor: "pointer",
-                background: rs.bg,
-                border: `1px solid ${rs.border}`,
                 fontSize: 12,
                 fontWeight: 600,
+                background: rs.bg,
+                border: `1px solid ${rs.border}`,
                 color: rs.color,
                 fontFamily: "var(--font-body)",
-                transition: "opacity 0.15s",
               }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.opacity = "0.75")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.opacity = "1")
-              }
             >
               {collaborator.role === "EDITOR" ? (
                 <Edit3 size={11} />
@@ -432,141 +533,61 @@ function CollaboratorRow({
                 <Eye size={11} />
               )}
               {collaborator.role}
-              <ChevronDown
-                size={10}
-                style={{
-                  color: rs.color,
-                  transform: showDrop ? "rotate(180deg)" : "rotate(0)",
-                  transition: "transform 0.15s",
-                }}
-              />
-            </button>
-            <AnimatePresence>
-              {showDrop && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                  transition={{ duration: 0.12 }}
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "calc(100% + 4px)",
-                    width: 160,
-                    background: "var(--bg)",
-                    border: "1.5px solid var(--border)",
-                    borderRadius: 10,
-                    boxShadow: "var(--shadow-xl)",
-                    padding: 4,
-                    zIndex: 20,
-                  }}
-                >
-                  {(["EDITOR", "VIEWER"] as const).map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => updateRoleMutation.mutate(r)}
-                      disabled={updateRoleMutation.isPending}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        padding: "9px 10px",
-                        border: "none",
-                        cursor: "pointer",
-                        borderRadius: 7,
-                        fontSize: 13,
-                        fontFamily: "var(--font-body)",
-                        background:
-                          collaborator.role === r
-                            ? "var(--bg-muted)"
-                            : "transparent",
-                        color: roleStyle(r).color,
-                        fontWeight: 500,
-                        transition: "background 0.12s",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (collaborator.role !== r)
-                          (e.currentTarget as HTMLElement).style.background =
-                            "var(--bg-subtle)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (collaborator.role !== r)
-                          (e.currentTarget as HTMLElement).style.background =
-                            "transparent";
-                      }}
-                    >
-                      {r === "EDITOR" ? <Edit3 size={12} /> : <Eye size={12} />}
-                      {r}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "5px 10px",
-              borderRadius: 7,
-              fontSize: 12,
-              fontWeight: 600,
-              background: rs.bg,
-              border: `1px solid ${rs.border}`,
-              color: rs.color,
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            {collaborator.role === "EDITOR" ? (
-              <Edit3 size={11} />
-            ) : (
-              <Eye size={11} />
-            )}
-            {collaborator.role}
-          </span>
-        )}
+            </span>
+          )}
 
-        {isAuthor && (
-          <button
-            onClick={() => {
-              if (confirm("Remove this collaborator?")) removeMutation.mutate();
-            }}
-            disabled={removeMutation.isPending}
-            style={{
-              padding: 6,
-              borderRadius: 6,
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "var(--text-muted)",
-              display: "flex",
-              transition: "all 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "#dc2626";
-              (e.currentTarget as HTMLElement).style.background = "#fef2f2";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color =
-                "var(--text-muted)";
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-            }}
-          >
-            {removeMutation.isPending ? (
-              <Loader2
-                size={13}
-                style={{ animation: "spin 0.7s linear infinite" }}
-              />
-            ) : (
-              <Trash2 size={13} />
-            )}
-          </button>
-        )}
-      </div>
-    </motion.div>
+          {isAuthor && (
+            <button
+              onClick={() => {
+                setShowRemoveModal(true);
+              }}
+              disabled={removeMutation.isPending}
+              style={{
+                padding: 6,
+                borderRadius: 6,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--text-muted)",
+                display: "flex",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.color = "#dc2626";
+                (e.currentTarget as HTMLElement).style.background = "#fef2f2";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-muted)";
+                (e.currentTarget as HTMLElement).style.background =
+                  "transparent";
+              }}
+            >
+              {removeMutation.isPending ? (
+                <Loader2
+                  size={13}
+                  style={{ animation: "spin 0.7s linear infinite" }}
+                />
+              ) : (
+                <Trash2 size={13} />
+              )}
+            </button>
+          )}
+        </div>
+      </motion.div>
+      <ConfirmModal
+        open={showRemoveModal}
+        title="Remove Collaborator"
+        message="Remove this collaborator from the story?"
+        confirmText="Remove"
+        loading={removeMutation.isPending}
+        onCancel={() => setShowRemoveModal(false)}
+        onConfirm={() => {
+          removeMutation.mutate();
+          setShowRemoveModal(false);
+        }}
+      />
+    </>
   );
 }
 
@@ -577,6 +598,9 @@ export default function Collaborate() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [publishingBranchId, setPublishingBranchId] = useState("");
+  const [endingToUnpublish, setEndingToUnpublish] = useState<string | null>(
+    null,
+  );
 
   const { data: storyData } = useQuery({
     queryKey: ["story", storyId],
@@ -1012,8 +1036,7 @@ export default function Collaborate() {
                     </div>
                     <button
                       onClick={() => {
-                        if (confirm("Unpublish this ending?"))
-                          unpublishMutation.mutate(ending.id);
+                        setEndingToUnpublish(ending.id);
                       }}
                       disabled={unpublishMutation.isPending}
                       style={{
@@ -1048,6 +1071,20 @@ export default function Collaborate() {
           </motion.div>
         )}
       </div>
+      <ConfirmModal
+        open={!!endingToUnpublish}
+        title="Unpublish Ending"
+        message="This ending will no longer appear publicly."
+        confirmText="Unpublish"
+        loading={unpublishMutation.isPending}
+        onCancel={() => setEndingToUnpublish(null)}
+        onConfirm={() => {
+          if (endingToUnpublish) {
+            unpublishMutation.mutate(endingToUnpublish);
+          }
+          setEndingToUnpublish(null);
+        }}
+      />
     </div>
   );
 }

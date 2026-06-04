@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import ConfirmModal from "../components/ui/ConfirmModal";
 import {
   ArrowLeft,
   Save,
@@ -46,6 +47,7 @@ export default function StoryEdit() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const {
     register,
@@ -209,8 +211,7 @@ export default function StoryEdit() {
 
           <button
             onClick={() => {
-              if (confirm("Delete this story? This cannot be undone."))
-                deleteMutation.mutate();
+              setShowDeleteModal(true);
             }}
             disabled={deleteMutation.isPending}
             style={{
@@ -594,6 +595,19 @@ export default function StoryEdit() {
           </form>
         </motion.div>
       </div>
+
+      <ConfirmModal
+        open={showDeleteModal}
+        title="Delete Story"
+        message="Delete this story? This action cannot be undone."
+        confirmText="Delete"
+        loading={deleteMutation.isPending}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          deleteMutation.mutate();
+          setShowDeleteModal(false);
+        }}
+      />
     </div>
   );
 }
