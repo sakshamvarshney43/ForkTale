@@ -14,6 +14,8 @@ import publishRoutes from "./routes/publish.routes";
 import ratingRoutes from "./routes/rating.routes";
 import aiRoutes from "./routes/ai.routes";
 import exportRoutes from "./routes/export.routes";
+import helmet from "helmet";
+import morgan from "morgan";
 
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -38,6 +40,8 @@ const authLimiter = rateLimit({
 dotenv.config();
 
 const app = express();
+app.use(helmet());
+app.use(morgan("combined"));
 
 //middlewares
 app.use(
