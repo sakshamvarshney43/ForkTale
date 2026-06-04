@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userServices } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
+import toast from "react-hot-toast";
 
 interface MutationResponse {
   data: { user: any };
@@ -335,7 +336,7 @@ export default function Profile() {
       updateUser(res.data.user);
       queryClient.invalidateQueries({ queryKey: ["profile", username] });
     } catch {
-      alert("Failed to upload avatar.");
+      toast.error("Failed to upload avatar.");
     } finally {
       setUploadingAvatar(false);
     }

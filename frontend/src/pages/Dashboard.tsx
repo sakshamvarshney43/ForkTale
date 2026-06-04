@@ -18,11 +18,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { storyService, collaborateService, forkService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
+import ConfirmModal from "../components/ui/ConfirmModal";
 
 function StoryCard({ story }: { story: Story }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { user } = useAuth();
   const isAuthor = story.authorId === user?.id;
 
@@ -42,298 +44,252 @@ function StoryCard({ story }: { story: Story }) {
   const defaultBranch = story.branches?.[0];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="card"
-      style={{
-        overflow: "visible",
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-        transition: "box-shadow 0.2s, transform 0.2s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-lg)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
-        (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-      }}
-    >
-      {/* Cover */}
-      <div
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card"
         style={{
-          width: "100%",
-          height: 130,
-          background: "var(--bg-muted)",
-          flexShrink: 0,
-          overflow: "hidden",
-          cursor: "pointer",
-          position: "relative",
-        }}
-        onClick={() =>
-          defaultBranch &&
-          navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
-        }
-      >
-        {story.coverImage ? (
-          <img
-            src={story.coverImage}
-            alt={story.title}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transition: "transform 0.3s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "scale(1.03)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          />
-        ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <BookOpen size={22} style={{ color: "var(--border-strong)" }} />
-          </div>
-        )}
-        {/* Status */}
-        <span
-          style={{
-            position: "absolute",
-            top: 10,
-            left: 10,
-            fontSize: 11,
-            fontWeight: 500,
-            padding: "3px 8px",
-            borderRadius: 99,
-            fontFamily: "var(--font-body)",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 4,
-            backdropFilter: "blur(4px)",
-            background: story.isPublished
-              ? "rgba(22,163,74,0.1)"
-              : "rgba(255,255,255,0.85)",
-            border: story.isPublished
-              ? "1px solid rgba(22,163,74,0.2)"
-              : "1px solid var(--border)",
-            color: story.isPublished ? "#16a34a" : "var(--text-muted)",
-          }}
-        >
-          {story.isPublished ? (
-            <>
-              <Globe size={9} />
-              Published
-            </>
-          ) : (
-            <>
-              <Lock size={9} />
-              Draft
-            </>
-          )}
-        </span>
-      </div>
-
-      {/* Body */}
-      <div
-        style={{
-          padding: "14px 16px",
-          flex: 1,
+          overflow: "visible",
           display: "flex",
           flexDirection: "column",
+          position: "relative",
+          transition: "box-shadow 0.2s, transform 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-lg)";
+          (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
+          (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
         }}
       >
+        {/* Cover */}
         <div
           style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 8,
-            marginBottom: 6,
+            width: "100%",
+            height: 130,
+            background: "var(--bg-muted)",
+            flexShrink: 0,
+            overflow: "hidden",
+            cursor: "pointer",
+            position: "relative",
           }}
+          onClick={() =>
+            defaultBranch &&
+            navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
+          }
         >
-          <h3
-            onClick={() =>
-              defaultBranch &&
-              navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
-            }
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.01em",
-              cursor: "pointer",
-              lineHeight: 1.35,
-              fontFamily: "var(--font-body)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              flex: 1,
-              transition: "color 0.15s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--accent)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
-            }
-          >
-            {story.title}
-          </h3>
-
-          {/* Menu */}
-          <div style={{ position: "relative", flexShrink: 0 }}>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
+          {story.coverImage ? (
+            <img
+              src={story.coverImage}
+              alt={story.title}
               style={{
-                padding: 4,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--text-muted)",
-                borderRadius: 4,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 0.3s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "scale(1.03)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
                 display: "flex",
-                transition: "all 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background =
-                  "var(--bg-muted)";
-                (e.currentTarget as HTMLElement).style.color =
-                  "var(--text-primary)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background =
-                  "transparent";
-                (e.currentTarget as HTMLElement).style.color =
-                  "var(--text-muted)";
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <MoreHorizontal size={14} />
-            </button>
+              <BookOpen size={22} style={{ color: "var(--border-strong)" }} />
+            </div>
+          )}
+          {/* Status */}
+          <span
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              fontSize: 11,
+              fontWeight: 500,
+              padding: "3px 8px",
+              borderRadius: 99,
+              fontFamily: "var(--font-body)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              backdropFilter: "blur(4px)",
+              background: story.isPublished
+                ? "rgba(22,163,74,0.1)"
+                : "rgba(255,255,255,0.85)",
+              border: story.isPublished
+                ? "1px solid rgba(22,163,74,0.2)"
+                : "1px solid var(--border)",
+              color: story.isPublished ? "#16a34a" : "var(--text-muted)",
+            }}
+          >
+            {story.isPublished ? (
+              <>
+                <Globe size={9} />
+                Published
+              </>
+            ) : (
+              <>
+                <Lock size={9} />
+                Draft
+              </>
+            )}
+          </span>
+        </div>
 
-            {menuOpen && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 4 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.12 }}
+        {/* Body */}
+        <div
+          style={{
+            padding: "14px 16px",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 8,
+              marginBottom: 6,
+            }}
+          >
+            <h3
+              onClick={() =>
+                defaultBranch &&
+                navigate(`/stories/${story.id}/branches/${defaultBranch.id}`)
+              }
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                letterSpacing: "-0.01em",
+                cursor: "pointer",
+                lineHeight: 1.35,
+                fontFamily: "var(--font-body)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                flex: 1,
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--accent)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-primary)")
+              }
+            >
+              {story.title}
+            </h3>
+
+            {/* Menu */}
+            <div style={{ position: "relative", flexShrink: 0 }}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
                 style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "calc(100% + 4px)",
-                  width: 168,
-                  zIndex: 20,
-                  background: "var(--bg)",
-                  border: "1.5px solid var(--border)",
-                  borderRadius: 10,
-                  boxShadow: "var(--shadow-xl)",
-                  overflow: "hidden",
                   padding: 4,
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-muted)",
+                  borderRadius: 4,
+                  display: "flex",
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "var(--bg-muted)";
+                  (e.currentTarget as HTMLElement).style.color =
+                    "var(--text-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "transparent";
+                  (e.currentTarget as HTMLElement).style.color =
+                    "var(--text-muted)";
                 }}
               >
-                {[
-                  ...(isAuthor
-                    ? [
-                        {
-                          icon: <Edit size={13} />,
-                          label: "Edit story",
-                          onClick: () => {
-                            navigate(`/stories/${story.id}/edit`);
-                            setMenuOpen(false);
-                          },
-                        },
-                      ]
-                    : []),
+                <MoreHorizontal size={14} />
+              </button>
 
-                  ...(defaultBranch
-                    ? [
-                        {
-                          icon: <Eye size={13} />,
-                          label: "Open editor",
-                          onClick: () => {
-                            navigate(
-                              `/stories/${story.id}/branches/${defaultBranch.id}`,
-                            );
-                            setMenuOpen(false);
+              {menuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.12 }}
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "calc(100% + 4px)",
+                    width: 168,
+                    zIndex: 20,
+                    background: "var(--bg)",
+                    border: "1.5px solid var(--border)",
+                    borderRadius: 10,
+                    boxShadow: "var(--shadow-xl)",
+                    overflow: "hidden",
+                    padding: 4,
+                  }}
+                >
+                  {[
+                    ...(isAuthor
+                      ? [
+                          {
+                            icon: <Edit size={13} />,
+                            label: "Edit story",
+                            onClick: () => {
+                              navigate(`/stories/${story.id}/edit`);
+                              setMenuOpen(false);
+                            },
                           },
-                        },
-                      ]
-                    : []),
+                        ]
+                      : []),
 
-                  ...(isAuthor
-                    ? [
-                        {
-                          icon: <Users size={13} />,
-                          label: "Collaborators",
-                          onClick: () => {
-                            navigate(`/stories/${story.id}/collaborate`);
-                            setMenuOpen(false);
+                    ...(defaultBranch
+                      ? [
+                          {
+                            icon: <Eye size={13} />,
+                            label: "Open editor",
+                            onClick: () => {
+                              navigate(
+                                `/stories/${story.id}/branches/${defaultBranch.id}`,
+                              );
+                              setMenuOpen(false);
+                            },
                           },
-                        },
-                      ]
-                    : []),
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={item.onClick}
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "8px 10px",
-                      border: "none",
-                      background: "none",
-                      cursor: "pointer",
-                      fontSize: 13,
-                      color: "var(--text-secondary)",
-                      fontFamily: "var(--font-body)",
-                      borderRadius: 6,
-                      transition: "all 0.12s",
-                      textAlign: "left",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background =
-                        "var(--bg-subtle)";
-                      (e.currentTarget as HTMLElement).style.color =
-                        "var(--text-primary)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.background =
-                        "transparent";
-                      (e.currentTarget as HTMLElement).style.color =
-                        "var(--text-secondary)";
-                    }}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </button>
-                ))}
+                        ]
+                      : []),
 
-                {isAuthor && (
-                  <>
-                    <div
-                      style={{
-                        height: 1,
-                        background: "var(--border)",
-                        margin: "4px 0",
-                      }}
-                    />
+                    ...(isAuthor
+                      ? [
+                          {
+                            icon: <Users size={13} />,
+                            label: "Collaborators",
+                            onClick: () => {
+                              navigate(`/stories/${story.id}/collaborate`);
+                              setMenuOpen(false);
+                            },
+                          },
+                        ]
+                      : []),
+                  ].map((item) => (
                     <button
-                      onClick={() => {
-                        if (confirm("Delete this story?"))
-                          deleteMutation.mutate();
-                        setMenuOpen(false);
-                      }}
+                      key={item.label}
+                      onClick={item.onClick}
                       style={{
                         width: "100%",
                         display: "flex",
@@ -344,110 +300,171 @@ function StoryCard({ story }: { story: Story }) {
                         background: "none",
                         cursor: "pointer",
                         fontSize: 13,
-                        color: "#dc2626",
+                        color: "var(--text-secondary)",
                         fontFamily: "var(--font-body)",
                         borderRadius: 6,
-                        transition: "background 0.12s",
+                        transition: "all 0.12s",
                         textAlign: "left",
                       }}
-                      onMouseEnter={(e) =>
-                        ((e.currentTarget as HTMLElement).style.background =
-                          "#fef2f2")
-                      }
-                      onMouseLeave={(e) =>
-                        ((e.currentTarget as HTMLElement).style.background =
-                          "transparent")
-                      }
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.background =
+                          "var(--bg-subtle)";
+                        (e.currentTarget as HTMLElement).style.color =
+                          "var(--text-primary)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background =
+                          "transparent";
+                        (e.currentTarget as HTMLElement).style.color =
+                          "var(--text-secondary)";
+                      }}
                     >
-                      <Trash2 size={13} />
-                      Delete
+                      {item.icon}
+                      {item.label}
                     </button>
-                  </>
-                )}
-              </motion.div>
-            )}
+                  ))}
+
+                  {isAuthor && (
+                    <>
+                      <div
+                        style={{
+                          height: 1,
+                          background: "var(--border)",
+                          margin: "4px 0",
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          setShowDeleteModal(true);
+                          setMenuOpen(false);
+                        }}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "8px 10px",
+                          border: "none",
+                          background: "none",
+                          cursor: "pointer",
+                          fontSize: 13,
+                          color: "#dc2626",
+                          fontFamily: "var(--font-body)",
+                          borderRadius: 6,
+                          transition: "background 0.12s",
+                          textAlign: "left",
+                        }}
+                        onMouseEnter={(e) =>
+                          ((e.currentTarget as HTMLElement).style.background =
+                            "#fef2f2")
+                        }
+                        onMouseLeave={(e) =>
+                          ((e.currentTarget as HTMLElement).style.background =
+                            "transparent")
+                        }
+                      >
+                        <Trash2 size={13} />
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {story.description && (
-          <p
-            style={{
-              fontSize: 12,
-              color: "var(--text-muted)",
-              lineHeight: 1.5,
-              marginBottom: 12,
-              fontFamily: "var(--font-body)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {story.description}
-          </p>
-        )}
-
-        {/* Stats */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            marginTop: "auto",
-            paddingTop: 10,
-            borderTop: "1px solid var(--border)",
-          }}
-        >
-          {story.genre && (
-            <span className="badge badge-default" style={{ fontSize: 11 }}>
-              {story.genre}
-            </span>
+          {story.description && (
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted)",
+                lineHeight: 1.5,
+                marginBottom: 12,
+                fontFamily: "var(--font-body)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {story.description}
+            </p>
           )}
+
+          {/* Stats */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 10,
-              marginLeft: "auto",
+              gap: 12,
+              marginTop: "auto",
+              paddingTop: 10,
+              borderTop: "1px solid var(--border)",
             }}
           >
-            {[
-              {
-                icon: <GitBranch size={11} />,
-                val: story._count?.branches || 0,
-              },
-              { icon: <GitFork size={11} />, val: story._count?.forks || 0 },
-            ].map((s, i) => (
+            {story.genre && (
+              <span className="badge badge-default" style={{ fontSize: 11 }}>
+                {story.genre}
+              </span>
+            )}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginLeft: "auto",
+              }}
+            >
+              {[
+                {
+                  icon: <GitBranch size={11} />,
+                  val: story._count?.branches || 0,
+                },
+                { icon: <GitFork size={11} />, val: story._count?.forks || 0 },
+              ].map((s, i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 3,
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {s.icon}
+                  {s.val}
+                </span>
+              ))}
               <span
-                key={i}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 3,
                   fontSize: 12,
                   color: "var(--text-muted)",
                   fontFamily: "var(--font-body)",
                 }}
               >
-                {s.icon}
-                {s.val}
+                {story.wordCount} words
               </span>
-            ))}
-            <span
-              style={{
-                fontSize: 12,
-                color: "var(--text-muted)",
-                fontFamily: "var(--font-body)",
-              }}
-            >
-              {story.wordCount} words
-            </span>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      <ConfirmModal
+        open={showDeleteModal}
+        title="Delete Story"
+        message="Are you sure you want to delete this story? This action cannot be undone."
+        confirmText="Delete"
+        loading={deleteMutation.isPending}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          deleteMutation.mutate();
+          setShowDeleteModal(false);
+        }}
+      />
+    </>
   );
 }
-
 function SkeletonCard() {
   return (
     <div className="card" style={{ overflow: "hidden" }}>

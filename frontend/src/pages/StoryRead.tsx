@@ -21,6 +21,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import type { Publishing } from "../types";
 import { timeAgo } from "../utils/format";
+import toast from "react-hot-toast";
 
 /*Star Rating*/
 function StarRating({
@@ -46,7 +47,7 @@ function StarRating({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
     onError: (err: any) => {
-      alert(err.response?.data?.message || "Could not save rating");
+      toast.error(err.response?.data?.message || "Could not save rating");
     },
   });
 
@@ -55,7 +56,7 @@ function StarRating({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
     onError: (err: any) => {
-      alert(err.response?.data?.message || "Could not remove rating");
+      toast.error(err.response?.data?.message || "Could not remove rating");
     },
   });
 
@@ -267,7 +268,7 @@ export default function StoryRead() {
       await forkService.forkStory(storyId!);
       navigate("/dashboard");
     } catch (err: any) {
-      alert(err.response?.data?.message || "Could not fork.");
+      toast.error(err.response?.data?.message || "Could not fork.");
     } finally {
       setForking(false);
     }

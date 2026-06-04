@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { AIProvider } from "./context/AIContext";
 import "./index.css";
 import { Analytics } from "@vercel/analytics/react";
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +25,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <AIProvider>
           <App />
           <Analytics />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 3000,
+            }}
+          />
         </AIProvider>
       </AuthProvider>
     </QueryClientProvider>

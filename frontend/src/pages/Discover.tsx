@@ -15,6 +15,7 @@ import { storyService, forkService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Story } from "../types";
 import { useDebounce } from "../hooks/useDebounce";
+import toast from "react-hot-toast";
 
 const genres = [
   "All",
@@ -46,7 +47,7 @@ function DiscoverCard({ story }: { story: Story }) {
       await forkService.forkStory(story.id);
       navigate("/dashboard");
     } catch (err: any) {
-      alert(err.response?.data?.message || "Could not fork story");
+      toast.error(err.response?.data?.message || "Could not fork story");
     } finally {
       setForking(false);
     }
