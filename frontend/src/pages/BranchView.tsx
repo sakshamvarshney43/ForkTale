@@ -1036,18 +1036,6 @@ export default function BranchView() {
               {FONTS[fontIdx].label}
             </button>
 
-            {/* Invisible overlay to catch outside clicks */}
-            {showFontMenu && (
-              <div
-                onClick={() => setShowFontMenu(false)}
-                style={{
-                  position: "fixed",
-                  inset: 0,
-                  zIndex: 29,
-                }}
-              />
-            )}
-
             <AnimatePresence>
               {showFontMenu && (
                 <motion.div
@@ -1575,6 +1563,13 @@ export default function BranchView() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showFontMenu && (
+        <div
+          onClick={() => setShowFontMenu(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 29 }}
+        />
+      )}
 
       <style>{`
     textarea::placeholder {
