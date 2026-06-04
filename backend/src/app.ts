@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
 import { errorHandler } from "./middlewares/error.middleware";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
@@ -13,6 +14,26 @@ import publishRoutes from "./routes/publish.routes";
 import ratingRoutes from "./routes/rating.routes";
 import aiRoutes from "./routes/ai.routes";
 import exportRoutes from "./routes/export.routes";
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: "Too many AI requests, please slow down.",
+  },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: "Too many attempts, try again later.",
+  },
+});
 
 dotenv.config();
 
@@ -34,7 +55,7 @@ app.get("/", (req, res) => {
   res.json({ message: "ForkTale API is Running..." });
 });
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/stories", storyRoutes);
 
@@ -51,7 +72,7 @@ app.use("/api/collaborations", collaborateRoutes);
 app.use("/api/stories", publishRoutes);
 app.use("/api", publishRoutes);
 app.use("/api/endings", ratingRoutes);
-app.use("/api/ai", aiRoutes);
+app.use("/api/ai", aiLimiter, aiRoutes);
 app.use("/api/stories", exportRoutes);
 
 app.use(errorHandler);
