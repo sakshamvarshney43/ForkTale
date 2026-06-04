@@ -1457,8 +1457,11 @@ export default function BranchView() {
         >
           <button
             onClick={() => {
-              setShowFontMenu(true);
               setShowMoreMenu(false);
+
+              setTimeout(() => {
+                setShowFontMenu(true);
+              }, 50);
             }}
             style={menuBtnStyle}
           >
