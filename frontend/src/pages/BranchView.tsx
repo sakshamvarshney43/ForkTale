@@ -571,6 +571,7 @@ export default function BranchView() {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fontMenuRef = useRef<HTMLDivElement>(null);
+  const fontButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data: storyData } = useQuery({
     queryKey: ["story", storyId],
@@ -1027,6 +1028,7 @@ export default function BranchView() {
           {/* Font picker */}
           <div ref={fontMenuRef} style={{ position: "relative" }}>
             <button
+              ref={fontButtonRef}
               className="hide-mobile"
               onClick={() => setShowFontMenu(!showFontMenu)}
               style={{
@@ -1457,17 +1459,13 @@ export default function BranchView() {
         >
           <button
             onClick={() => {
+              fontButtonRef.current?.click();
               setShowMoreMenu(false);
-
-              setTimeout(() => {
-                setShowFontMenu(true);
-              }, 50);
             }}
             style={menuBtnStyle}
           >
             Font Settings
           </button>
-
           <button
             onClick={() => {
               navigate(`/stories/${storyId}/commits?branch=${branchId}`);
