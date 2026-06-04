@@ -979,12 +979,16 @@ export default function BranchView() {
         </div>
 
         {/* Right */}
+        {/* Right */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: 6,
             flexShrink: 0,
+            overflowX: "auto",
+            maxWidth: "60vw",
+            scrollbarWidth: "none",
           }}
         >
           {/* Unsaved */}
