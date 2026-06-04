@@ -28,8 +28,6 @@ ${content}
 
 // Suggest next part
 export const suggestNext = async (req: AuthRequest, res: Response) => {
-  console.log("AI endpoint hit");
-
   try {
     const parsed = aiRequestSchema.safeParse(req.body);
 

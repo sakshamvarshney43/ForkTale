@@ -17,7 +17,7 @@ import exportRoutes from "./routes/export.routes";
 
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 2,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
