@@ -1029,7 +1029,6 @@ export default function BranchView() {
           <div ref={fontMenuRef} style={{ position: "relative" }}>
             <button
               ref={fontButtonRef}
-              className="hide-mobile"
               onClick={() => setShowFontMenu(!showFontMenu)}
               style={{
                 display: "inline-flex",
@@ -1063,6 +1062,7 @@ export default function BranchView() {
             <AnimatePresence>
               {showFontMenu && (
                 <motion.div
+                  className="font-dropdown"
                   initial={{ opacity: 0, y: 4, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.97 }}
@@ -1459,7 +1459,7 @@ export default function BranchView() {
         >
           <button
             onClick={() => {
-              fontButtonRef.current?.click();
+              setShowFontMenu(true);
               setShowMoreMenu(false);
             }}
             style={menuBtnStyle}
@@ -1589,10 +1589,10 @@ export default function BranchView() {
       </AnimatePresence>
 
       <style>{`
-      textarea::placeholder {
-      color: #c4c4c4;
-      font-style: italic;
-      }
+    textarea::placeholder {
+    color: #c4c4c4;
+    font-style: italic;
+    }
 
     textarea:focus {
     outline: none;
@@ -1611,6 +1611,16 @@ export default function BranchView() {
       display: flex !important;
     }
   }
+
+  @media (max-width: 768px) {
+  .font-dropdown {
+    position: fixed !important;
+    top: 60px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+  }
+}
 `}</style>
     </div>
   );
