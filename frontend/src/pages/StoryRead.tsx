@@ -592,6 +592,42 @@ export default function StoryRead() {
               )}
             </motion.div>
 
+            {endings.length > 0 && (
+              <div
+                className="show-mobile"
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  overflowX: "auto",
+                  marginBottom: 20,
+                  paddingBottom: 4,
+                }}
+              >
+                {endings.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => setActiveEndingId(e.id)}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 999,
+                      border:
+                        activeEndingId === e.id
+                          ? "1px solid var(--accent)"
+                          : "1px solid var(--border)",
+                      background:
+                        activeEndingId === e.id
+                          ? "var(--accent-subtle)"
+                          : "var(--bg)",
+                      whiteSpace: "nowrap",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {e.branch.name}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/*Reading area*/}
             {endings.length === 0 ? (
               <div
@@ -870,8 +906,16 @@ export default function StoryRead() {
       </div>
 
       <style>{`
-        @media (max-width: 768px) { .hide-mobile { display: none !important; } }
-      `}</style>
+    .show-mobile {
+    display: none;
+    }
+    @media (max-width: 768px) {
+    .hide-mobile {
+      display: none !important;
+    }
+    .show-mobile {
+      display: flex !important;
+    }}`}</style>
     </div>
   );
 }
