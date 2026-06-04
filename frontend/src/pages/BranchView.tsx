@@ -617,18 +617,24 @@ export default function BranchView() {
 
   // close font menu on outside click
   useEffect(() => {
+    if (!showFontMenu) return;
     const handler = (e: MouseEvent) => {
       if (
         fontMenuRef.current &&
         !fontMenuRef.current.contains(e.target as Node)
-      )
+      ) {
         setShowFontMenu(false);
+      }
     };
-    document.addEventListener("mousedown", handler);
 
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handler);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handler);
+    };
+  }, [showFontMenu]);
   const commitMutation = useMutation({
     mutationFn: (message: string) =>
       commitService.createCommit(storyId!, branchId!, { message, content }),
@@ -1029,7 +1035,7 @@ export default function BranchView() {
           <div ref={fontMenuRef} style={{ position: "relative" }}>
             <button
               ref={fontButtonRef}
-              onClick={() => setShowFontMenu(!showFontMenu)}
+              onClick={() => setShowFontMenu((prev) => !prev)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1050,9 +1056,8 @@ export default function BranchView() {
                   "var(--border-strong)")
               }
               onMouseLeave={(e) => {
-                if (!showFontMenu)
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "var(--border)";
+                (e.currentTarget as HTMLElement).style.borderColor =
+                  "var(--border)";
               }}
             >
               <Type size={12} />
