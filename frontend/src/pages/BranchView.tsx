@@ -570,8 +570,6 @@ export default function BranchView() {
   const [sizeIdx, setSizeIdx] = useState(1);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fontMenuRef = useRef<HTMLDivElement>(null);
-  const fontButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data: storyData } = useQuery({
     queryKey: ["story", storyId],
