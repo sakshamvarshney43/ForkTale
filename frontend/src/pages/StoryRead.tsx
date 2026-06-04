@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PermissionNotice from "../components/PermissionNotice";
@@ -242,12 +242,14 @@ export default function StoryRead() {
   const { data: endingsData } = useQuery<any>({
     queryKey: ["endings", storyId],
     queryFn: () => publishService.getEndings(storyId!),
-    onSuccess: (data: any) => {
-      const endings = data?.data?.endings || [];
-      if (!activeEndingId && endings.length > 0)
-        setActiveEndingId(endings[0].id);
-    },
-  } as any);
+  });
+  useEffect(() => {
+    const endings = endingsData?.data?.endings || [];
+
+    if (!activeEndingId && endings.length > 0) {
+      setActiveEndingId(endings[0].id);
+    }
+  }, [endingsData, activeEndingId]);
   const { data: endingData, isLoading: endingLoading } = useQuery<any>({
     queryKey: ["ending", activeEndingId],
     queryFn: () => publishService.readEnding(activeEndingId!),
