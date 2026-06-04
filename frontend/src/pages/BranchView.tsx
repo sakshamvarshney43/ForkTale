@@ -740,8 +740,9 @@ export default function BranchView() {
     border: "none",
     background: "transparent",
     cursor: "pointer",
-    borderRadius: 6,
-    fontSize: 13,
+    borderRadius: 8,
+    fontSize: 14,
+    color: "var(--text-primary)",
   };
   return (
     <div
@@ -1024,12 +1025,9 @@ export default function BranchView() {
           )}
 
           {/* Font picker */}
-          <div
-            className="hide-mobile"
-            ref={fontMenuRef}
-            style={{ position: "relative" }}
-          >
+          <div ref={fontMenuRef} style={{ position: "relative" }}>
             <button
+              className="hide-mobile"
               onClick={() => setShowFontMenu(!showFontMenu)}
               style={{
                 display: "inline-flex",
@@ -1444,13 +1442,17 @@ export default function BranchView() {
             position: "fixed",
             top: 60,
             right: 12,
-            background: "var(--bg)",
+            background: "#fff",
             border: "1px solid var(--border)",
-            borderRadius: 10,
-            boxShadow: "var(--shadow-xl)",
-            padding: 6,
+            borderRadius: 12,
+            boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+            padding: 8,
             zIndex: 100,
             minWidth: 180,
+
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
           }}
         >
           <button
