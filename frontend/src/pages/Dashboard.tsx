@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   Plus,
   BookOpen,
@@ -38,6 +39,9 @@ function StoryCard({ story }: { story: Story }) {
       await queryClient.invalidateQueries({
         queryKey: ["discover"],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 
@@ -930,7 +934,6 @@ export default function Dashboard() {
               }}
             >
               {collaborations.map((collab: any) => {
-                console.log("COLLAB STORY", collab.story);
                 return <StoryCard key={collab.story.id} story={collab.story} />;
               })}
             </div>

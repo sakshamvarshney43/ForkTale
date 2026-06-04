@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 import PermissionNotice from "../components/PermissionNotice";
 import {
   GitBranch,
@@ -589,7 +590,6 @@ export default function BranchView() {
   });
 
   const story = storyData?.data?.story;
-  console.log("STORY", story);
   const collaborators = collaboratorsData?.data?.collaborators || [];
   const branches: Branch[] = branchesData?.data?.branches || [];
   const currentBranch = branches.find((b) => b.id === branchId);
@@ -647,6 +647,9 @@ export default function BranchView() {
         queryKey: ["branches", storyId],
       });
     },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    },
   });
 
   const inviteMutation = useMutation({
@@ -660,6 +663,9 @@ export default function BranchView() {
       queryClient.invalidateQueries({
         queryKey: ["collaborators", storyId],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 
@@ -682,6 +688,9 @@ export default function BranchView() {
         queryKey: ["publishedStories"],
       });
     },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    },
   });
 
   const branchMutation = useMutation({
@@ -694,6 +703,9 @@ export default function BranchView() {
       setShowBranchModal(false);
       queryClient.invalidateQueries({ queryKey: ["branches", storyId] });
       navigate(`/stories/${storyId}/branches/${res.data.branch.id}`);
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 

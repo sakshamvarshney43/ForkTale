@@ -275,7 +275,7 @@ export const updateStory = async (
       story: updated,
     });
   } catch (error) {
-    console.log("UpdateStory error:", error);
+    console.error("UpdateStory error:", error);
 
     return res.status(500).json({
       message: "Server error",

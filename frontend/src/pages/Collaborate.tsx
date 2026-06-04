@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmModal from "../components/ui/ConfirmModal";
+import toast from "react-hot-toast";
 import {
   ArrowLeft,
   Users,
@@ -71,8 +72,9 @@ function InviteForm({
       onSuccess();
     },
 
-    onError: (err: any) =>
-      setError(err.response?.data?.message || "Could not invite user."),
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    },
   });
   return (
     <div
@@ -307,6 +309,9 @@ function CollaboratorRow({
 
       setShowDrop(false);
     },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    },
   });
   const removeMutation = useMutation({
     mutationFn: () => collaborateService.remove(storyId, collaborator.id),
@@ -320,6 +325,9 @@ function CollaboratorRow({
       });
 
       setShowDrop(false);
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 
@@ -643,6 +651,9 @@ export default function Collaborate() {
       await queryClient.invalidateQueries({
         queryKey: ["discover"],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 

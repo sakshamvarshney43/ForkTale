@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import ConfirmModal from "../components/ui/ConfirmModal";
+import toast from "react-hot-toast";
 import {
   ArrowLeft,
   Save,
@@ -85,6 +86,9 @@ export default function StoryEdit() {
       queryClient.invalidateQueries({ queryKey: ["story", storyId] });
       queryClient.invalidateQueries({ queryKey: ["myStories"] });
     },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    },
   });
   const deleteMutation = useMutation({
     mutationFn: () => storyService.deleteStory(storyId!),
@@ -93,6 +97,9 @@ export default function StoryEdit() {
         queryKey: ["myStories"],
       });
       navigate("/dashboard");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 

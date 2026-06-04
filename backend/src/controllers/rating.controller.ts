@@ -94,7 +94,7 @@ export const rateEnding = async (req: AuthRequest, res: Response) => {
       totalRatings: allRatings.length,
     });
   } catch (error) {
-    console.log("RateEnding Error", error);
+    console.error("RateEnding Error", error);
     return res.status(500).json({ message: "Server Error" });
   }
 };
