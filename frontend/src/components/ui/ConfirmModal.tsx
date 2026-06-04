@@ -22,14 +22,45 @@ export default function ConfirmModal({
   if (!open) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <h3>{title}</h3>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+        padding: 20,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: 460,
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          borderRadius: 16,
+          padding: 24,
+          boxShadow: "var(--shadow-xl)",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: 22,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            marginBottom: 8,
+          }}
+        >
+          {title}
+        </h3>
 
         <p
           style={{
             color: "var(--text-muted)",
-            marginTop: 8,
             lineHeight: 1.6,
           }}
         >
