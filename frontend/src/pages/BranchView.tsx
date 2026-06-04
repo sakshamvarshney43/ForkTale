@@ -568,6 +568,7 @@ export default function BranchView() {
   const [hasChanges, setHasChanges] = useState(false);
   const [fontIdx, setFontIdx] = useState(0);
   const [sizeIdx, setSizeIdx] = useState(1);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fontMenuRef = useRef<HTMLDivElement>(null);
 
@@ -623,6 +624,7 @@ export default function BranchView() {
         setShowFontMenu(false);
     };
     document.addEventListener("mousedown", handler);
+
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
@@ -731,7 +733,16 @@ export default function BranchView() {
         />
       </div>
     );
-
+  const menuBtnStyle = {
+    width: "100%",
+    textAlign: "left" as const,
+    padding: "10px 12px",
+    border: "none",
+    background: "transparent",
+    cursor: "pointer",
+    borderRadius: 6,
+    fontSize: 13,
+  };
   return (
     <div
       style={{
@@ -1013,7 +1024,11 @@ export default function BranchView() {
           )}
 
           {/* Font picker */}
-          <div ref={fontMenuRef} style={{ position: "relative" }}>
+          <div
+            className="hide-mobile"
+            ref={fontMenuRef}
+            style={{ position: "relative" }}
+          >
             <button
               onClick={() => setShowFontMenu(!showFontMenu)}
               style={{
@@ -1183,7 +1198,7 @@ export default function BranchView() {
             onClick={() =>
               navigate(`/stories/${storyId}/commits?branch=${branchId}`)
             }
-            className="btn btn-ghost btn-sm"
+            className="btn btn-ghost btn-sm hide-mobile"
             style={{ gap: 5 }}
           >
             <History size={13} />
@@ -1230,6 +1245,7 @@ export default function BranchView() {
           </motion.button>
 
           <button
+            className="hide-mobile"
             onClick={() => setShowCollaborators(true)}
             style={{
               display: "inline-flex",
@@ -1282,6 +1298,27 @@ export default function BranchView() {
           >
             <Sparkles size={13} />
             AI
+          </button>
+
+          <button
+            className="show-mobile"
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+            style={{
+              display: "none",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 34,
+              height: 34,
+              borderRadius: 7,
+              border: "1.5px solid var(--border)",
+              background: "transparent",
+              cursor: "pointer",
+              color: "var(--text-secondary)",
+              fontSize: 18,
+              fontWeight: 700,
+            }}
+          >
+            ⋮
           </button>
 
           {/* Commit */}
@@ -1400,6 +1437,54 @@ export default function BranchView() {
         </AnimatePresence>
       </div>
 
+      {showMoreMenu && (
+        <div
+          className="show-mobile"
+          style={{
+            position: "fixed",
+            top: 60,
+            right: 12,
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            borderRadius: 10,
+            boxShadow: "var(--shadow-xl)",
+            padding: 6,
+            zIndex: 100,
+            minWidth: 180,
+          }}
+        >
+          <button
+            onClick={() => {
+              setShowFontMenu(true);
+              setShowMoreMenu(false);
+            }}
+            style={menuBtnStyle}
+          >
+            Font Settings
+          </button>
+
+          <button
+            onClick={() => {
+              navigate(`/stories/${storyId}/commits?branch=${branchId}`);
+              setShowMoreMenu(false);
+            }}
+            style={menuBtnStyle}
+          >
+            History
+          </button>
+
+          <button
+            onClick={() => {
+              setShowCollaborators(true);
+              setShowMoreMenu(false);
+            }}
+            style={menuBtnStyle}
+          >
+            Collaborators
+          </button>
+        </div>
+      )}
+
       {/*Modals*/}
       <AnimatePresence>
         {showCommitModal && (
@@ -1501,9 +1586,29 @@ export default function BranchView() {
       </AnimatePresence>
 
       <style>{`
-        textarea::placeholder { color: #c4c4c4; font-style: italic; }
-        textarea:focus { outline: none; }
-      `}</style>
+      textarea::placeholder {
+      color: #c4c4c4;
+      font-style: italic;
+      }
+
+    textarea:focus {
+    outline: none;
+    }
+
+    .show-mobile {
+    display: none;
+    }
+
+    @media (max-width: 768px) {
+    .hide-mobile {
+    display: none !important;
+    }
+
+    .show-mobile {
+      display: flex !important;
+    }
+  }
+`}</style>
     </div>
   );
 }
