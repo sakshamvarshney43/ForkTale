@@ -47,7 +47,7 @@ function StarRating({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || "Could not save rating");
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 
@@ -56,7 +56,7 @@ function StarRating({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["ending", publishingId] }),
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || "Could not remove rating");
+      toast.error(err?.response?.data?.message || "Something went wrong");
     },
   });
 
