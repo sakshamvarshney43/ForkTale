@@ -615,26 +615,6 @@ export default function BranchView() {
     }
   }, [latestCommit]);
 
-  // close font menu on outside click
-  useEffect(() => {
-    if (!showFontMenu) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        fontMenuRef.current &&
-        !fontMenuRef.current.contains(e.target as Node)
-      ) {
-        setShowFontMenu(false);
-      }
-    };
-
-    const timer = setTimeout(() => {
-      document.addEventListener("mousedown", handler);
-    }, 0);
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener("mousedown", handler);
-    };
-  }, [showFontMenu]);
   const commitMutation = useMutation({
     mutationFn: (message: string) =>
       commitService.createCommit(storyId!, branchId!, { message, content }),
@@ -1032,9 +1012,9 @@ export default function BranchView() {
           )}
 
           {/* Font picker */}
-          <div ref={fontMenuRef} style={{ position: "relative" }}>
+          {/* Font picker */}
+          <div style={{ position: "relative" }}>
             <button
-              ref={fontButtonRef}
               onClick={() => setShowFontMenu((prev) => !prev)}
               style={{
                 display: "inline-flex",
@@ -1051,18 +1031,22 @@ export default function BranchView() {
                 fontFamily: "var(--font-body)",
                 transition: "all 0.15s",
               }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--border-strong)")
-              }
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--border)";
-              }}
             >
               <Type size={12} />
               {FONTS[fontIdx].label}
             </button>
+
+            {/* Invisible overlay to catch outside clicks */}
+            {showFontMenu && (
+              <div
+                onClick={() => setShowFontMenu(false)}
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  zIndex: 29,
+                }}
+              />
+            )}
 
             <AnimatePresence>
               {showFontMenu && (
@@ -1082,7 +1066,7 @@ export default function BranchView() {
                     borderRadius: 10,
                     boxShadow: "var(--shadow-xl)",
                     padding: 4,
-                    zIndex: 30,
+                    zIndex: 30, // higher than the overlay
                   }}
                 >
                   <p
@@ -1195,7 +1179,6 @@ export default function BranchView() {
               )}
             </AnimatePresence>
           </div>
-
           <div style={{ width: 1, height: 18, background: "var(--border)" }} />
 
           {/* History */}
