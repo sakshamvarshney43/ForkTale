@@ -32,7 +32,6 @@ import {
 } from "../services/api";
 import type { Branch, Commit } from "../types";
 
-/*Font & size options */
 const FONTS = [
   { label: "Georgia", value: "Georgia, 'Times New Roman', serif" },
   { label: "Merriweather", value: "'Merriweather', Georgia, serif" },
@@ -45,7 +44,6 @@ const SIZES = [
   { label: "L", value: 19 },
 ];
 
-/*Commit Modal */
 function CommitModal({
   onCommit,
   onClose,
@@ -172,7 +170,6 @@ function CommitModal({
   );
 }
 
-/* New Branch Modal */
 function NewBranchModal({
   onCreate,
   onClose,
@@ -309,7 +306,6 @@ function NewBranchModal({
   );
 }
 
-/*AI Panel*/
 function AIPanel({
   content,
   genre,
@@ -546,7 +542,153 @@ function AIPanel({
   );
 }
 
-/*Main Editor */
+/* ── Font dropdown as a portal-style fixed overlay ── */
+function FontMenu({
+  fontIdx,
+  sizeIdx,
+  onFontChange,
+  onSizeChange,
+  onClose,
+}: {
+  fontIdx: number;
+  sizeIdx: number;
+  onFontChange: (i: number) => void;
+  onSizeChange: (i: number) => void;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // close on outside click - uses capture phase so it fires before anything else
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    // small delay so the button click that opened this doesn't immediately close it
+    const t = setTimeout(
+      () => document.addEventListener("mousedown", handler, true),
+      10,
+    );
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("mousedown", handler, true);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: "absolute",
+        right: 0,
+        top: "calc(100% + 4px)",
+        width: 196,
+        background: "var(--bg)",
+        border: "1.5px solid var(--border)",
+        borderRadius: 10,
+        boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+        padding: 4,
+        zIndex: 999,
+      }}
+    >
+      <p
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-muted)",
+          padding: "6px 10px 4px",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        Font
+      </p>
+      {FONTS.map((f, i) => (
+        <button
+          key={f.label}
+          onClick={() => {
+            onFontChange(i);
+            onClose();
+          }}
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "8px 10px",
+            border: "none",
+            cursor: "pointer",
+            borderRadius: 7,
+            fontSize: 14,
+            background: i === fontIdx ? "var(--accent-subtle)" : "transparent",
+            color: i === fontIdx ? "var(--accent)" : "var(--text-primary)",
+            fontFamily: f.value,
+            transition: "background 0.12s",
+          }}
+          onMouseEnter={(e) => {
+            if (i !== fontIdx)
+              (e.currentTarget as HTMLElement).style.background =
+                "var(--bg-muted)";
+          }}
+          onMouseLeave={(e) => {
+            if (i !== fontIdx)
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+          }}
+        >
+          {f.label}
+          {i === fontIdx && <Check size={12} />}
+        </button>
+      ))}
+      <div
+        style={{
+          height: 1,
+          background: "var(--border)",
+          margin: "6px 4px 4px",
+        }}
+      />
+      <p
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-muted)",
+          padding: "2px 10px 6px",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        Size
+      </p>
+      <div style={{ display: "flex", gap: 4, padding: "0 6px 8px" }}>
+        {SIZES.map((s, i) => (
+          <button
+            key={s.label}
+            onClick={() => onSizeChange(i)}
+            style={{
+              flex: 1,
+              padding: "5px 0",
+              border: "none",
+              cursor: "pointer",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 600,
+              fontFamily: "var(--font-body)",
+              background:
+                i === sizeIdx ? "var(--text-primary)" : "var(--bg-muted)",
+              color: i === sizeIdx ? "white" : "var(--text-secondary)",
+              transition: "all 0.12s",
+            }}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function BranchView() {
   const { storyId, branchId } = useParams<{
     storyId: string;
@@ -583,7 +725,6 @@ export default function BranchView() {
     queryKey: ["latestCommit", storyId, branchId],
     queryFn: () => commitService.getLatestCommit(storyId!, branchId!),
   });
-
   const { data: collaboratorsData } = useQuery({
     queryKey: ["collaborators", storyId],
     queryFn: () => collaborateService.getCollaborators(storyId!),
@@ -595,15 +736,12 @@ export default function BranchView() {
   const currentBranch = branches.find((b) => b.id === branchId);
   const latestCommit: Commit | null = latestData?.data?.commit || null;
   const isAuthor = story?.authorId === user?.id;
-
   const myCollaboration = story?.collaborators?.find(
     (c: any) => c.userId === user?.id,
   );
   const role = isAuthor ? "AUTHOR" : myCollaboration?.role || "VIEWER";
   const isMainBranch = currentBranch?.isDefault;
-  const canEditMainBranch = isAuthor;
-  const mainBranchLocked =
-    role === "EDITOR" && isMainBranch && !canEditMainBranch;
+  const mainBranchLocked = role === "EDITOR" && isMainBranch && !isAuthor;
   const isViewer = role === "VIEWER";
 
   useEffect(() => {
@@ -625,18 +763,11 @@ export default function BranchView() {
       queryClient.invalidateQueries({
         queryKey: ["commits", storyId, branchId],
       });
-
-      queryClient.invalidateQueries({
-        queryKey: ["story", storyId],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["branches", storyId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+      queryClient.invalidateQueries({ queryKey: ["branches", storyId] });
     },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Something went wrong");
-    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || "Something went wrong"),
   });
 
   const inviteMutation = useMutation({
@@ -647,37 +778,22 @@ export default function BranchView() {
       }),
     onSuccess: () => {
       setInviteUsername("");
-      queryClient.invalidateQueries({
-        queryKey: ["collaborators", storyId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["collaborators", storyId] });
     },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Something went wrong");
-    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || "Something went wrong"),
   });
 
   const publishMutation = useMutation({
     mutationFn: () => publishService.publish(storyId!, branchId!),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["story", storyId],
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["myStories"],
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["discover"],
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["publishedStories"],
-      });
+      await queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+      await queryClient.invalidateQueries({ queryKey: ["myStories"] });
+      await queryClient.invalidateQueries({ queryKey: ["discover"] });
+      toast.success("Branch published!");
     },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Something went wrong");
-    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || "Something went wrong"),
   });
 
   const branchMutation = useMutation({
@@ -691,9 +807,8 @@ export default function BranchView() {
       queryClient.invalidateQueries({ queryKey: ["branches", storyId] });
       navigate(`/stories/${storyId}/branches/${res.data.branch.id}`);
     },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Something went wrong");
-    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || "Something went wrong"),
   });
 
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
@@ -718,6 +833,7 @@ export default function BranchView() {
         />
       </div>
     );
+
   const menuBtnStyle = {
     width: "100%",
     textAlign: "left" as const,
@@ -729,6 +845,7 @@ export default function BranchView() {
     fontSize: 14,
     color: "var(--text-primary)",
   };
+
   return (
     <div
       style={{
@@ -738,7 +855,7 @@ export default function BranchView() {
         background: "var(--bg)",
       }}
     >
-      {/*Toolbar*/}
+      {/* Toolbar */}
       <div
         style={{
           display: "flex",
@@ -865,7 +982,7 @@ export default function BranchView() {
                     borderRadius: 10,
                     boxShadow: "var(--shadow-xl)",
                     padding: 4,
-                    zIndex: 30,
+                    zIndex: 40,
                   }}
                 >
                   {branches.map((branch) => (
@@ -976,7 +1093,6 @@ export default function BranchView() {
         </div>
 
         {/* Right */}
-        {/* Right */}
         <div
           style={{
             display: "flex",
@@ -988,7 +1104,6 @@ export default function BranchView() {
             scrollbarWidth: "none",
           }}
         >
-          {/* Unsaved */}
           {hasChanges && (
             <span
               style={{
@@ -1009,8 +1124,7 @@ export default function BranchView() {
             </span>
           )}
 
-          {/* Font picker */}
-          {/* Font picker */}
+          {/* Font picker — uses isolated component with its own outside-click logic */}
           <div style={{ position: "relative" }}>
             <button
               onClick={() => setShowFontMenu((prev) => !prev)}
@@ -1033,141 +1147,19 @@ export default function BranchView() {
               <Type size={12} />
               {FONTS[fontIdx].label}
             </button>
-
-            <AnimatePresence>
-              {showFontMenu && (
-                <motion.div
-                  className="font-dropdown"
-                  initial={{ opacity: 0, y: 4, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                  transition={{ duration: 0.12 }}
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "calc(100% + 4px)",
-                    width: 196,
-                    background: "var(--bg)",
-                    border: "1.5px solid var(--border)",
-                    borderRadius: 10,
-                    boxShadow: "var(--shadow-xl)",
-                    padding: 4,
-                    zIndex: 30, // higher than the overlay
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 600,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      color: "var(--text-muted)",
-                      padding: "6px 10px 4px",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    Font
-                  </p>
-                  {FONTS.map((f, i) => (
-                    <button
-                      key={f.label}
-                      onClick={() => {
-                        setFontIdx(i);
-                        setShowFontMenu(false);
-                      }}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 10px",
-                        border: "none",
-                        cursor: "pointer",
-                        borderRadius: 7,
-                        fontSize: 14,
-                        background:
-                          i === fontIdx
-                            ? "var(--accent-subtle)"
-                            : "transparent",
-                        color:
-                          i === fontIdx
-                            ? "var(--accent)"
-                            : "var(--text-primary)",
-                        fontFamily: f.value,
-                        transition: "background 0.12s",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (i !== fontIdx)
-                          (e.currentTarget as HTMLElement).style.background =
-                            "var(--bg-muted)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (i !== fontIdx)
-                          (e.currentTarget as HTMLElement).style.background =
-                            "transparent";
-                      }}
-                    >
-                      {f.label}
-                      {i === fontIdx && <Check size={12} />}
-                    </button>
-                  ))}
-
-                  <div
-                    style={{
-                      height: 1,
-                      background: "var(--border)",
-                      margin: "6px 4px 4px",
-                    }}
-                  />
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 600,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      color: "var(--text-muted)",
-                      padding: "2px 10px 6px",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    Size
-                  </p>
-                  <div
-                    style={{ display: "flex", gap: 4, padding: "0 6px 8px" }}
-                  >
-                    {SIZES.map((s, i) => (
-                      <button
-                        key={s.label}
-                        onClick={() => setSizeIdx(i)}
-                        style={{
-                          flex: 1,
-                          padding: "5px 0",
-                          border: "none",
-                          cursor: "pointer",
-                          borderRadius: 6,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          fontFamily: "var(--font-body)",
-                          background:
-                            i === sizeIdx
-                              ? "var(--text-primary)"
-                              : "var(--bg-muted)",
-                          color:
-                            i === sizeIdx ? "white" : "var(--text-secondary)",
-                          transition: "all 0.12s",
-                        }}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {showFontMenu && (
+              <FontMenu
+                fontIdx={fontIdx}
+                sizeIdx={sizeIdx}
+                onFontChange={(i) => setFontIdx(i)}
+                onSizeChange={(i) => setSizeIdx(i)}
+                onClose={() => setShowFontMenu(false)}
+              />
+            )}
           </div>
+
           <div style={{ width: 1, height: 18, background: "var(--border)" }} />
 
-          {/* History */}
           <button
             onClick={() =>
               navigate(`/stories/${storyId}/commits?branch=${branchId}`)
@@ -1179,7 +1171,6 @@ export default function BranchView() {
             History
           </button>
 
-          {/* Publish */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -1240,7 +1231,6 @@ export default function BranchView() {
             Collaborators
           </button>
 
-          {/* AI */}
           <button
             onClick={() => setShowAI(!showAI)}
             style={{
@@ -1295,7 +1285,6 @@ export default function BranchView() {
             ⋮
           </button>
 
-          {/* Commit */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -1321,7 +1310,6 @@ export default function BranchView() {
           message="You cannot edit the author's main branch. Create a new branch to contribute."
         />
       )}
-
       {isViewer && (
         <PermissionNotice
           type="info"
@@ -1330,7 +1318,7 @@ export default function BranchView() {
         />
       )}
 
-      {/* ── Status bar ── */}
+      {/* Status bar */}
       <div
         style={{
           display: "flex",
@@ -1362,12 +1350,12 @@ export default function BranchView() {
         </span>
       </div>
 
-      {/*Writing area + AI */}
+      {/* Writing area + AI */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <div style={{ flex: 1, overflowY: "auto", background: "var(--bg)" }}>
           <textarea
-            readOnly={mainBranchLocked || isViewer}
             ref={textareaRef}
+            readOnly={mainBranchLocked || isViewer}
             value={content}
             onChange={(e) => {
               setContent(e.target.value);
@@ -1394,7 +1382,6 @@ export default function BranchView() {
             }}
           />
         </div>
-
         <AnimatePresence>
           {showAI && (
             <AIPanel
@@ -1411,6 +1398,7 @@ export default function BranchView() {
         </AnimatePresence>
       </div>
 
+      {/* Mobile more menu */}
       {showMoreMenu && (
         <div
           className="show-mobile"
@@ -1425,7 +1413,6 @@ export default function BranchView() {
             padding: 8,
             zIndex: 100,
             minWidth: 180,
-
             display: "flex",
             flexDirection: "column",
             gap: 4,
@@ -1449,7 +1436,6 @@ export default function BranchView() {
           >
             History
           </button>
-
           <button
             onClick={() => {
               setShowCollaborators(true);
@@ -1462,7 +1448,7 @@ export default function BranchView() {
         </div>
       )}
 
-      {/*Modals*/}
+      {/* Modals */}
       <AnimatePresence>
         {showCommitModal && (
           <CommitModal
@@ -1513,14 +1499,12 @@ export default function BranchView() {
               }}
             >
               <h3 style={{ marginBottom: 16 }}>Collaborators</h3>
-
               <input
                 className="input"
                 placeholder="Username"
                 value={inviteUsername}
                 onChange={(e) => setInviteUsername(e.target.value)}
               />
-
               <select
                 className="input"
                 value={inviteRole}
@@ -1532,7 +1516,6 @@ export default function BranchView() {
                 <option value="EDITOR">EDITOR</option>
                 <option value="VIEWER">VIEWER</option>
               </select>
-
               <button
                 className="btn btn-primary"
                 style={{ marginTop: 12 }}
@@ -1540,7 +1523,6 @@ export default function BranchView() {
               >
                 Invite
               </button>
-
               <div style={{ marginTop: 24 }}>
                 {collaborators.map((c: any) => (
                   <div
@@ -1562,47 +1544,15 @@ export default function BranchView() {
         )}
       </AnimatePresence>
 
-      {showFontMenu && (
-        <div
-          onClick={() => setShowFontMenu(false)}
-          style={{ position: "fixed", inset: 0, zIndex: 29 }}
-        />
-      )}
-
       <style>{`
-    textarea::placeholder {
-    color: #c4c4c4;
-    font-style: italic;
-    }
-
-    textarea:focus {
-    outline: none;
-    }
-
-    .show-mobile {
-    display: none;
-    }
-
-    @media (max-width: 768px) {
-    .hide-mobile {
-    display: none !important;
-    }
-
-    .show-mobile {
-      display: flex !important;
-    }
-  }
-
-  @media (max-width: 768px) {
-  .font-dropdown {
-    position: fixed !important;
-    top: 60px !important;
-    left: 12px !important;
-    right: 12px !important;
-    width: auto !important;
-  }
-}
-`}</style>
+        textarea::placeholder { color: #c4c4c4; font-style: italic; }
+        textarea:focus { outline: none; }
+        .show-mobile { display: none; }
+        @media (max-width: 768px) {
+          .hide-mobile { display: none !important; }
+          .show-mobile { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
