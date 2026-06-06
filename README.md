@@ -1,350 +1,353 @@
 <div align="center">
 
-  <h1>
-    <img src="https://img.shields.io/badge/Fork-Tale-111827?style=for-the-badge&labelColor=111827&color=2563eb" />
-  </h1>
+<!-- HERO: Place your project wordmark or logo here (see screenshot guide below) -->
+<!-- Recommended: A simple SVG/PNG wordmark, ~600×120px, transparent background -->
+<!-- ![ForkTale](./assets/logo.png) -->
 
-  <p><strong>Git version control, applied to storytelling.</strong></p>
-  <p>Branch timelines · Commit chapters · Fork stories · AI co-author · Publish multiple endings</p>
+# ForkTale
 
-  <br />
+**Collaborative fiction, powered by a Git-inspired story graph.**
 
-  [![Live](https://img.shields.io/badge/Live%20App-fork--tale.vercel.app-2563eb?style=flat-square&logo=vercel&logoColor=white)](https://fork-tale.vercel.app)
-  &nbsp;
-  [![TypeScript](https://img.shields.io/badge/TypeScript-97.6%25-3178c6?style=flat-square&logo=typescript&logoColor=white)](.)
-  &nbsp;
-  [![License](https://img.shields.io/badge/License-MIT-16a34a?style=flat-square)](LICENSE)
+Writers fork each other's stories, commit new chapters, and build branching narratives — with AI continuation available at every node.
 
-  <br /><br />
+<br/>
 
-  > **ForkTale is a full-stack collaborative writing platform where stories are versioned like code.**  
-  > Writers branch their narratives into alternate timelines, save chapters as commits,  
-  > fork published stories, collaborate with role-based access, and get real-time AI assistance —  
-  > all in one platform.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-fork--tale.vercel.app-2563eb?style=flat-square&logo=vercel&logoColor=white)](https://fork-tale.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-97.6%25-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](./CONTRIBUTING.md)
 
-  <br />
-
-  ---
 </div>
-
-<br />
-
-## The Concept
-
-Every story in ForkTale lives on a `main` branch. From any commit, you can branch off into an alternate timeline — a darker ending, a twist, a different character choice — without touching the original. When you're done, publish any branch as a **public ending**. Readers arrive at your story and choose which path they want to follow.
-
-It's the reading experience of a choose-your-own-adventure, but built on the infrastructure of a version control system.
-
-<br />
 
 ---
 
-## Features
+<!-- ============================================================
+  PREVIEW
+  Recommended placement: Immediately after the hero.
+  What to put here: A single high-quality GIF (20–30 sec) or a
+  hero screenshot showing the most impressive view of the app.
+  See "Demo GIF Storyboard" section at the bottom of this file.
+============================================================ -->
 
-<br />
+## Preview
 
-### ✍️ Writing & Version Control
+<p align="center">
+  <img src="./frontend/src/assets/video.gif" alt="ForkTale Demo" width="100%">
+</p>
+---
 
-| Feature | Description |
-|---|---|
-| **Commit system** | Save your chapter with a message. Every version is stored and reversible. Commits link to their parent — just like Git. |
-| **Branch system** | Fork your own story at any point. Explore a different direction without touching `main`. Switch branches from inside the editor. |
-| **Commit history** | Full timeline view of every saved version. Preview content, compare messages, jump back in time, or reopen any commit in the editor. |
-| **Word count tracking** | Live word count in the editor status bar. Per-commit word count in history. |
-| **Font & size picker** | Writers choose their editing font (Georgia, Merriweather, Charter, Mono) and size. Your writing environment, your preferences. |
-| **Export** | Export any branch as clean **TXT** or **Markdown** — full history or final version only. |
+## Overview
 
-<br />
+Most collaborative writing tools treat a story as a single linear document that everyone edits in place. ForkTale treats a story the way Git treats code — as a **directed acyclic graph of commits**, where any node can be forked into a new branch by any reader.
 
-### 🤝 Collaboration
+The result is a living, branching narrative tree: writers contribute diverging plot paths, readers choose which branches to follow, and an integrated AI layer (Gemini API with SSE streaming) can generate continuation prose at any point in the graph.
 
-| Feature | Description |
-|---|---|
-| **Invite by username** | Add collaborators to any story directly by their ForkTale username. |
-| **Role-based access** | Two roles: **Editor** (read + write + commit) and **Viewer** (read only). Enforced at the API middleware level. |
-| **Author controls** | Only the story author can invite, change roles, remove collaborators, and publish endings. |
-| **Forking** | Any reader can fork a published story and continue it their own way. Fork attribution links back to the original. |
+---
 
-<br />
+## Key Features
 
-### 🤖 AI Co-Author (Streaming)
+**Story Graph Engine**
+- Recursive, self-referential fork chain modeled in PostgreSQL via Prisma
+- Commit DAG with parent-child relationships, diff-aware rendering, and branch metadata
+- Full fork lineage tracing back to the original root story
 
-All AI responses stream **word-by-word** in real time via Server-Sent Events — no waiting for the full response.
+**Role-Based Collaboration**
+- Granular permission model: `owner`, `editor`, and `viewer` roles per story
+- Invite-only editing workflow with JWT-authenticated sessions
+- Each collaborator's commits are attributed and auditable
 
-| Action | What it does |
-|---|---|
-| **Continue story** | Streams 2–3 paragraphs that match your current tone, genre, and narrative voice |
-| **Plot twist** | Suggests 3 unexpected but believable directions the story could go |
-| **Improve writing** | Enhances prose quality — sentence rhythm, word choice, description — without changing your plot |
-| **Fix grammar** | Corrects errors and awkward phrasing while preserving your voice |
+**AI-Assisted Writing**
+- Gemini API integration with Server-Sent Events (SSE) for token-by-token streaming
+- AI continuation triggers at any commit node — generates contextually coherent prose
+- Streamed directly into the editor without blocking the UI
 
-AI suggestions appear in a slide-out panel. One click inserts the generated text directly into your editor at the cursor position.
+**Editorial Design System**
+- Custom CSS property system (`--bg`, `--text-primary`, `--accent`, `--border`)
+- Instrument Serif for display headings, DM Sans for body — inspired by Linear, Notion, and Stripe
+- Fully responsive across desktop and mobile viewports
 
-<br />
+**Media & Covers**
+- Story cover image uploads via Cloudinary with on-the-fly transformation
+- Custom font selection per branch via isolated `FontMenu` component
 
-### 📖 Publishing & Discovery
+---
 
-| Feature | Description |
-|---|---|
-| **Publish endings** | Publish any branch of your story as a public ending. One story can have many endings simultaneously. |
-| **Unpublish** | Remove a published ending at any time from the Collaborate page. |
-| **Reader choice** | Readers arrive at a story and see all published endings in a sidebar. They choose which path to read. |
-| **Star ratings** | Readers rate each ending 1–5 stars. Average rating and total count shown on each ending. Users can update or remove their rating. |
-| **Discover page** | Browse all published stories. Filter by genre (Fantasy, Sci-Fi, Romance, Thriller, Horror, Mystery, Adventure, Drama, Historical, Isekai). Sort by **Latest** or **Top Rated**. Full-text search. |
+## Screenshots
 
-<br />
+<!-- ============================================================
+  SCREENSHOTS
+  Capture and drop images into ./assets/ then update these paths.
+  See "Screenshot Capture Guide" at the bottom for exact specs.
+============================================================ -->
 
-### 👤 Profiles & Auth
+### Story Graph View
+<!-- What to capture: the branching commit tree for a multi-fork story -->
+![Story Graph](./assets/screenshot-graph.png)
 
-| Feature | Description |
-|---|---|
-| **JWT authentication** | Register and login with email + password. Tokens stored and sent with every request. |
-| **Public profiles** | Every user has a profile page (`/u/:username`) showing their published stories and bio. |
-| **Avatar upload** | Upload a profile picture — stored on Cloudinary. |
-| **Cover images** | Each story can have a cover image — uploaded to Cloudinary, shown on story cards and the read page. |
-| **Edit profile** | Update name, username, and bio from the profile page. |
+### Editor with AI Continuation
+<!-- What to capture: the StoryEdit page mid-Gemini-stream, showing tokens appearing live -->
+![AI Editor](./assets/screenshot-editor-ai.png)
 
-<br />
+### Branch View
+<!-- What to capture: BranchView showing commit history, font picker, and collaborator list -->
+![Branch View](./assets/screenshot-branch.png)
+
+### Dashboard / Home Feed
+<!-- What to capture: the home page showing story cards in the editorial grid layout -->
+![Dashboard](./assets/screenshot-dashboard.png)
+
+---
+
+## How It Works
+
+### User Flow
+
+```
+Register / Log in
+       │
+       ▼
+  Browse Stories ──► Fork any published story
+       │                      │
+       ▼                      ▼
+  Create New Story      Forked Branch (new commit chain)
+       │                      │
+       └──────────┬───────────┘
+                  ▼
+          Write / Commit
+                  │
+          ┌───────┴────────┐
+          │                │
+     Publish it       Invoke AI →  streaming continuation
+          │
+          ▼
+   Others can fork, read, or collaborate
+```
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                   Frontend                       │
+│   React 18 + TypeScript + Tailwind CSS           │
+│   Design system via CSS custom properties        │
+│   SSE client for streaming AI responses          │
+└──────────────────┬──────────────────────────────┘
+                   │  REST API + SSE
+┌──────────────────▼──────────────────────────────┐
+│                   Backend                        │
+│   Express.js + TypeScript                        │
+│   JWT Auth  │  Cloudinary  │  Gemini SDK        │
+└──────────────────┬──────────────────────────────┘
+                   │  Prisma ORM
+┌──────────────────▼──────────────────────────────┐
+│               PostgreSQL                         │
+│   Story → Commit DAG (recursive self-ref FK)     │
+│   User  → Role → Story (many-to-many)            │
+└─────────────────────────────────────────────────┘
+```
+
+The most technically interesting part of the data model is the **recursive commit graph**: every `Commit` record has an optional `parentId` that references another `Commit` in the same table. A `Fork` record links a `Story` to the specific `Commit` it was forked from, preserving lineage across the entire tree.
 
 ---
 
 ## Tech Stack
 
-### Frontend
-
-```
-React 18 + TypeScript    →  UI with full type safety
-Vite                     →  Build tool and dev server
-Tailwind CSS             →  Utility-first styling
-Framer Motion            →  Animations and page transitions
-TanStack Query v5        →  Server state, caching, background refetch
-React Router v6          →  Client-side routing (15 routes)
-React Hook Form + Zod    →  Form handling and schema validation
-Axios                    →  HTTP client with interceptors
-```
-
-### Backend
-
-```
-Node.js + Express        →  REST API (30+ endpoints)
-TypeScript               →  Type safety across the stack
-Prisma ORM               →  Type-safe queries, migrations, relations
-PostgreSQL               →  Primary relational database
-JWT + bcryptjs           →  Auth and password hashing
-Cloudinary               →  Cover image and avatar storage
-Anthropic Claude API     →  AI co-authoring with SSE streaming
-Zod                      →  Server-side request validation
-```
-
-### Infrastructure
-
-```
-Vercel      →  Frontend deployment (CD on push to main)
-Railway     →  Backend API + managed PostgreSQL
-Cloudinary  →  Media CDN (free tier)
-```
-
-<br />
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18, TypeScript, Tailwind CSS |
+| **Backend** | Node.js, Express, TypeScript |
+| **Database** | PostgreSQL (via Prisma ORM) |
+| **AI** | Google Gemini API (SSE streaming) |
+| **Auth** | JWT (access + refresh tokens) |
+| **Media** | Cloudinary |
+| **Deployment** | Vercel (frontend), Railway (backend) |
+| **Design** | Custom CSS property design system |
 
 ---
 
-## Architecture
+## Installation & Setup
 
-```
-ForkTale/
-├── frontend/
-│   └── src/
-│       ├── pages/          # 15 pages (Home, Discover, Dashboard, Editor, Read, Profile ...)
-│       ├── components/     # Navbar, cards, modals
-│       ├── services/       # All API calls (authService, storyService, aiService ...)
-│       ├── context/        # AuthContext (user, token, login, logout)
-│       ├── hooks/          # Custom hooks
-│       └── types/          # Shared TypeScript interfaces
-│
-└── backend/
-    ├── src/
-    │   ├── controllers/    # 11 controllers (auth, story, branch, commit, ai, publish ...)
-    │   ├── routes/         # Express route definitions
-    │   ├── middlewares/    # requireAuth, requireEditor, requireAuthor, errorHandler
-    │   ├── services/       # AI streaming, Cloudinary upload, export logic
-    │   └── config/         # Database, Cloudinary
-    └── prisma/
-        └── schema.prisma   # Source of truth for all types
-```
+### Prerequisites
 
-<br />
+- Node.js ≥ 18
+- PostgreSQL ≥ 14
+- A [Cloudinary](https://cloudinary.com/) account
+- A [Google AI Studio](https://aistudio.google.com/) API key (Gemini)
 
----
-
-## Database Schema
-
-```
-User
- ├── stories[]           (authored stories)
- ├── collaborations[]    (role: VIEWER | EDITOR)
- └── forks[]             (stories the user has forked)
-
-Story
- ├── branches[]
- │    └── commits[]      (content snapshots, parent-child linked like Git DAG)
- ├── publishings[]       (public endings — a story can have many)
- │    └── ratings[]      (per-user star ratings on each ending)
- ├── collaborators[]
- └── forkedFrom?  ──→    Story  (self-referential — tracks full fork lineage)
-```
-
-**Key decisions:**
-- `parentId` on `Commit` — commits link to their parent, forming a directed acyclic graph
-- `forkedFromId` on `Story` — self-referential FK tracks the entire fork chain
-- Prisma transactions on fork and publish — both are atomic operations
-- Cascade deletes — removing a story cleans up all branches, commits, endings, and ratings
-
-<br />
-
----
-
-## Key Technical Decisions
-
-**SSE over WebSockets for AI streaming**
-AI responses are unidirectional (server → client only). Server-Sent Events are simpler, require no extra library, reconnect automatically, and work natively with Express. WebSockets would add unnecessary bidirectional overhead.
-
-**TanStack Query over Redux**
-Every piece of state in ForkTale is server state — stories, commits, branches, endings. TanStack Query handles caching, background refetching, loading states, and cache invalidation out of the box. No global store needed.
-
-**Prisma over raw SQL**
-Type-safe queries generated from the schema, automatic migration tracking, and clean handling of the self-referencing relations (commit DAG, fork lineage) without writing complex raw SQL.
-
-**Role middleware pattern**
-`requireAuth → requireEditor → handler`. Authorization logic lives in reusable middleware, not scattered across controllers. Clean, centralized, easy to audit.
-
-<br />
-
----
-
-## Local Setup
-
-**Prerequisites:** Node.js 18+, PostgreSQL, Cloudinary account (free), Anthropic API key
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/sakshamvarshney43/ForkTale.git
 cd ForkTale
 ```
 
-**Backend:**
+### 2. Configure the backend
+
 ```bash
 cd backend
-npm install
+cp .env.example .env
 ```
 
-Create `backend/.env`:
+Edit `.env`:
+
 ```env
-PORT=5000
 DATABASE_URL="postgresql://user:password@localhost:5432/forktale"
-JWT_SECRET=your_secret_here
-JWT_EXPIRES_IN=7d
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-ANTHROPIC_API_KEY=sk-ant-...
-CLIENT_URL=http://localhost:5173
+JWT_SECRET="your-secret-key"
+GEMINI_API_KEY="AIza..."
+CLOUDINARY_CLOUD_NAME="..."
+CLOUDINARY_API_KEY="..."
+CLOUDINARY_API_SECRET="..."
 ```
 
 ```bash
-npx prisma migrate dev --name init
-npx prisma generate
-npm run dev
-```
-
-**Frontend:**
-```bash
-cd frontend
 npm install
+npx prisma migrate dev
+npm run dev
 ```
 
-Create `frontend/.env`:
+### 3. Configure the frontend
+
+```bash
+cd ../frontend
+cp .env.example .env
+```
+
+Edit `.env`:
+
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL="http://localhost:4000"
 ```
 
 ```bash
+npm install
 npm run dev
-# → http://localhost:5173
 ```
 
-<br />
+The app will be available at `http://localhost:5173`.
 
 ---
 
-## API Overview
+## Project Structure
 
 ```
-Auth          POST   /api/auth/register
-              POST   /api/auth/login
-              GET    /api/auth/me
-
-Stories       GET    /api/stories/discover          (public, filterable)
-              POST   /api/stories                   (auth)
-              GET    /api/stories/:id
-              PATCH  /api/stories/:id               (author)
-              DELETE /api/stories/:id               (author)
-              POST   /api/stories/:id/cover         (author, multipart)
-              POST   /api/stories/:id/fork          (auth)
-
-Branches      GET    /api/stories/:id/branches
-              POST   /api/stories/:id/branches      (editor)
-
-Commits       GET    /api/stories/:id/branches/:bid/commits
-              GET    /api/stories/:id/branches/:bid/commits/latest
-              POST   /api/stories/:id/branches/:bid/commits   (editor)
-
-Publish       GET    /api/stories/:id/endings
-              GET    /api/endings/:id               (read full content)
-              POST   /api/stories/:id/publish       (author)
-              DELETE /api/stories/:id/publish/:pid  (author)
-
-Collaborate   GET    /api/stories/:id/collaborators
-              POST   /api/stories/:id/collaborators (author)
-              PATCH  /api/stories/:id/collaborators/:cid
-              DELETE /api/stories/:id/collaborators/:cid
-
-Ratings       POST   /api/ratings/:publishingId
-              DELETE /api/ratings/:publishingId
-
-Users         GET    /api/users/:username
-              PATCH  /api/users/profile             (auth)
-              POST   /api/users/avatar              (auth, multipart)
-
-AI            POST   /api/ai/suggest-next           (streaming SSE)
-              POST   /api/ai/suggest-twist          (streaming SSE)
-              POST   /api/ai/improve-writing        (streaming SSE)
-              POST   /api/ai/fix-grammar
+ForkTale/
+├── frontend/
+│   ├── src/
+│   │   ├── components/       # Shared UI components (Navbar, FontMenu, etc.)
+│   │   ├── pages/            # Route-level components (Home, StoryEdit, BranchView)
+│   │   ├── hooks/            # Custom React hooks (useStream, useAuth)
+│   │   ├── lib/              # API client, utils
+│   │   └── index.css         # Design token definitions (CSS custom properties)
+│   └── ...
+└── backend/
+    ├── src/
+    │   ├── routes/           # Express route handlers
+    │   ├── middleware/        # Auth, error handling
+    │   ├── services/         # Business logic (story, commit, AI stream)
+    │   └── prisma/           # Schema and migrations
+    └── ...
 ```
 
-<br />
+---
+
+## Challenges & Learnings
+
+**Recursive data modeling** — Representing a fork-and-commit graph in a relational database required careful use of self-referential foreign keys and recursive CTEs. Getting Prisma's type system to handle circular relations cleanly took significant iteration.
+
+**SSE streaming in a React context** — Managing the lifecycle of a long-lived SSE connection (open, token append, close, error) without memory leaks or stale closures required building a dedicated `useStream` hook with careful cleanup logic.
+
+**Component isolation for third-party conflicts** — Tailwind's utility classes conflicted with some parent layout styles on elements like the Navbar and the FontMenu dropdown. The solution was to extract conflicting components into fully isolated wrappers with explicit inline styles as override boundaries.
+
+**Design system from scratch** — Building a cohesive editorial aesthetic without a component library meant defining every visual token upfront in CSS custom properties and enforcing their use across ~30 components. The constraint paid off in visual consistency but required discipline throughout.
 
 ---
 
 ## Roadmap
 
-- [ ] Visual branch tree diagram (like GitHub's network graph)
-- [ ] Real-time collaborative editing via WebSockets
-- [ ] Export as PDF
-- [ ] Email notifications for collaboration invites
-- [ ] Reading progress tracker
+The following improvements are planned or in-progress:
 
-<br />
+- [ ] **Test coverage** — Unit tests for the commit graph logic; integration tests for the SSE stream handler
+- [ ] **Read analytics** — View counts and reader engagement metrics per story node
+- [ ] **Export** — Download a story branch as a formatted PDF or EPUB
+- [ ] **Real-time collaboration** — WebSocket-based co-editing on the same commit draft
+- [ ] **Public API** — REST endpoints for third-party integrations
+
+---
+
+## Contributing
+
+Contributions are welcome. To get started:
+
+1. Fork this repository
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Commit your changes: `git commit -m "feat: describe the change"`
+4. Push the branch: `git push origin feat/your-feature`
+5. Open a Pull Request
+
+Please follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages. For larger changes, open an issue first to discuss the approach.
 
 ---
 
 ## License
 
-[MIT](LICENSE) — built by [Saksham Varshney](https://github.com/sakshamvarshney43)
+Distributed under the [MIT License](./LICENSE).
+
+---
 
 <div align="center">
-  <br />
 
-  **[Live App](https://fork-tale.vercel.app)** · **[Report Bug](https://github.com/sakshamvarshney43/ForkTale/issues)** · **[Request Feature](https://github.com/sakshamvarshney43/ForkTale/issues)**
-
-  <br />
+Built by [Saksham Varshney](https://github.com/sakshamvarshney43) · [Live Demo](https://fork-tale.vercel.app) · [Report a Bug](https://github.com/sakshamvarshney43/ForkTale/issues)
 
 </div>
+
+---
+
+<!--
+================================================================================
+  ASSET PRODUCTION GUIDE  (remove this section before publishing)
+================================================================================
+
+SCREENSHOTS TO CAPTURE (save to ./assets/)
+───────────────────────────────────────────
+1. screenshot-dashboard.png
+   - Page: Home / feed
+   - Show: 4–6 story cards in the editorial grid, clean white background,
+     the ForkTale wordmark in the navbar. No test/lorem data.
+   - Dimensions: 1440×900 or 1280×800 browser viewport.
+
+2. screenshot-graph.png
+   - Page: Story detail / graph view
+   - Show: A story with at least 3–4 visible forks branching out as a tree.
+     Highlight one branch as "selected."
+   - Dimensions: same as above.
+
+3. screenshot-editor-ai.png
+   - Page: StoryEdit during an active Gemini stream
+   - Show: The editor with partial AI-generated text appearing, the
+     "Generating…" state indicator visible. Captures the core value prop.
+   - Dimensions: same as above.
+
+4. screenshot-branch.png
+   - Page: BranchView
+   - Show: The commit timeline on the left, the FontMenu dropdown open,
+     collaborator avatars/roles visible in the sidebar.
+   - Dimensions: same as above.
+
+
+DEMO GIF STORYBOARD (20–30 seconds, save as ./assets/demo.gif)
+───────────────────────────────────────────────────────────────
+Use a tool like Kap (macOS), ScreenToGif (Windows), or LICEcap.
+Record at 1280×800, export at 10–15fps, target < 5MB.
+
+  [0:00 – 0:04]  Home feed — pan over 4–5 story cards.
+  [0:04 – 0:09]  Click into a story. Story graph expands showing 3 forks.
+  [0:09 – 0:14]  Click one branch. BranchView opens; scroll through commits.
+  [0:14 – 0:20]  Click "Fork this branch." Editor opens. Type a short sentence.
+  [0:20 – 0:28]  Click "AI Continue." Watch tokens stream in live.
+  [0:28 – 0:30]  Click "Commit." New node appears in the graph.
+
+Keep the cursor movements deliberate. No fast clicking. Use a dark/clean
+browser theme so UI contrast is high. Add a subtle zoom-in on key UI moments.
+================================================================================
+-->
