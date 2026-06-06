@@ -4,6 +4,11 @@
 <!-- Recommended: A simple SVG/PNG wordmark, ~600×120px, transparent background -->
 <!-- ![ForkTale](./assets/logo.png) -->
 
+
+
+
+
+
 # ForkTale
 
 **Collaborative fiction, powered by a Git-inspired story graph.**
@@ -33,8 +38,10 @@ Writers fork each other's stories, commit new chapters, and build branching narr
 ## Preview
 
 <p align="center">
-  <img src="./frontend/src/assets/video.gif" alt="ForkTale Demo" width="100%">
+  <video src="https://github.com/user-attachments/assets/b739ac7e-7995-4876-9db8-3b6a0459d256" controls width="100%"></video>
 </p>
+
+
 ---
 
 ## Overview
@@ -81,21 +88,18 @@ The result is a living, branching narrative tree: writers contribute diverging p
   See "Screenshot Capture Guide" at the bottom for exact specs.
 ============================================================ -->
 
-### Story Graph View
-<!-- What to capture: the branching commit tree for a multi-fork story -->
-![Story Graph](./assets/screenshot-graph.png)
+### HomePage
+<img width="1900" height="1002" alt="Screenshot 2026-06-06 100528" src="https://github.com/user-attachments/assets/599e9bed-f829-4c70-89b5-687a861cdd19" />
 
 ### Editor with AI Continuation
-<!-- What to capture: the StoryEdit page mid-Gemini-stream, showing tokens appearing live -->
-![AI Editor](./assets/screenshot-editor-ai.png)
+<img width="1900" height="1002" alt="Screenshot 2026-06-06 100558" src="https://github.com/user-attachments/assets/3b49b337-c367-4e61-990c-07ff55d843ad" />
 
-### Branch View
-<!-- What to capture: BranchView showing commit history, font picker, and collaborator list -->
-![Branch View](./assets/screenshot-branch.png)
+### Discover
+<img width="1903" height="999" alt="Screenshot 2026-06-06 100638" src="https://github.com/user-attachments/assets/fd61317a-30b6-429b-855c-718567b207e4" />
 
-### Dashboard / Home Feed
-<!-- What to capture: the home page showing story cards in the editorial grid layout -->
-![Dashboard](./assets/screenshot-dashboard.png)
+### Story Reading
+<img width="1906" height="997" alt="Screenshot 2026-06-06 100703" src="https://github.com/user-attachments/assets/0dfce018-e601-48fc-a099-5783cc576cea" />
+
 
 ---
 
