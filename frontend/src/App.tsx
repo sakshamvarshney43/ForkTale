@@ -23,9 +23,13 @@ import { Outlet } from "react-router-dom";
 const PageLoader = () => (
   <div
     className="min-h-screen flex items-center justify-center"
-    style={{ background: "#08090a" }}
+    style={{ background: "var(--bg)" }}
   >
-    <Loader2 size={18} className="animate-spin" style={{ color: "#8a8f98" }} />
+    <Loader2
+      size={18}
+      className="animate-spin"
+      style={{ color: "var(--text-muted)" }}
+    />
   </div>
 );
 
@@ -60,7 +64,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
-        <div className="min-h-screen" style={{ background: "#08090a" }}>
+        <div className="min-h-screen" style={{ background: "var(--bg)" }}>
           <Routes>
             {/* Public */}
             <Route
