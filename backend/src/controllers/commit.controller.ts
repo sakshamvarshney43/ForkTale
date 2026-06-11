@@ -101,9 +101,14 @@ export const createCommit = async (req: AuthRequest, res: Response) => {
     });
 
     //Update story word count
+    const { _sum } = await prisma.commit.aggregate({
+      where: { branch: { storyId: storyId as string } },
+      _sum: { wordCount: true },
+    });
+
     await prisma.story.update({
       where: { id: storyId as string },
-      data: { wordCount },
+      data: { wordCount: _sum.wordCount ?? 0 },
     });
 
     return res.status(201).json({
