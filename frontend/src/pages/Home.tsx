@@ -10,21 +10,24 @@ import {
   Users,
   Globe,
   CheckCircle2,
+  Database,
+  Zap,
+  Shield,
 } from "lucide-react";
 
-/*animation*/
 const rise: Variants = {
-  hidden: { opacity: 0, y: 22 },
+  hidden: { opacity: 0, y: 18 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
   },
 };
 const cascade: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.09 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 };
+
 function Reveal({
   children,
   className = "",
@@ -33,7 +36,7 @@ function Reveal({
   className?: string;
 }) {
   const ref = useRef(null);
-  const visible = useInView(ref, { once: true, margin: "-56px" });
+  const visible = useInView(ref, { once: true, margin: "-48px" });
   return (
     <motion.div
       ref={ref}
@@ -47,192 +50,403 @@ function Reveal({
   );
 }
 
-/*data */
+/* Branch graph — the signature visual */
+function BranchGraph() {
+  const commits = [
+    {
+      id: "c1",
+      x: 60,
+      y: 48,
+      branch: "main",
+      label: "Initial draft",
+      time: "3d ago",
+    },
+    {
+      id: "c2",
+      x: 180,
+      y: 48,
+      branch: "main",
+      label: "Chapter 2 committed",
+      time: "2d ago",
+    },
+    {
+      id: "c3",
+      x: 300,
+      y: 48,
+      branch: "main",
+      label: "Revised ending",
+      time: "1d ago",
+    },
+    {
+      id: "c4",
+      x: 420,
+      y: 48,
+      branch: "main",
+      label: "The kingdom falls",
+      time: "4h ago",
+    },
+    {
+      id: "b1",
+      x: 300,
+      y: 120,
+      branch: "dark-ending",
+      label: "Villain wins",
+      time: "20h ago",
+    },
+    {
+      id: "b2",
+      x: 420,
+      y: 120,
+      branch: "dark-ending",
+      label: "Published ✓",
+      time: "8h ago",
+    },
+    {
+      id: "b3",
+      x: 300,
+      y: 192,
+      branch: "hero-arc",
+      label: "Hero rises",
+      time: "12h ago",
+    },
+    {
+      id: "b4",
+      x: 420,
+      y: 192,
+      branch: "hero-arc",
+      label: "Draft",
+      time: "2h ago",
+    },
+  ];
+
+  const colors: Record<string, string> = {
+    main: "#2563eb",
+    "dark-ending": "#7c3aed",
+    "hero-arc": "#16a34a",
+  };
+
+  const branchLabels = [
+    { y: 48, name: "main", color: "#2563eb" },
+    { y: 120, name: "dark-ending", color: "#7c3aed" },
+    { y: 192, name: "hero-arc", color: "#16a34a" },
+  ];
+
+  return (
+    <div
+      style={{
+        background: "var(--bg)",
+        border: "1.5px solid var(--border)",
+        borderRadius: 14,
+        boxShadow: "var(--shadow-xl)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Window chrome */}
+      <div
+        style={{
+          padding: "12px 18px",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--bg-subtle)",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <div style={{ display: "flex", gap: 5 }}>
+          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+            <div
+              key={c}
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: c,
+              }}
+            />
+          ))}
+        </div>
+        <span
+          style={{
+            marginLeft: 10,
+            fontSize: 12,
+            fontFamily: "var(--font-mono)",
+            color: "var(--text-muted)",
+          }}
+        >
+          forktale / the-last-kingdom
+        </span>
+      </div>
+
+      {/* Graph area */}
+      <div style={{ padding: "24px 20px 20px", overflowX: "auto" }}>
+        {/* Branch lane labels */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 0,
+            marginBottom: 0,
+          }}
+        >
+          {branchLabels.map((b) => (
+            <div
+              key={b.name}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                height: 72,
+                paddingLeft: 4,
+              }}
+            >
+              <div
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: b.color,
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--text-muted)",
+                  letterSpacing: "0.01em",
+                }}
+              >
+                {b.name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* SVG commit graph */}
+        <svg
+          viewBox="0 0 520 220"
+          style={{
+            width: "100%",
+            maxWidth: 520,
+            height: "auto",
+            display: "block",
+            marginTop: -216,
+            marginLeft: 100,
+          }}
+          aria-label="Branch commit graph showing main, dark-ending, and hero-arc branches"
+        >
+          {/* Main branch line */}
+          <line
+            x1="60"
+            y1="48"
+            x2="420"
+            y2="48"
+            stroke="#2563eb"
+            strokeWidth="2"
+            strokeOpacity="0.3"
+          />
+
+          {/* Branch lines */}
+          <line
+            x1="180"
+            y1="48"
+            x2="300"
+            y2="120"
+            stroke="#7c3aed"
+            strokeWidth="1.5"
+            strokeOpacity="0.35"
+          />
+          <line
+            x1="300"
+            y1="120"
+            x2="420"
+            y2="120"
+            stroke="#7c3aed"
+            strokeWidth="2"
+            strokeOpacity="0.3"
+          />
+
+          <line
+            x1="180"
+            y1="48"
+            x2="300"
+            y2="192"
+            stroke="#16a34a"
+            strokeWidth="1.5"
+            strokeOpacity="0.35"
+          />
+          <line
+            x1="300"
+            y1="192"
+            x2="420"
+            y2="192"
+            stroke="#16a34a"
+            strokeWidth="2"
+            strokeOpacity="0.3"
+          />
+
+          {/* Commit nodes */}
+          {commits.map((c, i) => (
+            <motion.g
+              key={c.id}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 + i * 0.08, duration: 0.3 }}
+            >
+              <circle
+                cx={c.x}
+                cy={c.y}
+                r={7}
+                fill="var(--bg)"
+                stroke={colors[c.branch]}
+                strokeWidth="2"
+              />
+              <circle cx={c.x} cy={c.y} r={3} fill={colors[c.branch]} />
+              {/* Label */}
+              <text
+                x={c.x}
+                y={c.y - 14}
+                textAnchor="middle"
+                fontSize="9"
+                fill="var(--text-muted, #94a3b8)"
+                fontFamily="var(--font-body, system-ui)"
+              >
+                {c.label}
+              </text>
+            </motion.g>
+          ))}
+
+          {/* Published badge on b2 */}
+          <motion.g
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.1 }}
+          >
+            <rect
+              x="390"
+              y="130"
+              width="58"
+              height="16"
+              rx="8"
+              fill="rgba(22,163,74,0.12)"
+              stroke="rgba(22,163,74,0.3)"
+              strokeWidth="1"
+            />
+            <text
+              x="419"
+              y="141"
+              textAnchor="middle"
+              fontSize="8"
+              fill="#16a34a"
+              fontFamily="var(--font-body, system-ui)"
+              fontWeight="600"
+            >
+              published
+            </text>
+          </motion.g>
+        </svg>
+      </div>
+
+      {/* Footer strip */}
+      <div
+        style={{
+          borderTop: "1px solid var(--border)",
+          padding: "10px 20px",
+          background: "var(--bg-subtle)",
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <Sparkles size={11} style={{ color: "#16a34a" }} />
+          <span
+            style={{
+              fontSize: 11,
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            AI suggestion ready
+          </span>
+        </div>
+        <div
+          style={{
+            width: 1,
+            height: 12,
+            background: "var(--border)",
+          }}
+        />
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          3 branches · 8 commits
+        </span>
+      </div>
+    </div>
+  );
+}
+
 const features = [
   {
-    icon: <GitBranch size={18} />,
+    icon: <GitBranch size={16} />,
     title: "Branch timelines",
-    desc: "Every 'what if' becomes its own narrative path. Explore alternate directions without touching your main story.",
+    desc: "Every 'what if' becomes its own path. Explore alternate directions without touching your main story.",
   },
   {
-    icon: <GitFork size={18} />,
+    icon: <GitFork size={16} />,
     title: "Fork any story",
     desc: "Clone a published story and carry it somewhere new. Build on others' work, or take your own in a new direction.",
   },
   {
-    icon: <Sparkles size={18} />,
+    icon: <Sparkles size={16} />,
     title: "AI co-author",
-    desc: "Real-time suggestions, plot continuations and prose refinements — as natural as a writing partner, not a chatbot.",
+    desc: "Real-time suggestions via Gemini — plot continuations and prose refinements streamed as you write.",
   },
   {
-    icon: <Users size={18} />,
-    title: "Collaborate",
-    desc: "Invite co-authors with role-based access. Control who can read, write, or merge — just like a dev team.",
+    icon: <Users size={16} />,
+    title: "Role-based collaboration",
+    desc: "Invite co-authors with VIEWER, EDITOR, or OWNER access. Control exactly who can read, write, or publish.",
   },
   {
-    icon: <BookOpen size={18} />,
+    icon: <BookOpen size={16} />,
     title: "Multiple endings",
-    desc: "Publish every branch as a separate ending. Let readers choose their own path through your world.",
+    desc: "Publish each branch as a separate ending. Readers choose their path; authors collect per-ending ratings.",
   },
   {
-    icon: <Globe size={18} />,
+    icon: <Globe size={16} />,
     title: "Discover & remix",
-    desc: "Browse the best collaborative fiction, rate endings, and fork favourites to build something new.",
+    desc: "Browse published stories, rate endings, and fork favourites — all behind a search-and-filter explore feed.",
   },
 ];
 
-const steps = [
+/* Tech stack strip — replaces fake stats */
+const techHighlights = [
   {
-    n: "1",
-    title: "Create a story",
-    desc: "Start a new project. A main branch is created automatically — your canonical timeline.",
+    icon: <Database size={14} />,
+    label: "Self-referential schema",
+    detail: "Directed acyclic commit graph in PostgreSQL",
   },
   {
-    n: "2",
-    title: "Write and commit",
-    desc: "Save chapters as commits with a short message. Every version is stored and reversible.",
+    icon: <Zap size={14} />,
+    label: "SSE streaming",
+    detail: "Real-time AI output via Server-Sent Events",
   },
   {
-    n: "3",
-    title: "Branch alternate paths",
-    desc: "Fork your own story at any point to explore a different direction. No risk, no pressure.",
+    icon: <Shield size={14} />,
+    label: "RBAC auth",
+    detail: "JWT + role-gated collaboration layer",
   },
   {
-    n: "4",
-    title: "Publish your endings",
-    desc: "Publish one or many branches. Readers arrive at your story and choose how it ends.",
+    icon: <GitBranch size={14} />,
+    label: "30+ REST endpoints",
+    detail: "Typed with Zod, ~97% TypeScript coverage",
   },
 ];
-
-/*Stat pill*/
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div style={{ textAlign: "center" }}>
-      <div
-        style={{
-          fontSize: 28,
-          fontWeight: 700,
-          color: "var(--text-primary)",
-          fontFamily: "var(--font-display)",
-          letterSpacing: "-0.03em",
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </div>
-      <div
-        style={{
-          fontSize: 13,
-          color: "var(--text-muted)",
-          marginTop: 4,
-          fontFamily: "var(--font-body)",
-        }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-/*Feather Pen Graphic*/
-function FeatherPenIllustration() {
-  return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        minHeight: 380,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {/* Decorative ring 1 */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Outer glow ring */}
-        <div
-          style={{
-            position: "absolute",
-            width: 340,
-            height: 340,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(37,99,235,0.07) 0%, rgba(37,99,235,0.02) 60%, transparent 80%)",
-          }}
-        />
-        {/* Middle dashed ring */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          style={{
-            position: "absolute",
-            width: 280,
-            height: 280,
-            borderRadius: "50%",
-            border: "1.5px dashed rgba(37,99,235,0.15)",
-          }}
-        />
-        {/* Inner solid ring */}
-        <div
-          style={{
-            position: "absolute",
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            border: "1px solid rgba(37,99,235,0.1)",
-            background: "rgba(37,99,235,0.03)",
-          }}
-        />
-
-        {/* The feather pen */}
-        <motion.div
-          initial={{ opacity: 0, y: 20, rotate: -10 }}
-          animate={{ opacity: 1, y: 0, rotate: 0 }}
-          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          style={{
-            position: "relative",
-            zIndex: 10,
-            filter:
-              "drop-shadow(0 12px 32px rgba(37,99,235,0.18)) drop-shadow(0 2px 8px rgba(0,0,0,0.08))",
-          }}
-        >
-          {/* Floating animation wrapper */}
-          <motion.div
-            animate={{ y: [-6, 6, -6] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 48 48"
-              width="140"
-              height="140"
-            >
-              <g>
-                <path
-                  fill="var(--text-primary, #0f172a)"
-                  d="M40.2384 1.5c-4.5201 0 -8.8426 0.8513 -12.815 2.40277 -0.1254 0.04898 -0.2257 0.14646 -0.2783 0.27038l-0.0004 0.00092 -0.001 0.00241 -0.0039 0.00919 -0.015 0.03542c-0.013 0.03099 -0.0321 0.07649 -0.0565 0.13498 -0.0487 0.11696 -0.1186 0.28591 -0.2035 0.49464 -0.1698 0.41729 -0.4002 0.99443 -0.6423 1.63355 -0.331 0.87409 -0.6924 1.88573 -0.9475 2.76652l-1.5271 -2.12507c-0.4488 -0.62455 -1.3084 -0.81685 -1.977 -0.40464C11.8229 12.8542 5.15266 23.796 5.00264 36.307c-1.60814 2.5806 -2.937 5.2676 -3.89333 8.0409 -0.360079 1.0443 0.19453 2.1827 1.23877 2.5427 1.04423 0.3601 2.18264 -0.1945 2.54272 -1.2387 2.35258 -6.8225 7.3502 -13.3074 13.4713 -19 4.6713 -4.3443 10.0706 -7.9539 15.6768 -10.9726 0.7294 -0.3928 1.6391 -0.1199 2.0319 0.6095 0.3927 0.7295 0.1198 1.6391 -0.6096 2.0319 -5.261 2.8329 -11.1224 6.7764 -16.1602 11.4615 -4.1509 3.8604 -7.683 8.1687 -9.89112 12.7178h1.35182c6.5302 0 12.647 -1.7768 17.8915 -4.8735 1.0247 -0.605 0.9113 -2.062 -0.114 -2.5717l-2.159 -1.0734c1.5046 -0.1303 3.2186 -0.3728 4.7134 -0.6121 1.3298 -0.2129 2.657 -0.4446 3.978 -0.7068 0.0945 -0.0188 0.1816 -0.0646 0.2507 -0.1318 6.5856 -6.4021 10.6778 -15.358 10.6778 -25.26884 0 -1.17158 -0.0572 -2.32996 -0.169 -3.47247 -0.11 -1.12403 -0.9964 -2.0105 -2.1205 -2.12045C42.5682 1.55718 41.4099 1.5 40.2384 1.5Z"
-                />
-              </g>
-            </svg>
-          </motion.div>
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-}
 
 export default function Home() {
   return (
@@ -253,21 +467,20 @@ export default function Home() {
             maxWidth: 1120,
             margin: "0 auto",
             padding: "0 32px",
-            height: 60,
+            height: 58,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
           }}
         >
-          {/* Logo */}
           <Link
             to="/"
             style={{ display: "flex", alignItems: "center", gap: 8 }}
           >
             <div
               style={{
-                width: 30,
-                height: 30,
+                width: 28,
+                height: 28,
                 background: "var(--text-primary)",
                 borderRadius: 7,
                 display: "flex",
@@ -275,11 +488,11 @@ export default function Home() {
                 justifyContent: "center",
               }}
             >
-              <GitBranch size={15} color="white" />
+              <GitBranch size={14} color="white" />
             </div>
             <span
               style={{
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: 700,
                 color: "var(--text-primary)",
                 fontFamily: "var(--font-body)",
@@ -290,143 +503,131 @@ export default function Home() {
             </span>
           </Link>
 
-          {/* Links */}
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            {[{ label: "Discover", to: "/discover" }].map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                style={{
-                  padding: "6px 12px",
-                  fontSize: 14,
-                  color: "var(--text-secondary)",
-                  fontFamily: "var(--font-body)",
-                  borderRadius: "var(--r-md)",
-                  transition: "all 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "var(--bg-subtle)";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "var(--text-primary)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "transparent";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "var(--text-secondary)";
-                }}
-              >
-                {l.label}
-              </Link>
-            ))}
-
+            <Link
+              to="/discover"
+              style={{
+                padding: "6px 12px",
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-body)",
+                borderRadius: "var(--r-md)",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "var(--bg-subtle)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-primary)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "transparent";
+                (e.currentTarget as HTMLElement).style.color =
+                  "var(--text-secondary)";
+              }}
+            >
+              Discover
+            </Link>
             <div
               style={{
                 width: 1,
-                height: 20,
+                height: 18,
                 background: "var(--border)",
-                margin: "0 8px",
+                margin: "0 6px",
               }}
             />
-
             <Link to="/login">
               <button className="btn btn-ghost btn-sm">Log in</button>
             </Link>
             <Link to="/register">
               <button className="btn btn-primary btn-sm">
-                Get started <ArrowRight size={13} />
+                Get started <ArrowRight size={12} />
               </button>
             </Link>
           </div>
         </nav>
       </header>
 
-      {/* Hero */}
+      {/* ─── Hero ──────────────────────────────────────────── */}
       <section
-        style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 32px 80px" }}
+        style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 32px 72px" }}
       >
-        {/* Split container balancing content text and graphics */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-            gap: 48,
+            gridTemplateColumns: "1fr 1fr",
+            gap: 64,
             alignItems: "center",
           }}
         >
-          <div style={{ maxWidth: 760 }}>
-            {/* Eyebrow */}
+          {/* Left */}
+          <div>
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ marginBottom: 28 }}
+              transition={{ duration: 0.35 }}
+              style={{ marginBottom: 22 }}
             >
               <span
                 className="badge badge-accent"
-                style={{ fontSize: 12, padding: "5px 12px" }}
+                style={{ fontSize: 11, padding: "4px 10px" }}
               >
-                <GitBranch size={11} />
+                <GitBranch size={10} />
                 Version control for collaborative fiction
               </span>
             </motion.div>
 
-            {/* Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                duration: 0.65,
-                delay: 0.06,
+                duration: 0.6,
+                delay: 0.05,
                 ease: [0.22, 1, 0.36, 1],
               }}
               style={{
-                fontSize: "clamp(44px, 6.5vw, 76px)",
-                lineHeight: 1.04,
+                fontSize: "clamp(40px, 5.5vw, 68px)",
+                lineHeight: 1.05,
                 fontWeight: 400,
                 letterSpacing: "-0.03em",
                 color: "var(--text-primary)",
                 fontFamily: "var(--font-display)",
-                marginBottom: 28,
+                marginBottom: 22,
               }}
             >
               Stories that
               <br />
-              <em style={{ fontStyle: "italic" }}>branch</em> and{" "}
-              <em style={{ fontStyle: "italic" }}>evolve</em>.
+              <em>branch</em> and <em>evolve.</em>
             </motion.h1>
 
-            {/* Sub */}
             <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.14 }}
-              style={{
-                fontSize: 18,
-                color: "var(--text-secondary)",
-                lineHeight: 1.7,
-                maxWidth: 540,
-                marginBottom: 40,
-                fontFamily: "var(--font-body)",
-                fontWeight: 400,
-              }}
-            >
-              ForkTale brings Git version control to collaborative fiction.
-              Branch timelines, fork stories, commit chapters — and let AI help
-              write what comes next.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.22 }}
+              transition={{ duration: 0.45, delay: 0.12 }}
+              style={{
+                fontSize: 17,
+                color: "var(--text-secondary)",
+                lineHeight: 1.7,
+                maxWidth: 460,
+                marginBottom: 36,
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              ForkTale brings Git-style version control to collaborative
+              fiction. Branch timelines, fork stories, commit chapters — and let
+              AI help write what comes next.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
               style={{
                 display: "flex",
-                gap: 12,
+                gap: 10,
                 flexWrap: "wrap",
-                marginBottom: 56,
+                marginBottom: 32,
               }}
             >
               <Link to="/register">
@@ -435,7 +636,7 @@ export default function Home() {
                   whileTap={{ scale: 0.98 }}
                   className="btn btn-primary btn-lg"
                 >
-                  Start writing free <ArrowRight size={15} />
+                  Start writing free <ArrowRight size={14} />
                 </motion.button>
               </Link>
               <Link to="/discover">
@@ -444,20 +645,19 @@ export default function Home() {
                   whileTap={{ scale: 0.98 }}
                   className="btn btn-secondary btn-lg"
                 >
-                  <BookOpen size={15} /> Browse stories
+                  <BookOpen size={14} /> Browse stories
                 </motion.button>
               </Link>
             </motion.div>
 
-            {/* Trust line */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.36 }}
+              transition={{ delay: 0.3 }}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 20,
+                gap: 16,
                 flexWrap: "wrap",
               }}
             >
@@ -465,15 +665,15 @@ export default function Home() {
                 (t) => (
                   <div
                     key={t}
-                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    style={{ display: "flex", alignItems: "center", gap: 5 }}
                   >
                     <CheckCircle2
-                      size={14}
+                      size={12}
                       style={{ color: "#16a34a", flexShrink: 0 }}
                     />
                     <span
                       style={{
-                        fontSize: 13,
+                        fontSize: 12,
                         color: "var(--text-muted)",
                         fontFamily: "var(--font-body)",
                       }}
@@ -486,315 +686,22 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Right Column — Feather Pen Graphic Integration */}
-          <div>
-            <FeatherPenIllustration />
-          </div>
-        </div>
-
-        {/* Hero visual — terminal + branch graph*/}
-        <motion.div
-          initial={{ opacity: 0, y: 36 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          style={{ marginTop: 72 }}
-        >
-          {/* Outer shell */}
-          <div
-            style={{
-              background: "var(--bg)",
-              border: "1.5px solid var(--border)",
-              borderRadius: 16,
-              boxShadow: "var(--shadow-xl)",
-              overflow: "hidden",
+          {/* Right — branch graph */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.65,
+              delay: 0.18,
+              ease: [0.22, 1, 0.36, 1],
             }}
           >
-            {/* Window chrome */}
-            <div
-              style={{
-                padding: "14px 20px",
-                borderBottom: "1px solid var(--border)",
-                background: "var(--bg-subtle)",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <div style={{ display: "flex", gap: 6 }}>
-                {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
-                  <div
-                    key={c}
-                    style={{
-                      width: 11,
-                      height: 11,
-                      borderRadius: "50%",
-                      background: c,
-                    }}
-                  />
-                ))}
-              </div>
-              <span
-                style={{
-                  marginLeft: 12,
-                  fontSize: 12,
-                  fontFamily: "var(--font-mono)",
-                  color: "var(--text-muted)",
-                  letterSpacing: "0.01em",
-                }}
-              >
-                forktale / the-last-kingdom
-              </span>
-            </div>
-
-            {/* Two-pane layout */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-              {/* Left — branch list */}
-              <div
-                style={{
-                  padding: "24px 28px",
-                  borderRight: "1px solid var(--border)",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: "var(--text-muted)",
-                    marginBottom: 16,
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  Branches
-                </p>
-                {[
-                  { name: "main", color: "#2563eb", commits: 12, active: true },
-                  {
-                    name: "dark-ending",
-                    color: "#7c3aed",
-                    commits: 8,
-                    active: false,
-                  },
-                  {
-                    name: "hero-arc",
-                    color: "#16a34a",
-                    commits: 5,
-                    active: false,
-                  },
-                  {
-                    name: "twist-ending",
-                    color: "#ea580c",
-                    commits: 3,
-                    active: false,
-                  },
-                ].map((b, i) => (
-                  <motion.div
-                    key={b.name}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + i * 0.07 }}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "9px 12px",
-                      borderRadius: 8,
-                      marginBottom: 4,
-                      background: b.active
-                        ? "var(--accent-subtle)"
-                        : "transparent",
-                      border: `1.5px solid ${b.active ? "var(--accent-border)" : "transparent"}`,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 10 }}
-                    >
-                      <div
-                        style={{
-                          width: 7,
-                          height: 7,
-                          borderRadius: "50%",
-                          background: b.color,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontFamily: "var(--font-mono)",
-                          color: b.active
-                            ? "var(--accent)"
-                            : "var(--text-primary)",
-                        }}
-                      >
-                        {b.name}
-                      </span>
-                    </div>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        color: "var(--text-muted)",
-                        fontFamily: "var(--font-body)",
-                      }}
-                    >
-                      {b.commits} commits
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Right — commit feed + AI */}
-              <div style={{ padding: "24px 28px" }}>
-                <p
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: "var(--text-muted)",
-                    marginBottom: 16,
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  Recent commits
-                </p>
-                {[
-                  {
-                    msg: "The kingdom falls into darkness",
-                    time: "2m ago",
-                    branch: "main",
-                  },
-                  {
-                    msg: "The prince sets out on his journey",
-                    time: "1h ago",
-                    branch: "main",
-                  },
-                  {
-                    msg: "The witch claims her final victory",
-                    time: "3h ago",
-                    branch: "dark-ending",
-                  },
-                  {
-                    msg: "Light returns to the kingdom",
-                    time: "1d ago",
-                    branch: "hero-arc",
-                  },
-                ].map((c, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 + i * 0.08 }}
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 10,
-                      paddingBottom: 12,
-                      marginBottom: 12,
-                      borderBottom: i < 3 ? "1px solid var(--border)" : "none",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: "var(--border-strong)",
-                        flexShrink: 0,
-                        marginTop: 5,
-                      }}
-                    />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p
-                        style={{
-                          fontSize: 13,
-                          color: "var(--text-primary)",
-                          fontFamily: "var(--font-body)",
-                          marginBottom: 2,
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {c.msg}
-                      </p>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            color: "var(--text-muted)",
-                            fontFamily: "var(--font-mono)",
-                          }}
-                        >
-                          {c.branch}
-                        </span>
-                        <span
-                          style={{ fontSize: 11, color: "var(--text-muted)" }}
-                        >
-                          ·
-                        </span>
-                        <span
-                          style={{ fontSize: 11, color: "var(--text-muted)" }}
-                        >
-                          {c.time}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-
-                {/* AI suggestion */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.0 }}
-                  style={{
-                    marginTop: 4,
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "#f0fdf4",
-                    border: "1px solid #bbf7d0",
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 10,
-                  }}
-                >
-                  <Sparkles
-                    size={13}
-                    style={{ color: "#16a34a", flexShrink: 0, marginTop: 1 }}
-                  />
-                  <div>
-                    <p
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#15803d",
-                        fontFamily: "var(--font-body)",
-                        marginBottom: 2,
-                      }}
-                    >
-                      AI suggestion
-                    </p>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        color: "#166534",
-                        fontFamily: "var(--font-body)",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      "A hooded figure appears at the gate just as dawn breaks
-                      over the castle..."
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+            <BranchGraph />
+          </motion.div>
+        </div>
       </section>
 
-      {/* Stats Bar */}
+      {/* ─── Tech highlights strip ─────────────────────────── */}
       <section
         style={{
           borderTop: "1px solid var(--border)",
@@ -802,43 +709,87 @@ export default function Home() {
           background: "var(--bg-subtle)",
         }}
       >
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "40px 32px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "32px 32px" }}>
           <Reveal>
             <motion.div
               variants={rise}
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4,1fr)",
-                gap: 32,
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: 0,
               }}
             >
-              <Stat value="10k+" label="Stories written" />
-              <Stat value="40k+" label="Branches created" />
-              <Stat value="3.2k+" label="Writers" />
-              <Stat value="4.8★" label="Avg story rating" />
+              {techHighlights.map((t, i) => (
+                <div
+                  key={t.label}
+                  style={{
+                    padding: "0 28px",
+                    borderRight:
+                      i < techHighlights.length - 1
+                        ? "1px solid var(--border)"
+                        : "none",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 7,
+                      color: "var(--accent)",
+                    }}
+                  >
+                    {t.icon}
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: "var(--font-body)",
+                        color: "var(--text-primary)",
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      {t.label}
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      fontFamily: "var(--font-body)",
+                      lineHeight: 1.5,
+                      margin: 0,
+                    }}
+                  >
+                    {t.detail}
+                  </p>
+                </div>
+              ))}
             </motion.div>
           </Reveal>
         </div>
       </section>
 
-      {/* Features */}
+      {/* ─── Features ──────────────────────────────────────── */}
       <section
-        style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 32px" }}
+        style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 32px" }}
       >
         <Reveal>
-          <motion.div variants={rise} style={{ marginBottom: 64 }}>
+          <motion.div variants={rise} style={{ marginBottom: 52 }}>
             <p
               style={{
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 600,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: "var(--accent)",
-                marginBottom: 14,
+                marginBottom: 12,
                 fontFamily: "var(--font-body)",
               }}
             >
-              Platform features
+              Platform
             </p>
             <div
               style={{
@@ -851,24 +802,26 @@ export default function Home() {
             >
               <h2
                 style={{
-                  fontSize: "clamp(28px,4vw,44px)",
+                  fontSize: "clamp(26px, 3.5vw, 40px)",
                   fontWeight: 400,
                   fontStyle: "italic",
                   letterSpacing: "-0.03em",
                   color: "var(--text-primary)",
                   fontFamily: "var(--font-display)",
                   lineHeight: 1.1,
+                  margin: 0,
                 }}
               >
                 Everything a story needs
               </h2>
               <p
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   color: "var(--text-secondary)",
-                  lineHeight: 1.7,
-                  maxWidth: 340,
+                  lineHeight: 1.65,
+                  maxWidth: 320,
                   fontFamily: "var(--font-body)",
+                  margin: 0,
                 }}
               >
                 Built on the same principles that make software collaboration
@@ -880,11 +833,11 @@ export default function Home() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3,1fr)",
-              gap: 2,
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
               background: "var(--border)",
               border: "1.5px solid var(--border)",
-              borderRadius: 14,
+              borderRadius: 12,
               overflow: "hidden",
             }}
           >
@@ -894,9 +847,8 @@ export default function Home() {
                 variants={rise}
                 style={{
                   background: "var(--bg)",
-                  padding: "32px 28px",
-                  cursor: "default",
-                  transition: "background 0.18s",
+                  padding: "28px 24px",
+                  transition: "background 0.15s",
                 }}
                 onMouseEnter={(e) =>
                   ((e.currentTarget as HTMLElement).style.background =
@@ -909,10 +861,10 @@ export default function Home() {
               >
                 <div
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 9,
-                    marginBottom: 20,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    marginBottom: 16,
                     background: "var(--bg-muted)",
                     border: "1px solid var(--border)",
                     display: "flex",
@@ -925,10 +877,10 @@ export default function Home() {
                 </div>
                 <h3
                   style={{
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: 600,
                     color: "var(--text-primary)",
-                    marginBottom: 10,
+                    marginBottom: 8,
                     fontFamily: "var(--font-body)",
                     letterSpacing: "-0.01em",
                   }}
@@ -939,7 +891,7 @@ export default function Home() {
                   style={{
                     fontSize: 13,
                     color: "var(--text-secondary)",
-                    lineHeight: 1.65,
+                    lineHeight: 1.6,
                     fontFamily: "var(--font-body)",
                     margin: 0,
                   }}
@@ -952,143 +904,17 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* How it works */}
+      {/* ─── CTA ───────────────────────────────────────────── */}
       <section
-        style={{
-          background: "var(--bg-subtle)",
-          borderTop: "1px solid var(--border)",
-          borderBottom: "1px solid var(--border)",
-          padding: "96px 32px",
-        }}
-      >
-        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-          <Reveal>
-            <motion.div
-              variants={rise}
-              style={{ textAlign: "center", marginBottom: 72 }}
-            >
-              <p
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "var(--accent)",
-                  marginBottom: 14,
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                How it works
-              </p>
-              <h2
-                style={{
-                  fontSize: "clamp(28px,4vw,44px)",
-                  fontWeight: 400,
-                  fontStyle: "italic",
-                  letterSpacing: "-0.03em",
-                  color: "var(--text-primary)",
-                  fontFamily: "var(--font-display)",
-                  lineHeight: 1.1,
-                }}
-              >
-                Like Git, but for your imagination
-              </h2>
-            </motion.div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4,1fr)",
-                gap: 40,
-                position: "relative",
-              }}
-            >
-              {/* connector line */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 20,
-                  left: "12.5%",
-                  right: "12.5%",
-                  height: 1,
-                  background: "var(--border)",
-                  zIndex: 0,
-                }}
-              />
-
-              {steps.map((s, i) => (
-                <motion.div
-                  key={s.n}
-                  variants={rise}
-                  style={{ position: "relative", zIndex: 1 }}
-                >
-                  {/* Step number */}
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: i === 0 ? "var(--text-primary)" : "var(--bg)",
-                      border: `1.5px solid ${i === 0 ? "var(--text-primary)" : "var(--border-strong)"}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 24,
-                      boxShadow: "var(--shadow-sm)",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: i === 0 ? "#fff" : "var(--text-secondary)",
-                        fontFamily: "var(--font-body)",
-                      }}
-                    >
-                      {s.n}
-                    </span>
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: "var(--text-primary)",
-                      marginBottom: 10,
-                      fontFamily: "var(--font-body)",
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {s.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "var(--text-secondary)",
-                      lineHeight: 1.65,
-                      fontFamily: "var(--font-body)",
-                      margin: 0,
-                    }}
-                  >
-                    {s.desc}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section
-        style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 32px" }}
+        style={{ maxWidth: 1120, margin: "0 auto", padding: "0 32px 96px" }}
       >
         <Reveal>
           <motion.div
             variants={rise}
             style={{
               background: "var(--text-primary)",
-              borderRadius: 20,
-              padding: "72px 64px",
+              borderRadius: 16,
+              padding: "56px 56px",
               display: "grid",
               gridTemplateColumns: "1fr auto",
               gap: 48,
@@ -1096,29 +922,16 @@ export default function Home() {
             }}
           >
             <div>
-              <p
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.45)",
-                  marginBottom: 16,
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                Get started free
-              </p>
               <h2
                 style={{
-                  fontSize: "clamp(28px, 4vw, 48px)",
+                  fontSize: "clamp(24px, 3.5vw, 40px)",
                   fontWeight: 400,
                   fontStyle: "italic",
                   letterSpacing: "-0.03em",
                   color: "#fff",
                   fontFamily: "var(--font-display)",
                   lineHeight: 1.1,
-                  marginBottom: 16,
+                  marginBottom: 12,
                 }}
               >
                 Ready to write your
@@ -1127,12 +940,13 @@ export default function Home() {
               </h2>
               <p
                 style={{
-                  fontSize: 16,
-                  color: "rgba(255,255,255,0.55)",
-                  lineHeight: 1.7,
-                  maxWidth: 400,
+                  fontSize: 15,
+                  color: "rgba(255,255,255,0.5)",
+                  lineHeight: 1.65,
+                  maxWidth: 380,
                   fontFamily: "var(--font-body)",
                   fontWeight: 300,
+                  margin: 0,
                 }}
               >
                 Join ForkTale and build stories that live, breathe and evolve.
@@ -1144,17 +958,17 @@ export default function Home() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 12,
-                minWidth: 200,
+                gap: 10,
+                minWidth: 190,
               }}
             >
               <Link to="/register">
                 <motion.button
-                  whileHover={{ scale: 1.03, background: "#f1f5f9" }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   style={{
                     width: "100%",
-                    padding: "13px 24px",
+                    padding: "12px 22px",
                     fontSize: 14,
                     fontWeight: 600,
                     background: "#fff",
@@ -1165,35 +979,31 @@ export default function Home() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 8,
+                    gap: 7,
                     fontFamily: "var(--font-body)",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
                     transition: "all 0.15s",
                   }}
                 >
-                  Start writing free <ArrowRight size={14} />
+                  Start writing free <ArrowRight size={13} />
                 </motion.button>
               </Link>
               <Link to="/discover">
                 <motion.button
-                  whileHover={{
-                    scale: 1.03,
-                    background: "rgba(255,255,255,0.1)",
-                  }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   style={{
                     width: "100%",
-                    padding: "13px 24px",
+                    padding: "12px 22px",
                     fontSize: 14,
                     background: "transparent",
-                    color: "rgba(255,255,255,0.75)",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "rgba(255,255,255,0.65)",
+                    border: "1px solid rgba(255,255,255,0.18)",
                     borderRadius: 8,
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 8,
+                    gap: 7,
                     fontFamily: "var(--font-body)",
                     transition: "all 0.15s",
                   }}
@@ -1206,9 +1016,9 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* Footer */}
+      {/* ─── Footer ────────────────────────────────────────── */}
       <footer
-        style={{ borderTop: "1px solid var(--border)", padding: "32px 32px" }}
+        style={{ borderTop: "1px solid var(--border)", padding: "28px 32px" }}
       >
         <div
           style={{
@@ -1218,14 +1028,14 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: 16,
+            gap: 12,
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div
               style={{
-                width: 24,
-                height: 24,
+                width: 22,
+                height: 22,
                 background: "var(--text-primary)",
                 borderRadius: 5,
                 display: "flex",
@@ -1233,11 +1043,11 @@ export default function Home() {
                 justifyContent: "center",
               }}
             >
-              <GitBranch size={12} color="white" />
+              <GitBranch size={11} color="white" />
             </div>
             <span
               style={{
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 600,
                 color: "var(--text-primary)",
                 fontFamily: "var(--font-body)",
@@ -1247,16 +1057,16 @@ export default function Home() {
             </span>
             <span
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 color: "var(--text-muted)",
-                marginLeft: 8,
+                marginLeft: 6,
                 fontFamily: "var(--font-body)",
               }}
             >
               Version control for storytellers.
             </span>
           </div>
-          <div style={{ display: "flex", gap: 24 }}>
+          <div style={{ display: "flex", gap: 20 }}>
             {[
               { l: "Discover", to: "/discover" },
               { l: "Sign up", to: "/register" },
