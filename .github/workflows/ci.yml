@@ -40,4 +40,7 @@ jobs:
           node-version: 20
 
       - run: npm install
-      - run: npx prisma generate
+      - name: Generate Prisma Client
+  env:
+    DATABASE_URL: postgresql://dummy:dummy@localhost:5432/forktale
+  run: npx prisma generate

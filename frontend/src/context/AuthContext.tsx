@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(res.data.user);
           localStorage.setItem("forktale_user", JSON.stringify(res.data.user));
         }
-      } catch (error) {
+      } catch {
         localStorage.removeItem("forktale_token");
         localStorage.removeItem("forktale_user");
         setToken(null);
