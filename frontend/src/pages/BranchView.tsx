@@ -414,7 +414,9 @@ function AIPanel({
             try {
               const p = JSON.parse(data);
               if (p.text) setStreamedText((prev) => prev + p.text);
-            } catch {}
+            } catch (err) {
+              console.error(err);
+            }
           }
         }
       }
