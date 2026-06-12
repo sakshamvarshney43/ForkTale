@@ -1,20 +1,47 @@
-backend:
-  runs-on: ubuntu-latest
+name: ForkTale CI
 
-  defaults:
-    run:
-      working-directory: backend
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-  steps:
-    - uses: actions/checkout@v4
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20
+    defaults:
+      run:
+        working-directory: frontend
 
-    - run: npm install
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Generate Prisma Client
-      env:
-        DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/forktale"
-      run: npx prisma generate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+      - run: npm run lint
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/forktale"
+        run: npx prisma generate
