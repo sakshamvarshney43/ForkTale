@@ -69,10 +69,10 @@ export const register = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(201).json({
-      message: "Account created successfully.",
-      user,
-    });
+    const token = generateToken(user.id);
+    return res
+      .status(201)
+      .json({ message: "Account created successfully.", user, token });
   } catch (error) {
     console.error("Register error FULL:", error);
     return res.status(500).json({ message: "Server error." });
