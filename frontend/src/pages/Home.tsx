@@ -84,6 +84,29 @@ const features = [
   },
 ];
 
+const steps = [
+  {
+    n: "1",
+    title: "Create a story",
+    desc: "Start a new project. A main branch is created automatically — your canonical timeline.",
+  },
+  {
+    n: "2",
+    title: "Write and commit",
+    desc: "Save chapters as commits with a short message. Every version is stored and reversible.",
+  },
+  {
+    n: "3",
+    title: "Branch alternate paths",
+    desc: "Fork your own story at any point to explore a different direction. No risk, no pressure.",
+  },
+  {
+    n: "4",
+    title: "Publish your endings",
+    desc: "Publish one or many branches. Readers arrive at your story and choose how it ends.",
+  },
+];
+
 /* Tech highlights — replaces fake stats bar */
 const techHighlights = [
   {
@@ -108,366 +131,102 @@ const techHighlights = [
   },
 ];
 
-/*Branch graph — replaces generic terminal mockup*/
-function BranchGraph() {
-  const commits = [
-    {
-      id: "c1",
-      x: 56,
-      y: 44,
-      branch: "main",
-      label: "Initial draft",
-      time: "3d ago",
-    },
-    {
-      id: "c2",
-      x: 176,
-      y: 44,
-      branch: "main",
-      label: "Chapter 2",
-      time: "2d ago",
-    },
-    {
-      id: "c3",
-      x: 296,
-      y: 44,
-      branch: "main",
-      label: "Revised ending",
-      time: "1d ago",
-    },
-    {
-      id: "c4",
-      x: 416,
-      y: 44,
-      branch: "main",
-      label: "The kingdom falls",
-      time: "4h ago",
-    },
-    {
-      id: "b1",
-      x: 296,
-      y: 120,
-      branch: "dark-ending",
-      label: "Villain wins",
-      time: "20h ago",
-    },
-    {
-      id: "b2",
-      x: 416,
-      y: 120,
-      branch: "dark-ending",
-      label: "Published",
-      time: "8h ago",
-    },
-    {
-      id: "b3",
-      x: 296,
-      y: 196,
-      branch: "hero-arc",
-      label: "Hero rises",
-      time: "12h ago",
-    },
-    {
-      id: "b4",
-      x: 416,
-      y: 196,
-      branch: "hero-arc",
-      label: "Draft",
-      time: "2h ago",
-    },
-  ];
-
-  const colors: Record<string, string> = {
-    main: "#2563eb",
-    "dark-ending": "#7c3aed",
-    "hero-arc": "#16a34a",
-  };
-
-  const branchMeta = [
-    { y: 44, name: "main", color: "#2563eb" },
-    { y: 120, name: "dark-ending", color: "#7c3aed" },
-    { y: 196, name: "hero-arc", color: "#16a34a" },
-  ];
-
+/*Feather Pen Graphic*/
+function FeatherPenIllustration() {
   return (
     <div
       style={{
-        background: "var(--bg)",
-        border: "1.5px solid var(--border)",
-        borderRadius: 16,
-        boxShadow: "var(--shadow-xl)",
-        overflow: "hidden",
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        minHeight: 380,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      {/* Window chrome */}
-      <div
+      {/* Decorative ring 1 */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
-          padding: "13px 20px",
-          borderBottom: "1px solid var(--border)",
-          background: "var(--bg-subtle)",
+          position: "absolute",
+          inset: 0,
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          justifyContent: "center",
         }}
       >
-        <div style={{ display: "flex", gap: 6 }}>
-          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
-            <div
-              key={c}
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: c,
-              }}
-            />
-          ))}
-        </div>
-        <span
-          style={{
-            marginLeft: 10,
-            fontSize: 12,
-            fontFamily: "var(--font-mono)",
-            color: "var(--text-muted)",
-          }}
-        >
-          forktale / the-last-kingdom
-        </span>
-      </div>
-
-      {/* Graph */}
-      <div style={{ padding: "20px 20px 16px", display: "flex", gap: 0 }}>
-        {/* Branch lane labels */}
+        {/* Outer glow ring */}
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            paddingTop: 2,
-            flexShrink: 0,
+            position: "absolute",
+            width: 340,
+            height: 340,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(37,99,235,0.07) 0%, rgba(37,99,235,0.02) 60%, transparent 80%)",
           }}
-        >
-          {branchMeta.map((b) => (
-            <div
-              key={b.name}
-              style={{
-                height: 76,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <div
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: b.color,
-                  flexShrink: 0,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontFamily: "var(--font-mono)",
-                  color: "var(--text-muted)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {b.name}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* SVG commit graph */}
-        <svg
-          viewBox="0 0 500 228"
-          style={{ width: "100%", height: "auto", display: "block" }}
-          aria-label="Commit graph showing main, dark-ending, and hero-arc branches"
-        >
-          {/* Main branch line */}
-          <line
-            x1="56"
-            y1="44"
-            x2="416"
-            y2="44"
-            stroke="#2563eb"
-            strokeWidth="1.5"
-            strokeOpacity="0.25"
-          />
-
-          {/* Branch fork lines */}
-          <line
-            x1="176"
-            y1="44"
-            x2="296"
-            y2="120"
-            stroke="#7c3aed"
-            strokeWidth="1.5"
-            strokeOpacity="0.3"
-          />
-          <line
-            x1="296"
-            y1="120"
-            x2="416"
-            y2="120"
-            stroke="#7c3aed"
-            strokeWidth="1.5"
-            strokeOpacity="0.25"
-          />
-
-          <line
-            x1="176"
-            y1="44"
-            x2="296"
-            y2="196"
-            stroke="#16a34a"
-            strokeWidth="1.5"
-            strokeOpacity="0.3"
-          />
-          <line
-            x1="296"
-            y1="196"
-            x2="416"
-            y2="196"
-            stroke="#16a34a"
-            strokeWidth="1.5"
-            strokeOpacity="0.25"
-          />
-
-          {/* Commit nodes */}
-          {commits.map((c, i) => (
-            <motion.g
-              key={c.id}
-              initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + i * 0.07, duration: 0.28 }}
-            >
-              <circle
-                cx={c.x}
-                cy={c.y}
-                r={7}
-                fill="var(--bg)"
-                stroke={colors[c.branch]}
-                strokeWidth="2"
-              />
-              <circle cx={c.x} cy={c.y} r={3} fill={colors[c.branch]} />
-              <text
-                x={c.x}
-                y={c.y - 13}
-                textAnchor="middle"
-                fontSize="8.5"
-                fill="var(--text-muted, #94a3b8)"
-                fontFamily="var(--font-body, system-ui)"
-              >
-                {c.label}
-              </text>
-            </motion.g>
-          ))}
-
-          {/* Published badge on dark-ending tip */}
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.0 }}
-          >
-            <rect
-              x="388"
-              y="130"
-              width="58"
-              height="15"
-              rx="7"
-              fill="rgba(22,163,74,0.1)"
-              stroke="rgba(22,163,74,0.28)"
-              strokeWidth="1"
-            />
-            <text
-              x="417"
-              y="141"
-              textAnchor="middle"
-              fontSize="7.5"
-              fill="#16a34a"
-              fontFamily="var(--font-body, system-ui)"
-              fontWeight="600"
-            >
-              published
-            </text>
-          </motion.g>
-
-          {/* AI suggestion bubble */}
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          >
-            <rect
-              x="10"
-              y="208"
-              width="480"
-              height="16"
-              rx="4"
-              fill="rgba(37,99,235,0.05)"
-              stroke="rgba(37,99,235,0.12)"
-              strokeWidth="1"
-            />
-            <text
-              x="20"
-              y="219"
-              fontSize="8"
-              fill="var(--accent, #2563eb)"
-              fontFamily="var(--font-body, system-ui)"
-              fontWeight="600"
-            >
-              ✦ AI
-            </text>
-            <text
-              x="42"
-              y="219"
-              fontSize="8"
-              fill="var(--text-muted, #94a3b8)"
-              fontFamily="var(--font-body, system-ui)"
-            >
-              "A hooded figure appears at the gate just as dawn breaks over the
-              castle…"
-            </text>
-          </motion.g>
-        </svg>
-      </div>
-
-      {/* Footer strip */}
-      <div
-        style={{
-          borderTop: "1px solid var(--border)",
-          padding: "9px 20px",
-          background: "var(--bg-subtle)",
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-        }}
-      >
-        <span
+        />
+        {/* Middle dashed ring */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           style={{
-            fontSize: 11,
-            color: "var(--text-muted)",
-            fontFamily: "var(--font-mono)",
+            position: "absolute",
+            width: 280,
+            height: 280,
+            borderRadius: "50%",
+            border: "1.5px dashed rgba(37,99,235,0.15)",
+          }}
+        />
+        {/* Inner solid ring */}
+        <div
+          style={{
+            position: "absolute",
+            width: 200,
+            height: 200,
+            borderRadius: "50%",
+            border: "1px solid rgba(37,99,235,0.1)",
+            background: "rgba(37,99,235,0.03)",
+          }}
+        />
+
+        {/* The feather pen */}
+        <motion.div
+          initial={{ opacity: 0, y: 20, rotate: -10 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            position: "relative",
+            zIndex: 10,
+            filter:
+              "drop-shadow(0 12px 32px rgba(37,99,235,0.18)) drop-shadow(0 2px 8px rgba(0,0,0,0.08))",
           }}
         >
-          3 branches · 8 commits
-        </span>
-        <div style={{ width: 1, height: 11, background: "var(--border)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <Sparkles size={10} style={{ color: "#16a34a" }} />
-          <span
-            style={{
-              fontSize: 11,
-              color: "var(--text-muted)",
-              fontFamily: "var(--font-body)",
-            }}
+          {/* Floating animation wrapper */}
+          <motion.div
+            animate={{ y: [-6, 6, -6] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           >
-            AI suggestion ready
-          </span>
-        </div>
-      </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 48 48"
+              width="140"
+              height="140"
+            >
+              <g>
+                <path
+                  fill="var(--text-primary, #0f172a)"
+                  d="M40.2384 1.5c-4.5201 0 -8.8426 0.8513 -12.815 2.40277 -0.1254 0.04898 -0.2257 0.14646 -0.2783 0.27038l-0.0004 0.00092 -0.001 0.00241 -0.0039 0.00919 -0.015 0.03542c-0.013 0.03099 -0.0321 0.07649 -0.0565 0.13498 -0.0487 0.11696 -0.1186 0.28591 -0.2035 0.49464 -0.1698 0.41729 -0.4002 0.99443 -0.6423 1.63355 -0.331 0.87409 -0.6924 1.88573 -0.9475 2.76652l-1.5271 -2.12507c-0.4488 -0.62455 -1.3084 -0.81685 -1.977 -0.40464C11.8229 12.8542 5.15266 23.796 5.00264 36.307c-1.60814 2.5806 -2.937 5.2676 -3.89333 8.0409 -0.360079 1.0443 0.19453 2.1827 1.23877 2.5427 1.04423 0.3601 2.18264 -0.1945 2.54272 -1.2387 2.35258 -6.8225 7.3502 -13.3074 13.4713 -19 4.6713 -4.3443 10.0706 -7.9539 15.6768 -10.9726 0.7294 -0.3928 1.6391 -0.1199 2.0319 0.6095 0.3927 0.7295 0.1198 1.6391 -0.6096 2.0319 -5.261 2.8329 -11.1224 6.7764 -16.1602 11.4615 -4.1509 3.8604 -7.683 8.1687 -9.89112 12.7178h1.35182c6.5302 0 12.647 -1.7768 17.8915 -4.8735 1.0247 -0.605 0.9113 -2.062 -0.114 -2.5717l-2.159 -1.0734c1.5046 -0.1303 3.2186 -0.3728 4.7134 -0.6121 1.3298 -0.2129 2.657 -0.4446 3.978 -0.7068 0.0945 -0.0188 0.1816 -0.0646 0.2507 -0.1318 6.5856 -6.4021 10.6778 -15.358 10.6778 -25.26884 0 -1.17158 -0.0572 -2.32996 -0.169 -3.47247 -0.11 -1.12403 -0.9964 -2.0105 -2.1205 -2.12045C42.5682 1.55718 41.4099 1.5 40.2384 1.5Z"
+                />
+              </g>
+            </svg>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
@@ -580,25 +339,26 @@ export default function Home() {
         </nav>
       </header>
 
-      {/*Hero */}
+      {/* Hero */}
       <section
-        style={{ maxWidth: 1120, margin: "0 auto", padding: "88px 32px 72px" }}
+        style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 32px 80px" }}
       >
+        {/* Split container balancing content text and graphics */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 56,
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: 48,
             alignItems: "center",
           }}
         >
-          {/* Left copy */}
-          <div style={{ maxWidth: 560 }}>
+          <div style={{ maxWidth: 760 }}>
+            {/* Eyebrow */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              style={{ marginBottom: 24 }}
+              style={{ marginBottom: 28 }}
             >
               <span
                 className="badge badge-accent"
@@ -609,6 +369,7 @@ export default function Home() {
               </span>
             </motion.div>
 
+            {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -618,13 +379,13 @@ export default function Home() {
                 ease: [0.22, 1, 0.36, 1],
               }}
               style={{
-                fontSize: "clamp(40px, 5.5vw, 68px)",
+                fontSize: "clamp(44px, 6.5vw, 76px)",
                 lineHeight: 1.04,
                 fontWeight: 400,
                 letterSpacing: "-0.03em",
                 color: "var(--text-primary)",
                 fontFamily: "var(--font-display)",
-                marginBottom: 24,
+                marginBottom: 28,
               }}
             >
               Stories that
@@ -633,6 +394,7 @@ export default function Home() {
               <em style={{ fontStyle: "italic" }}>evolve</em>.
             </motion.h1>
 
+            {/* Sub */}
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -641,8 +403,8 @@ export default function Home() {
                 fontSize: 18,
                 color: "var(--text-secondary)",
                 lineHeight: 1.7,
-                maxWidth: 500,
-                marginBottom: 36,
+                maxWidth: 540,
+                marginBottom: 40,
                 fontFamily: "var(--font-body)",
                 fontWeight: 400,
               }}
@@ -652,6 +414,7 @@ export default function Home() {
               write what comes next.
             </motion.p>
 
+            {/* CTAs */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -660,7 +423,7 @@ export default function Home() {
                 display: "flex",
                 gap: 12,
                 flexWrap: "wrap",
-                marginBottom: 48,
+                marginBottom: 56,
               }}
             >
               <Link to="/register">
@@ -683,6 +446,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
+            {/* Trust line */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -719,18 +483,315 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Right */}
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <BranchGraph />
-          </motion.div>
+          {/* Right Column — Feather Pen Graphic (UNCHANGED) */}
+          <div>
+            <FeatherPenIllustration />
+          </div>
         </div>
+
+        {/* Hero visual — terminal + branch graph (UNCHANGED) */}
+        <motion.div
+          initial={{ opacity: 0, y: 36 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          style={{ marginTop: 72 }}
+        >
+          {/* Outer shell */}
+          <div
+            style={{
+              background: "var(--bg)",
+              border: "1.5px solid var(--border)",
+              borderRadius: 16,
+              boxShadow: "var(--shadow-xl)",
+              overflow: "hidden",
+            }}
+          >
+            {/* Window chrome */}
+            <div
+              style={{
+                padding: "14px 20px",
+                borderBottom: "1px solid var(--border)",
+                background: "var(--bg-subtle)",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <div style={{ display: "flex", gap: 6 }}>
+                {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+                  <div
+                    key={c}
+                    style={{
+                      width: 11,
+                      height: 11,
+                      borderRadius: "50%",
+                      background: c,
+                    }}
+                  />
+                ))}
+              </div>
+              <span
+                style={{
+                  marginLeft: 12,
+                  fontSize: 12,
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--text-muted)",
+                  letterSpacing: "0.01em",
+                }}
+              >
+                forktale / the-last-kingdom
+              </span>
+            </div>
+
+            {/* Two-pane layout */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+              {/* Left — branch list */}
+              <div
+                style={{
+                  padding: "24px 28px",
+                  borderRight: "1px solid var(--border)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "var(--text-muted)",
+                    marginBottom: 16,
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  Branches
+                </p>
+                {[
+                  { name: "main", color: "#2563eb", commits: 12, active: true },
+                  {
+                    name: "dark-ending",
+                    color: "#7c3aed",
+                    commits: 8,
+                    active: false,
+                  },
+                  {
+                    name: "hero-arc",
+                    color: "#16a34a",
+                    commits: 5,
+                    active: false,
+                  },
+                  {
+                    name: "twist-ending",
+                    color: "#ea580c",
+                    commits: 3,
+                    active: false,
+                  },
+                ].map((b, i) => (
+                  <motion.div
+                    key={b.name}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + i * 0.07 }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "9px 12px",
+                      borderRadius: 8,
+                      marginBottom: 4,
+                      background: b.active
+                        ? "var(--accent-subtle)"
+                        : "transparent",
+                      border: `1.5px solid ${b.active ? "var(--accent-border)" : "transparent"}`,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      <div
+                        style={{
+                          width: 7,
+                          height: 7,
+                          borderRadius: "50%",
+                          background: b.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontFamily: "var(--font-mono)",
+                          color: b.active
+                            ? "var(--accent)"
+                            : "var(--text-primary)",
+                        }}
+                      >
+                        {b.name}
+                      </span>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        fontFamily: "var(--font-body)",
+                      }}
+                    >
+                      {b.commits} commits
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Right — commit feed + AI */}
+              <div style={{ padding: "24px 28px" }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "var(--text-muted)",
+                    marginBottom: 16,
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  Recent commits
+                </p>
+                {[
+                  {
+                    msg: "The kingdom falls into darkness",
+                    time: "2m ago",
+                    branch: "main",
+                  },
+                  {
+                    msg: "The prince sets out on his journey",
+                    time: "1h ago",
+                    branch: "main",
+                  },
+                  {
+                    msg: "The witch claims her final victory",
+                    time: "3h ago",
+                    branch: "dark-ending",
+                  },
+                  {
+                    msg: "Light returns to the kingdom",
+                    time: "1d ago",
+                    branch: "hero-arc",
+                  },
+                ].map((c, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 + i * 0.08 }}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 10,
+                      paddingBottom: 12,
+                      marginBottom: 12,
+                      borderBottom: i < 3 ? "1px solid var(--border)" : "none",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: "var(--border-strong)",
+                        flexShrink: 0,
+                        marginTop: 5,
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontSize: 13,
+                          color: "var(--text-primary)",
+                          fontFamily: "var(--font-body)",
+                          marginBottom: 2,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {c.msg}
+                      </p>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-muted)",
+                            fontFamily: "var(--font-mono)",
+                          }}
+                        >
+                          {c.branch}
+                        </span>
+                        <span
+                          style={{ fontSize: 11, color: "var(--text-muted)" }}
+                        >
+                          ·
+                        </span>
+                        <span
+                          style={{ fontSize: 11, color: "var(--text-muted)" }}
+                        >
+                          {c.time}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* AI suggestion */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.0 }}
+                  style={{
+                    marginTop: 4,
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    background: "#f0fdf4",
+                    border: "1px solid #bbf7d0",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10,
+                  }}
+                >
+                  <Sparkles
+                    size={13}
+                    style={{ color: "#16a34a", flexShrink: 0, marginTop: 1 }}
+                  />
+                  <div>
+                    <p
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "#15803d",
+                        fontFamily: "var(--font-body)",
+                        marginBottom: 2,
+                      }}
+                    >
+                      AI suggestion
+                    </p>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "#166534",
+                        fontFamily: "var(--font-body)",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      "A hooded figure appears at the gate just as dawn breaks
+                      over the castle..."
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* Tech highlights */}
+      {/* ─── Tech highlights (replaces fake stats bar) ────────── */}
       <section
         style={{
           borderTop: "1px solid var(--border)",
@@ -799,7 +860,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/*Features*/}
+      {/* Features */}
       <section
         style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 32px" }}
       >
@@ -930,9 +991,135 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/*CTA */}
+      {/* How it works */}
       <section
-        style={{ maxWidth: 1120, margin: "0 auto", padding: "0 32px 96px" }}
+        style={{
+          background: "var(--bg-subtle)",
+          borderTop: "1px solid var(--border)",
+          borderBottom: "1px solid var(--border)",
+          padding: "96px 32px",
+        }}
+      >
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <Reveal>
+            <motion.div
+              variants={rise}
+              style={{ textAlign: "center", marginBottom: 72 }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--accent)",
+                  marginBottom: 14,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                How it works
+              </p>
+              <h2
+                style={{
+                  fontSize: "clamp(28px,4vw,44px)",
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  letterSpacing: "-0.03em",
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-display)",
+                  lineHeight: 1.1,
+                }}
+              >
+                Like Git, but for your imagination
+              </h2>
+            </motion.div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4,1fr)",
+                gap: 40,
+                position: "relative",
+              }}
+            >
+              {/* connector line */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 20,
+                  left: "12.5%",
+                  right: "12.5%",
+                  height: 1,
+                  background: "var(--border)",
+                  zIndex: 0,
+                }}
+              />
+
+              {steps.map((s, i) => (
+                <motion.div
+                  key={s.n}
+                  variants={rise}
+                  style={{ position: "relative", zIndex: 1 }}
+                >
+                  {/* Step number */}
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      background: i === 0 ? "var(--text-primary)" : "var(--bg)",
+                      border: `1.5px solid ${i === 0 ? "var(--text-primary)" : "var(--border-strong)"}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 24,
+                      boxShadow: "var(--shadow-sm)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: i === 0 ? "#fff" : "var(--text-secondary)",
+                        fontFamily: "var(--font-body)",
+                      }}
+                    >
+                      {s.n}
+                    </span>
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      marginBottom: 10,
+                      fontFamily: "var(--font-body)",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "var(--text-secondary)",
+                      lineHeight: 1.65,
+                      fontFamily: "var(--font-body)",
+                      margin: 0,
+                    }}
+                  >
+                    {s.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section
+        style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 32px" }}
       >
         <Reveal>
           <motion.div
@@ -1058,7 +1245,7 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/*Footer*/}
+      {/* Footer */}
       <footer
         style={{ borderTop: "1px solid var(--border)", padding: "32px 32px" }}
       >
