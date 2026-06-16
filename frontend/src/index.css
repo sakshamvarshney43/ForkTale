@@ -389,3 +389,9 @@ video {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
+
+@media (max-width: 1024px) {
+  .steps-line {
+    display: none;
+  }
+}

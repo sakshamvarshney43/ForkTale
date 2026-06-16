@@ -131,7 +131,7 @@ function CommitModal({
               Save commit
             </h3>
           </div>
-          {/* FIX: aria-label on icon-only button */}
+
           <button
             onClick={onClose}
             aria-label="Close"

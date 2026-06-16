@@ -1037,18 +1037,19 @@ export default function Home() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4,1fr)",
-                gap: 40,
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 48,
                 position: "relative",
               }}
             >
               {/* connector line */}
               <div
+                className="steps-line"
                 style={{
                   position: "absolute",
                   top: 20,
-                  left: "12.5%",
-                  right: "12.5%",
+                  left: 20,
+                  right: 20,
                   height: 1,
                   background: "var(--border)",
                   zIndex: 0,
@@ -1059,7 +1060,12 @@ export default function Home() {
                 <motion.div
                   key={s.n}
                   variants={rise}
-                  style={{ position: "relative", zIndex: 1 }}
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
                   {/* Step number */}
                   <div
@@ -1072,7 +1078,8 @@ export default function Home() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      marginBottom: 24,
+                      marginBottom: 20,
+                      flexShrink: 0,
                       boxShadow: "var(--shadow-sm)",
                     }}
                   >
