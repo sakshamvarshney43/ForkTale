@@ -359,11 +359,13 @@ function NewBranchModal({
 function AIPanel({
   content,
   genre,
+  branchId,
   onInsert,
   onClose,
 }: {
   content: string;
   genre?: string;
+  branchId: string;
   onInsert: (text: string) => void;
   onClose: () => void;
 }) {
@@ -377,6 +379,7 @@ function AIPanel({
     { key: "twist", label: "Plot twist" },
     { key: "improve", label: "Improve writing" },
     { key: "grammar", label: "Fix grammar" },
+    { key: "summary", label: "Summarize story" },
   ];
 
   const runAction = async (key: string) => {
@@ -387,6 +390,15 @@ function AIPanel({
       try {
         const res = await aiService.fixGrammar(content);
         setFixedText(res.data.fixed);
+      } catch {
+        setFixedText("Error — please try again.");
+      }
+      return;
+    }
+    if (key === "summary") {
+      try {
+        const res = await aiService.generateSummary(branchId);
+        setFixedText(res.data.summary);
       } catch {
         setFixedText("Error — please try again.");
       }
@@ -1640,8 +1652,8 @@ export default function BranchView() {
           {showAI && (
             <AIPanel
               content={content}
+              branchId={branchId!}
               genre={story?.genre || undefined}
-              // FIX: stable useCallback references
               onInsert={handleInsertAI}
               onClose={() => setShowAI(false)}
             />
