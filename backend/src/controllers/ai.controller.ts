@@ -230,31 +230,28 @@ ${content}
 export const generateSummary = async (req: AuthRequest, res: Response) => {
   try {
     const { branchId } = req.params;
-
-    const commits = await prisma.commit.findMany({
+    const latestCommit = await prisma.commit.findFirst({
       where: {
         branchId: branchId as string,
       },
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
       select: {
         content: true,
       },
     });
 
-    if (commits.length === 0) {
+    if (!latestCommit) {
       return res.status(400).json({
         message: "No content to summarise",
       });
     }
 
-    const fullContent = commits.map((c) => c.content).join("\n\n");
-
     const truncated =
-      fullContent.length > 8000
-        ? fullContent.substring(0, 8000) + "..."
-        : fullContent;
+      latestCommit.content.length > 8000
+        ? latestCommit.content.substring(0, 8000) + "..."
+        : latestCommit.content;
 
     const prompt = `Write a concise summary of this story.
 
