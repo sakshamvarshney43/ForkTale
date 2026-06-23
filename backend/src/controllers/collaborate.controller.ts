@@ -34,7 +34,7 @@ export const inviteCollaborator = async (req: AuthRequest, res: Response) => {
     if (!story) {
       return res.status(404).json({ message: "Story not found" });
     }
-    if (story.authorId != userId) {
+    if (story.authorId !== userId) {
       return res.status(403).json({
         message: "Only the author can invite collaborators",
       });
