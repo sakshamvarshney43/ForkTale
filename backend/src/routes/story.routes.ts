@@ -15,11 +15,11 @@ const router = Router();
 
 //public
 router.get("/discover", discoverStories);
+router.get("/my/all", protect, getMyStories);
 router.get("/:storyId", protect, getStory);
 
 //Protected
 router.post("/", protect, createStory);
-router.get("/my/all", protect, getMyStories);
 router.put("/:storyId", protect, updateStory);
 router.delete("/:storyId", protect, deleteStory);
 router.post("/:storyId/cover", protect, upload.single("cover"), uploadCover);
