@@ -46,17 +46,20 @@ export const createBranch = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    //If commitId provided verify if it belong to this story
+    let sourceContent = "";
+
     if (fromCommitId) {
       const commit = await prisma.commit.findFirst({
         where: {
           id: fromCommitId,
           branch: { storyId },
         },
+        select: { content: true }, // ← fetch content HERE, same query
       });
       if (!commit) {
         return res.status(404).json({ message: "Commit not found" });
       }
+      sourceContent = commit.content; // ← store it
     }
 
     //create story
@@ -69,7 +72,7 @@ export const createBranch = async (req: AuthRequest, res: Response) => {
           commits: {
             create: {
               message: "Branched from a commit",
-              content: await getCommitContent(fromCommitId),
+              content: sourceContent, // ← use the already-fetched content
               authorId: req.user!.id,
               parentId: fromCommitId,
             },
@@ -89,16 +92,6 @@ export const createBranch = async (req: AuthRequest, res: Response) => {
     console.error("CreateBranch error", error);
     return res.status(500).json({ message: "Server error" });
   }
-};
-
-//Helper
-
-const getCommitContent = async (commitId: string): Promise<string> => {
-  const commit = await prisma.commit.findUnique({
-    where: { id: commitId },
-    select: { content: true },
-  });
-  return commit?.content || "";
 };
 
 //Get branches of all the story

@@ -2,6 +2,7 @@ import { Response } from "express";
 import { z } from "zod";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import prisma from "../config/db";
+import cloudinary from "../config/cloudinary";
 
 //Validation
 
@@ -363,14 +364,21 @@ export const uploadCover = async (
 
     const imageUrl = (req.file as any).path;
 
-    const updated = await prisma.story.update({
-      where: {
-        id: storyId,
-      },
+    // Delete old image from Cloudinary if one exists
+    if (story.coverImage) {
+      try {
+        const parts = story.coverImage.split("/");
+        const filename = parts[parts.length - 1].split(".")[0];
+        const publicId = `forktale/covers/${filename}`;
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error("Failed to delete old cover from Cloudinary:", err);
+      }
+    }
 
-      data: {
-        coverImage: imageUrl,
-      },
+    const updated = await prisma.story.update({
+      where: { id: storyId },
+      data: { coverImage: imageUrl },
     });
 
     return res.status(200).json({
@@ -398,88 +406,57 @@ export const discoverStories = async (req: AuthRequest, res: Response) => {
 
     const sort = typeof req.query.sort === "string" ? req.query.sort : "latest";
 
-    const stories = await prisma.story.findMany({
+    const stories = await (prisma.story.findMany({
       where: {
         isPublished: true,
-
         ...(search && {
           OR: [
-            {
-              title: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-
-            {
-              description: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
+            { title: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
           ],
         }),
-
-        ...(genre && {
-          genre,
-        }),
+        ...(genre && { genre }),
       },
-
       include: {
         author: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            avatar: true,
-          },
+          select: { id: true, username: true, name: true, avatar: true },
         },
-
         _count: {
-          select: {
-            forks: true,
-            branches: true,
+          select: { forks: true, branches: true },
+        },
+        branches: {
+          where: { isDefault: true },
+          include: {
+            publishing: {
+              where: { isActive: true },
+              include: {
+                ratings: {
+                  select: { stars: true },
+                },
+              },
+            },
           },
         },
       },
-
       orderBy: sort === "latest" ? { createdAt: "desc" } : { createdAt: "asc" },
+    }) as any);
+
+    const storiesWithRatings = stories.map((story: any) => {
+      const allRatings = story.branches.flatMap((b: any) =>
+        b.publishing.flatMap((p: any) => p.ratings),
+      );
+      const avgRating =
+        allRatings.length > 0
+          ? allRatings.reduce((sum: number, r: any) => sum + r.stars, 0) /
+            allRatings.length
+          : 0;
+
+      return {
+        ...story,
+        avgRating: Math.round(avgRating * 10) / 10,
+        totalRatings: allRatings.length,
+      };
     });
-
-    const storiesWithRatings = await Promise.all(
-      stories.map(async (story) => {
-        const publishings = await prisma.publishing.findMany({
-          where: {
-            branch: {
-              storyId: story.id,
-            },
-            isActive: true,
-          },
-        });
-
-        const publishingIds = publishings.map((p) => p.id);
-
-        const ratings = await prisma.rating.findMany({
-          where: {
-            publishingId: {
-              in: publishingIds,
-            },
-          },
-        });
-
-        const avgRating =
-          ratings.length > 0
-            ? ratings.reduce((sum, r) => sum + r.stars, 0) / ratings.length
-            : 0;
-
-        return {
-          ...story,
-          avgRating: Math.round(avgRating * 10) / 10,
-          totalRatings: ratings.length,
-        };
-      }),
-    );
-
     return res.status(200).json({
       stories: storiesWithRatings,
     });

@@ -147,8 +147,9 @@ model Publishing {
 
   branchId String
   branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
-}
 
+  ratings  Rating[]   // ← ADD THIS
+}
 
 // RATING
 
@@ -158,6 +159,8 @@ model Rating {
   createdAt DateTime @default(now())
 
   publishingId String
+  publishing   Publishing @relation(fields: [publishingId], references: [id], onDelete: Cascade)  // ← ADD THIS
+
   userId       String
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
