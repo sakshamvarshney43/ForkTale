@@ -5,11 +5,11 @@ import {
   getPublishedEndings,
   readEnding,
 } from "../controllers/publish.controller";
-import { protect } from "../middlewares/auth.middleware";
+import { protect, attachUserIfPresent } from "../middlewares/auth.middleware";
 
 const router = Router({ mergeParams: true });
 
-router.get("/endings/:publishingId", protect, readEnding);
+router.get("/endings/:publishingId", attachUserIfPresent, readEnding);
 router.get("/:storyId/endings", getPublishedEndings);
 router.post("/:storyId/publish", protect, publishBranch);
 router.put(

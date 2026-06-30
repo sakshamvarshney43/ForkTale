@@ -166,12 +166,15 @@ export const UnpublishBranch = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    //find publishing record
+    //find publishing record and verify it belongs to this story
     const publishing = await prisma.publishing.findUnique({
       where: { id: publishingId as string },
+      include: {
+        branch: { select: { storyId: true } },
+      },
     });
 
-    if (!publishing) {
+    if (!publishing || publishing.branch.storyId !== storyId) {
       return res.status(404).json({ message: "Published ending not found" });
     }
 
@@ -189,7 +192,7 @@ export const UnpublishBranch = async (req: AuthRequest, res: Response) => {
       },
     });
 
-    if (activePublishing == 0) {
+    if (activePublishing === 0) {
       await prisma.story.update({
         where: { id: storyId as string },
         data: { isPublished: false },
@@ -221,28 +224,25 @@ export const getPublishedEndings = async (req: AuthRequest, res: Response) => {
             name: true,
           },
         },
+        ratings: {
+          select: { stars: true },
+        },
       },
     });
 
-    //Get avg rating for each ending
-    const endingsWithRatings = await Promise.all(
-      endings.map(async (endings) => {
-        const ratings = await prisma.rating.findMany({
-          where: { publishingId: endings.id },
-        });
+    const endingsWithRatings = endings.map((ending) => {
+      const avgRating =
+        ending.ratings.length > 0
+          ? ending.ratings.reduce((sum, r) => sum + r.stars, 0) /
+            ending.ratings.length
+          : 0;
 
-        const avgRating =
-          ratings.length > 0
-            ? ratings.reduce((sum, r) => sum + r.stars, 0) / ratings.length
-            : 0;
-
-        return {
-          ...endings,
-          avgRating: Math.round(avgRating * 10) / 10,
-          totalRatings: ratings.length,
-        };
-      }),
-    );
+      return {
+        ...ending,
+        avgRating: Math.round(avgRating * 10) / 10,
+        totalRatings: ending.ratings.length,
+      };
+    });
 
     return res.status(200).json({ endings: endingsWithRatings });
   } catch (error) {

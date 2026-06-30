@@ -631,7 +631,13 @@ export default function Collaborate() {
 
   const publishMutation = useMutation({
     mutationFn: () => publishService.publish(storyId!, publishingBranchId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["endings", storyId] });
+      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+      setPublishingBranchId("");
+    },
   });
+
   const unpublishMutation = useMutation({
     mutationFn: (publishingId: string) =>
       publishService.unpublish(storyId!, publishingId),
