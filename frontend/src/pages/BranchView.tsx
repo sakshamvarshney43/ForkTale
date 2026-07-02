@@ -27,6 +27,7 @@ import {
   Globe,
   Type,
   Users,
+  Download,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -36,6 +37,7 @@ import {
   aiService,
   publishService,
   collaborateService,
+  exportService,
 } from "../services/api";
 import type { Branch, Commit } from "../types";
 
@@ -820,6 +822,8 @@ export default function BranchView() {
   const [fontIdx, setFontIdx] = useState(0);
   const [sizeIdx, setSizeIdx] = useState(1);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fontBtnRef = useRef<HTMLButtonElement>(null);
@@ -986,6 +990,38 @@ export default function BranchView() {
     },
     [],
   );
+
+  const handleExport = async (
+    scope: "compiled" | "full",
+    format: "txt" | "md",
+  ) => {
+    setIsExporting(true);
+    try {
+      const res =
+        scope === "compiled"
+          ? await exportService.exportCompiled(storyId!, branchId!, format)
+          : await exportService.exportBranch(storyId!, branchId!, format);
+
+      const blob = new Blob([res.data], {
+        type: format === "md" ? "text/markdown" : "text/plain",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeTitle = (story?.title || "story").replace(/\s+/g, "-");
+      const safeBranch = (currentBranch?.name || "branch").replace(/\s+/g, "-");
+      a.href = url;
+      a.download = `${safeTitle}-${safeBranch}${scope === "compiled" ? "-final" : ""}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setShowExportMenu(false);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Export failed");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleInsertAI = useCallback((text: string) => {
     setContent((prev) => (prev ? prev + "\n\n" + text : text));
@@ -1405,6 +1441,95 @@ export default function BranchView() {
             <History size={13} />
             History
           </button>
+
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <button
+              onClick={() => setShowExportMenu((p) => !p)}
+              className="btn btn-ghost btn-sm hide-mobile"
+              aria-label="Export branch"
+              aria-expanded={showExportMenu}
+              disabled={isExporting}
+              style={{ gap: 5 }}
+            >
+              {isExporting ? (
+                <Loader2
+                  size={13}
+                  style={{ animation: "spin 0.7s linear infinite" }}
+                />
+              ) : (
+                <Download size={13} />
+              )}
+              Export
+            </button>
+
+            {showExportMenu && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 6px)",
+                  left: 0,
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  boxShadow: "var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1))",
+                  padding: 6,
+                  zIndex: 20,
+                  minWidth: 180,
+                }}
+              >
+                {[
+                  {
+                    label: "Latest version (.md)",
+                    scope: "compiled",
+                    format: "md",
+                  },
+                  {
+                    label: "Latest version (.txt)",
+                    scope: "compiled",
+                    format: "txt",
+                  },
+                  { label: "Full history (.md)", scope: "full", format: "md" },
+                  {
+                    label: "Full history (.txt)",
+                    scope: "full",
+                    format: "txt",
+                  },
+                ].map((opt) => (
+                  <button
+                    key={opt.label}
+                    onClick={() =>
+                      handleExport(
+                        opt.scope as "compiled" | "full",
+                        opt.format as "txt" | "md",
+                      )
+                    }
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "7px 10px",
+                      borderRadius: 6,
+                      border: "none",
+                      background: "transparent",
+                      fontSize: 13,
+                      color: "var(--text-secondary)",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget as HTMLElement).style.background =
+                        "var(--bg-muted)")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLElement).style.background =
+                        "transparent")
+                    }
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <motion.button
             whileHover={{ scale: 1.02 }}
